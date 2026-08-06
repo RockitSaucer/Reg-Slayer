@@ -24414,9 +24414,97 @@
      * Download basemap tiles for a 2-mile radius.
      * Uses current basemap; works best on topo / street / lidar.
      */
+    function getOfflineTierIdFromUi() {
+      try {
+        if (window.RegSlayerOffline && typeof RegSlayerOffline.getSelectedTierId === 'function') {
+          return RegSlayerOffline.getSelectedTierId();
+        }
+      } catch (e) {}
+      var el = document.querySelector('input[name="set-offline-tier"]:checked');
+      return (el && el.value) || 'standard';
+    }
+
+    function getOfflineBasemapFromUi() {
+      var sel = document.getElementById('set-offline-basemap');
+      if (sel && sel.value) return sel.value;
+      if (typeof activeBasemapKey === 'string' && activeBasemapKey) return activeBasemapKey;
+      return 'topo';
+    }
+
+    function syncOfflineTierUiFromStorage() {
+      if (!window.RegSlayerOffline) return;
+      var tid = RegSlayerOffline.getSelectedTierId ? RegSlayerOffline.getSelectedTierId() : 'standard';
+      var radio = document.getElementById('set-offline-tier-' + tid);
+      if (radio) radio.checked = true;
+      var tier = RegSlayerOffline.getTier ? RegSlayerOffline.getTier(tid) : null;
+      var bmRow = document.getElementById('offline-basemap-row');
+      var bmSel = document.getElementById('set-offline-basemap');
+      if (bmSel && !bmSel._initBm) {
+        bmSel._initBm = true;
+        try {
+          if (typeof activeBasemapKey === 'string' && activeBasemapKey) bmSel.value = activeBasemapKey;
+        } catch (eB) {}
+      }
+      if (tier && !tier.allowSat && bmSel) {
+        if (bmSel.value === 'satellite' || bmSel.value === 'lidar') bmSel.value = 'topo';
+        try {
+          Array.prototype.forEach.call(bmSel.options, function(opt) {
+            if (opt.value === 'satellite' || opt.value === 'lidar') opt.disabled = true;
+            else opt.disabled = false;
+          });
+        } catch (eO) {}
+      } else if (bmSel) {
+        try {
+          Array.prototype.forEach.call(bmSel.options, function(opt) { opt.disabled = false; });
+        } catch (eO2) {}
+      }
+      updateOfflineTierEstimateLine();
+    }
+
+    function updateOfflineTierEstimateLine() {
+      var el = document.getElementById('offline-tier-estimate');
+      if (!el || !window.RegSlayerOffline || !RegSlayerOffline.estimatePack) return;
+      var tid = getOfflineTierIdFromUi();
+      var bm = getOfflineBasemapFromUi();
+      var lat = (typeof userLat === 'number' && !isNaN(userLat)) ? userLat : 32.6;
+      var lng = (typeof userLng === 'number' && !isNaN(userLng)) ? userLng : -86.8;
+      try {
+        if (map && map.getCenter) {
+          var c = map.getCenter();
+          if (c) { lat = c.lat; lng = c.lng; }
+        }
+      } catch (eC) {}
+      var est = RegSlayerOffline.estimatePack(lat, lng, bm, tid);
+      var tier = RegSlayerOffline.getTier(tid);
+      var where = (tier && tier.mode === 'alabama_bbox')
+        ? 'Alabama (statewide)'
+        : ((tier && tier.radiusMi) ? (tier.radiusMi + ' mi around map/GPS') : 'selected spot');
+      el.textContent =
+        (tier ? tier.name : tid) + ' · ' + bm + ' · ' + where +
+        ' · ~' + est.tileCount + ' tiles · ~' + est.approxMb + ' MB estimated';
+    }
+
+    function onOfflineTierChange() {
+      var el = document.querySelector('input[name="set-offline-tier"]:checked');
+      var tid = (el && el.value) || 'standard';
+      if (window.RegSlayerOffline && RegSlayerOffline.setSelectedTierId) {
+        RegSlayerOffline.setSelectedTierId(tid);
+      }
+      syncOfflineTierUiFromStorage();
+    }
+    window.onOfflineTierChange = onOfflineTierChange;
+
+    /**
+     * Download basemap tiles using the selected product tier (Standard / Extended / Overview).
+     */
     function saveOfflineMapAround(lat, lng, opts) {
       opts = opts || {};
-      if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) {
+      var tierId = opts.tierId || getOfflineTierIdFromUi();
+      var tier = (window.RegSlayerOffline && RegSlayerOffline.getTier)
+        ? RegSlayerOffline.getTier(tierId)
+        : { id: tierId, name: tierId, radiusMi: 5, mode: 'circle' };
+      var isOverview = tier.mode === 'alabama_bbox';
+      if (!isOverview && (lat == null || lng == null || isNaN(lat) || isNaN(lng))) {
         if (typeof showAppCopyToast === 'function') {
           showAppCopyToast('<span class="act">Offline map</span><br>No location to save offline.');
         }
@@ -24434,30 +24522,38 @@
         }
         return Promise.resolve(null);
       }
-      var basemap = (typeof activeBasemapKey === 'string' && activeBasemapKey) ? activeBasemapKey : 'topo';
-      var est = RegSlayerOffline.estimatePack(lat, lng, basemap);
-      var label = opts.label || 'Map spot';
+      var basemap = opts.basemap || getOfflineBasemapFromUi();
+      if (isOverview && (basemap === 'satellite' || basemap === 'lidar')) basemap = 'topo';
+      var est = RegSlayerOffline.estimatePack(lat || 32.6, lng || -86.8, basemap, tierId);
+      var label = opts.label || (isOverview ? 'Alabama overview' : 'Map spot');
+      var coverLine = isOverview
+        ? 'Coverage: <strong>Statewide Alabama</strong> (zoom ' + est.zMin + '–' + est.zMax + ')'
+        : ('Radius: <strong>' + escHtml(String(est.radiusMi || tier.radiusMi || 5)) + ' miles</strong> · zoom ' +
+          est.zMin + '–' + est.zMax);
       var detail =
-        '<strong style="color:var(--accent);">Around: ' + escHtml(label) + '</strong><br>' +
-        'Radius: <strong>2 miles</strong><br>' +
+        '<strong style="color:var(--accent);">Pack: ' + escHtml(tier.name || tierId) + '</strong><br>' +
+        'Around: <strong>' + escHtml(label) + '</strong><br>' +
+        coverLine + '<br>' +
         'Basemap: <strong>' + escHtml(basemap) + '</strong><br>' +
-        'About <strong>' + escHtml(String(est.tileCount)) + ' tiles</strong> (~' + escHtml(String(est.approxMb)) + ' MB)<br><br>' +
-        'Needs good signal while downloading. Online use is unchanged.';
+        'About <strong>' + escHtml(String(est.tileCount)) + ' tiles</strong> (~' + escHtml(String(est.approxMb)) + ' MB)<br>' +
+        '<span style="color:var(--muted);font-size:11px;">' + escHtml(tier.sizeHint || '') + '</span><br><br>' +
+        'Needs good signal (Wi‑Fi recommended for Extended / Statewide). Online use is unchanged.';
 
       return showOfflineMapConfirm(detail).then(function(ok) {
         if (!ok) return null;
 
         if (typeof showAppCopyToast === 'function') {
-          showAppCopyToast('<span class="act">Downloading offline map…</span><br>2 mi · ' + escHtml(label));
+          showAppCopyToast('<span class="act">Downloading offline map…</span><br>' +
+            escHtml(tier.name || '') + ' · ' + escHtml(label));
         }
         if (map) try { map.closePopup(); } catch (eC) {}
 
         return RegSlayerOffline.saveOfflineAround(lat, lng, {
           label: label,
           basemap: basemap,
+          tierId: tierId,
           source: opts.source || 'pin',
           sourceId: opts.sourceId || null,
-          radiusMi: 2,
           onProgress: function(p) {
             if (window.RegSlayerOffline) {
               RegSlayerOffline.updateOfflineBanner(
@@ -24467,7 +24563,7 @@
           }
         }).then(function(pack) {
           var msg = pack && pack.status === 'ready'
-            ? ('Offline map ready · ' + (pack.ok || 0) + ' tiles · 2 mi around ' + label)
+            ? ('Offline map ready · ' + (pack.ok || 0) + ' tiles · ' + (pack.tierName || tier.name) + ' · ' + label)
             : ('Offline map finished with issues · ok ' + (pack && pack.ok) + ' / fail ' + (pack && pack.fail));
           if (typeof showAppCopyToast === 'function') {
             showAppCopyToast('<span class="act">Offline map</span><br>' + escHtml(msg));
@@ -24486,6 +24582,52 @@
       });
     }
     window.saveOfflineMapAround = saveOfflineMapAround;
+
+    window.downloadOfflinePackAroundGps = function() {
+      var lat = (typeof userLat === 'number' && !isNaN(userLat)) ? userLat : null;
+      var lng = (typeof userLng === 'number' && !isNaN(userLng)) ? userLng : null;
+      if (lat == null || lng == null) {
+        if (typeof showAppCopyToast === 'function') {
+          showAppCopyToast('<span class="act">Offline map</span><br>Turn on location or wait for GPS fix first.');
+        }
+        return;
+      }
+      return saveOfflineMapAround(lat, lng, {
+        label: 'My GPS',
+        source: 'settings-gps',
+        basemap: getOfflineBasemapFromUi(),
+        tierId: getOfflineTierIdFromUi()
+      });
+    };
+
+    window.downloadOfflinePackAroundMapCenter = function() {
+      var tierId = getOfflineTierIdFromUi();
+      var tier = (window.RegSlayerOffline && RegSlayerOffline.getTier)
+        ? RegSlayerOffline.getTier(tierId)
+        : null;
+      if (tier && tier.mode === 'alabama_bbox') {
+        return saveOfflineMapAround(32.6, -86.8, {
+          label: 'Alabama overview',
+          source: 'settings-overview',
+          basemap: 'topo',
+          tierId: 'overview'
+        });
+      }
+      var lat = 32.6, lng = -86.8;
+      try {
+        if (map && map.getCenter) {
+          var c = map.getCenter();
+          if (c) { lat = c.lat; lng = c.lng; }
+        }
+      } catch (eM) {}
+      return saveOfflineMapAround(lat, lng, {
+        label: 'Map center',
+        source: 'settings-center',
+        basemap: getOfflineBasemapFromUi(),
+        tierId: tierId
+      });
+    };
+
     window.saveOfflineMapForCustomArea = function(areaId) {
       var areas = typeof loadCustomAreasFromStorage === 'function' ? loadCustomAreasFromStorage() : [];
       var area = null;
@@ -35148,12 +35290,22 @@ function togglePinIconPicker() {
       try { pins = JSON.parse(localStorage.getItem('alabama_hunt_custom_pins') || '[]'); } catch (eP) {}
       var ready = packs.filter(function(p) { return p.status === 'ready'; }).length;
       var down = packs.filter(function(p) { return p.status === 'downloading'; }).length;
+      var tierBits = packs.filter(function(p) { return p.status === 'ready' && p.tierName; })
+        .map(function(p) { return p.tierName; });
+      var tierNote = '';
+      if (tierBits.length) {
+        var uniq = [];
+        tierBits.forEach(function(t) { if (uniq.indexOf(t) < 0) uniq.push(t); });
+        tierNote = ' · Tiers: ' + uniq.join(', ');
+      }
       el.textContent =
         'Connection: ' + (navigator.onLine ? 'online' : 'OFFLINE') +
         ' · Offline map packs: ' + ready + ' ready' + (down ? (', ' + down + ' downloading') : '') +
+        tierNote +
         ' · Custom draw areas on device: ' + areas.length +
         ' · Pins on device: ' + pins.length +
         ' · Public lands cache + shape data stay in browser storage (not cookies).';
+      try { updateOfflineTierEstimateLine(); } catch (eE) {}
     };
     window.clearOfflineMapPacks = function() {
       if (!confirm('Clear all downloaded offline map tiles from this browser?\n\nPins, stands, custom areas, and hunt history are NOT deleted.')) return;
