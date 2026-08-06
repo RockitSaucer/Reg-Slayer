@@ -1,20 +1,16 @@
-# Hunt-Slayer agent notes
+﻿# REG SLAYER production push
 
-Production site for **REG SLAYER** (https://regslayer.com).  
-Source of truth for the live multi-file app; TestOffline is the experimental mirror.
+**Domain:** https://regslayer.com  
+**GitHub:** https://github.com/RockitSaucer/Reg-Slayer  
+**Vercel:** `reg-slayer` (ex `test-offline`) team AlaHunt  
+**Same code family as Hunt-Slayer** — V6.9.3 Nice baseline; open-at-launch defaults may diverge later.
 
-## Pin & tool icons
+## Ship
+1. Edit only under `Desktop/HuntApp/_push_reg_slayer/` for regslayer.com
+2. Bump `APP_VERSION` + brand badge + `SHELL_CACHE` in `sw.js` when shell assets change
+3. Commit/tag/push to `RockitSaucer/Reg-Slayer` `main`
+4. Vercel auto-deploys; hard-refresh SW on devices
 
-**Full procedure:** [`docs/PIN_AND_TOOL_ICONS.md`](docs/PIN_AND_TOOL_ICONS.md)
+Do **not** push Reg-Slayer changes into Hunt-Slayer (or the reverse) unless intentionally syncing.
 
-1. Sources: `Desktop/HuntApp/button icons/Layers naked/` (pins), `Tool Icons/` (toolbar)
-2. Run: `python tools/process_pin_icons.py` / `process_tool_icons.py`
-3. Wire `PIN_ICON_CATALOG` in `index.html` from `icons/pins/_catalog.json`
-4. Bump `SHELL_CACHE` in `sw.js` when shipping new shell assets
-
-## Working rules
-
-- Prefer editing files in this repo (or HuntApp promote folders) and deploy as a unit.
-- User map data lives in **localStorage + Supabase**, never in the HTML repo.
-- Do not rename storage keys without a migration.
-- Keep offline tile cache name in sync: `offline-engine.js` and `sw.js` both use `reg-slayer-tiles-v2`.
+Auth/maps: same Supabase **HuntSlayer** project `grvhmktqzrivbqbczkii` (hardcoded in `auth-sync.js`).
