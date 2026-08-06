@@ -1,0 +1,20 @@
+V6.9.4 Nice — REG SLAYER brand chrome (regslayer.com only)
+=========================================================
+
+What changed
+------------
+- Header logo restored to classic **REG SLAYER** (`reg-slayer-logo.png`).
+- Sister-site button (header right): **Hunt Slayer** → https://www.huntslayer.com
+- Page title, meta, auth gate title, PWA manifest name/icons → REG SLAYER.
+
+Does **not** change Hunt-Slayer / huntslayer.com.
+
+Version / cache
+---------------
+- APP_VERSION = 6.9.4-nice
+- Badge: V6.9.4 Nice
+- SHELL_CACHE = reg-slayer-shell-v59
+
+Undo
+----
+- Tag v6.9.3-nice on Reg-Slayer, or point logo/button back to Hunt branding.
