@@ -9825,7 +9825,7 @@
     <div class="brand-map-name" id="brand-map-name" title="Active map">My Map</div>
     <div class="brand-logo-wrap">
       <img class="brand-logo" src="reg-slayer-logo.png" alt="REG SLAYER - Know Before You Go" width="470" height="236" />
-      <span class="brand-version" aria-label="Version 7.0.9 Beta">V7.0.9 Beta</span>
+      <span class="brand-version" aria-label="Version 7.0.10 Beta">V7.0.10 Beta</span>
     </div>
     <a class="brand-sister-link" id="brand-sister-link" href="https://www.huntslayer.com" title="Open HUNT SLAYER (same account)">
       <span class="brand-sister-label">Hunt Slayer</span>
@@ -11226,13 +11226,10 @@
           display: displayMerged
         };
 
-        // V7.0.1 one-shot: apply site product defaults over stale pre-split prefs
+        // V7.0.1 one-shot: Reg tracker off
         try {
           var mig = localStorage.getItem(SITE_DEFAULTS_MIG_KEY);
           if (mig !== '1') {
-            if (SITE_ID === 'hunt') {
-              merged.display.mapFullscreenLaunch = true;
-            }
             if (SITE_ID === 'reg') {
               merged.tools.track = false;
             }
@@ -11240,6 +11237,22 @@
             try { localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(merged)); } catch (eSave) {}
           }
         } catch (eMig) {}
+
+        // V7.0.10 / v702: Hunt opens map Min + stacked planner (left column)
+        try {
+          if (localStorage.getItem(SITE_DEFAULTS_MIG_V702) !== '1') {
+            if (SITE_ID === 'hunt') {
+              merged.display.mapFullscreenLaunch = false;
+              try { localStorage.setItem('reg_slayer_planner_dock_left', '1'); } catch (eDock) {}
+              try { window.__RS_BOOT_MAP_MAX__ = false; } catch (eBm) {}
+              try {
+                document.documentElement.classList.remove('map-is-fullscreen', 'map-boot-max-pending');
+              } catch (eCls) {}
+            }
+            localStorage.setItem(SITE_DEFAULTS_MIG_V702, '1');
+            try { localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(merged)); } catch (eSave2) {}
+          }
+        } catch (eMig2) {}
 
         return merged;
       } catch (e) {
