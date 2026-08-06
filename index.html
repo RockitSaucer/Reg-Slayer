@@ -10413,7 +10413,7 @@
     <div class="brand-map-name" id="brand-map-name" title="Active map">My Map</div>
     <div class="brand-logo-wrap">
       <img class="brand-logo" src="reg-slayer-logo.png" alt="REG SLAYER - Know Before You Go" width="470" height="236" />
-      <span class="brand-version" aria-label="Version 7.0.34 Beta">V7.0.34 Beta</span>
+      <span class="brand-version" aria-label="Version 7.0.35 Beta">V7.0.35 Beta</span>
     </div>
     <a class="brand-sister-link" id="brand-sister-link" href="https://www.huntslayer.com" title="Open HUNT SLAYER (same account)">
       <span class="brand-sister-label">Hunt Slayer</span>
@@ -11795,10 +11795,50 @@
           <section class="settings-section">
             <div class="settings-section-head">
               <h4 class="settings-section-title">Offline maps</h4>
-              <button type="button" class="settings-info-btn" data-title="Offline maps" data-info="Map packs, custom draw areas, pins, stands, and public lands stay on this device. This is not a native app install. Clearing tiles only removes cached map images — not your pins, stands, areas, or hunt logs." aria-label="About Offline maps" onclick="return showSettingsInfo(this,event)">i</button>
+              <button type="button" class="settings-info-btn" data-title="Offline maps" data-info="Download map tiles to this device so you can pan/zoom without signal. Pins and shapes already stay on-device. Choose a pack size, then download around GPS, map center, or a map pin (Offline map on the pin menu)." aria-label="About Offline maps" onclick="return showSettingsInfo(this,event)">i</button>
             </div>
             <p class="settings-status" id="offline-packs-summary">Offline status…</p>
-            <button type="button" class="settings-subbtn" onclick="window.refreshOfflinePacksSummary && window.refreshOfflinePacksSummary()">Refresh offline status</button>
+
+            <p style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin:10px 0 6px;">Pack size</p>
+            <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:8px;">
+              <label class="settings-row-main" style="align-items:flex-start;gap:8px;">
+                <input type="radio" name="set-offline-tier" id="set-offline-tier-standard" value="standard" checked onchange="onOfflineTierChange()">
+                <span class="sr-text"><strong>Standard</strong> — hunt property / stands<br>
+                  <span style="font-weight:600;color:var(--muted);font-size:11px;">5 mi · zoom 10–15 · ~15–40 MB topo · ~40–80 MB sat</span></span>
+              </label>
+              <label class="settings-row-main" style="align-items:flex-start;gap:8px;">
+                <input type="radio" name="set-offline-tier" id="set-offline-tier-extended" value="extended" onchange="onOfflineTierChange()">
+                <span class="sr-text"><strong>Extended</strong> — lease / club / multi-stand<br>
+                  <span style="font-weight:600;color:var(--muted);font-size:11px;">10 mi · zoom 10–15 · ~25–60 MB topo · ~50–120 MB sat</span></span>
+              </label>
+              <label class="settings-row-main" style="align-items:flex-start;gap:8px;">
+                <input type="radio" name="set-offline-tier" id="set-offline-tier-overview" value="overview" onchange="onOfflineTierChange()">
+                <span class="sr-text"><strong>Statewide overview</strong> — Alabama at a glance<br>
+                  <span style="font-weight:600;color:var(--muted);font-size:11px;">Whole state · zoom 10–12 · topo only · ~80–200 MB · not stand-level</span></span>
+              </label>
+            </div>
+            <p class="settings-status" id="offline-tier-estimate" style="margin-top:6px;">Select a pack to see estimated size.</p>
+
+            <div class="settings-row" id="offline-basemap-row" style="margin-top:8px;align-items:center;gap:8px;flex-wrap:wrap;">
+              <label class="settings-row-main" for="set-offline-basemap" style="flex:1 1 160px;">
+                <span class="sr-text">Basemap for download</span>
+                <select id="set-offline-basemap" onchange="onOfflineTierChange()" style="margin-top:4px;width:100%;max-width:220px;background:var(--panel);color:var(--ink);border:1px solid var(--border);border-radius:6px;padding:6px 8px;">
+                  <option value="topo">USGS Topography</option>
+                  <option value="satellite">Satellite</option>
+                  <option value="street">Roads &amp; waterways</option>
+                  <option value="lidar">LiDAR hillshade</option>
+                </select>
+              </label>
+              <button type="button" class="settings-info-btn" data-title="Basemap for download" data-info="Tiles saved match this layer. Statewide overview is topo-only (satellite would be multi‑GB). Online basemap choice is separate." aria-label="About basemap download" onclick="return showSettingsInfo(this,event)">i</button>
+            </div>
+
+            <div class="settings-action-row" style="margin-top:10px;flex-wrap:wrap;gap:6px;">
+              <button type="button" class="settings-subbtn" onclick="window.downloadOfflinePackAroundGps && window.downloadOfflinePackAroundGps()">Download around GPS</button>
+              <button type="button" class="settings-subbtn" onclick="window.downloadOfflinePackAroundMapCenter && window.downloadOfflinePackAroundMapCenter()">Download map center</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.4;">Or open a map pin → <strong>Offline map</strong> to pack that spot. Use Wi‑Fi for Extended / Statewide.</p>
+
+            <button type="button" class="settings-subbtn" style="margin-top:10px;" onclick="window.refreshOfflinePacksSummary && window.refreshOfflinePacksSummary()">Refresh offline status</button>
             <div class="settings-action-row" style="margin-top:6px;">
               <button type="button" class="settings-subbtn" style="border-color:#8a3030;color:#f0a0a0;" onclick="window.clearOfflineMapPacks && window.clearOfflineMapPacks()">Clear offline map tiles</button>
               <button type="button" class="settings-info-btn" data-title="Clear offline map tiles" data-info="Deletes cached map images only. Pins, stands, custom areas, and hunt logs are not deleted." aria-label="About clear offline tiles" onclick="return showSettingsInfo(this,event)">i</button>
@@ -11811,7 +11851,7 @@
 
   <script>
     // ========== STATE ==========
-    const APP_VERSION = '7.0.34-beta';
+    const APP_VERSION = '7.0.35-beta';
     /** Site brand: 'hunt' (huntslayer.com) or 'reg' (regslayer.com) — drives first-launch defaults only. */
     const SITE_ID = 'reg';
     const APP_SETTINGS_KEY = 'reg_slayer_app_settings_v1';
@@ -35133,6 +35173,7 @@ function togglePinIconPicker() {
       window.openSettingsModal = function(tab) {
         _openSettingsModalOrig(tab);
         setTimeout(function() {
+          try { syncOfflineTierUiFromStorage(); } catch (eTier) {}
           window.refreshOfflinePacksSummary();
           try {
             if (window.RegSlayerCloud && window.RegSlayerCloud.getViewState) {
