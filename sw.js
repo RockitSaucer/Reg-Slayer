@@ -1,4 +1,4 @@
-﻿/* REG SLAYER â€” production service worker
+/* REG SLAYER â€” production service worker
  * Caches app shell for return visits with no signal.
  * Map tiles: cache-first when already stored; network otherwise (then cache).
  */
