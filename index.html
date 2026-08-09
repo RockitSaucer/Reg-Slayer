@@ -31727,6 +31727,8 @@ function togglePinIconPicker() {
     }
     function selectDateStep(day) {
       selectedDate = new Date(calendarTargetDate.getFullYear(), calendarTargetDate.getMonth(), day);
+      // Leaving the filtered event's date range restores all pins
+      try { maybeClearEventPinsFilterForDate(selectedDate); } catch (eFilt) {}
       renderCalendar(); updateEventsList(); clearEventForm();
       document.getElementById('step-2-section').classList.remove('locked');
       document.getElementById('step-2-section').classList.add('active');
