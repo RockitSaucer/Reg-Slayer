@@ -112,6 +112,14 @@
   function unhideForMe(id) {
     delete localHides[String(id)];
     saveLocal();
+    // Best-effort cloud unhide
+    try {
+      var sb = global.RegSlayerCloud && global.RegSlayerCloud.getClient && global.RegSlayerCloud.getClient();
+      var uid = myId();
+      if (sb && uid) {
+        sb.from('map_calendar_event_hides').delete().eq('event_id', id).eq('user_id', uid).then(function () {});
+      }
+    } catch (e) {}
   }
 
   function isCreator(ev) {
