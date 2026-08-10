@@ -65,8 +65,9 @@
       color: ev.color || '#e59a18',
       startDate: start,
       endDate: end,
-      mapScope: ev.mapScope || ev.map_scope || 'personal', // personal | all | shared
+      mapScope: ev.mapScope || ev.map_scope || 'personal', // personal | all | shared | private
       sharedMapId: ev.sharedMapId || ev.shared_map_id || null,
+      privateMapId: ev.privateMapId || ev.private_map_id || null,
       mapIds: Array.isArray(ev.mapIds) ? ev.mapIds : (Array.isArray(ev.map_ids) ? ev.map_ids : []),
       lat: ev.lat != null ? Number(ev.lat) : null,
       lng: ev.lng != null ? Number(ev.lng) : null,
@@ -235,6 +236,7 @@
       endDate: row.end_date,
       mapScope: row.map_scope,
       sharedMapId: row.shared_map_id,
+      privateMapId: row.private_map_id || (row.hunt_link && row.hunt_link.privateMapId) || null,
       lat: row.lat,
       lng: row.lng,
       locationLabel: row.location_label,
@@ -257,13 +259,15 @@
       end_date: ev.endDate,
       map_scope: ev.mapScope || 'personal',
       shared_map_id: ev.sharedMapId || null,
+      private_map_id: ev.privateMapId || null,
       lat: ev.lat,
       lng: ev.lng,
       location_label: ev.locationLabel,
       hunt_link: {
         locationId: ev.locationId,
         weapon: ev.weapon,
-        land: ev.land
+        land: ev.land,
+        privateMapId: ev.privateMapId || null
       },
       updated_at: new Date().toISOString()
     };
