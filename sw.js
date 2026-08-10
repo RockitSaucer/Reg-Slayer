@@ -1,8 +1,8 @@
-﻿/* REG SLAYER Ã¢â‚¬â€ production service worker
+/* REG SLAYER Ã¢â‚¬â€ production service worker
  * Caches app shell for return visits with no signal.
  * Map tiles: cache-first when already stored; network otherwise (then cache).
  */
-const SHELL_CACHE = 'reg-slayer-shell-v110';
+const SHELL_CACHE = 'reg-slayer-shell-v112';
 const TILE_CACHE = 'reg-slayer-tiles-v2';
 const DATA_CACHE = 'reg-slayer-data-v1';
 /** Soft cap on cached map tiles (~18KB avg Ã¢â€ â€™ ~45MB). Oldest entries dropped first. */
