@@ -1,0 +1,7 @@
+Reg Slayer V8.0.0 (shell reg-slayer-shell-v130)
+
+Same Plan lists kit as Hunt V8.0 (floating lists, Settings, Sync, member colors).
+
+Site defaults unchanged
+- SITE_ID = 'reg'
+- Existing Reg first-launch / tracker defaults preserved
