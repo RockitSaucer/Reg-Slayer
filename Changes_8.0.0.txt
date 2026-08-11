@@ -5,3 +5,8 @@ Same Plan lists kit as Hunt V8.0 (floating lists, Settings, Sync, member colors)
 Site defaults unchanged
 - SITE_ID = 'reg'
 - Existing Reg first-launch / tracker defaults preserved
+
+
+Fix 8.0.0b: restored index.html UTF-8 after PowerShell double-encoding broke unicode identifiers (buttons/data). SITE_ID=reg preserved. shell v131.
+
+Fix 8.0.0b: restored index.html UTF-8 (unicode phi/lambda identifiers). SITE_ID=reg. shell v131.
