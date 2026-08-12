@@ -1,11 +1,11 @@
-/* REG SLAYER Ã¢â‚¬â€ production service worker
+/* REG SLAYER — production service worker
  * Caches app shell for return visits with no signal.
  * Map tiles: cache-first when already stored; network otherwise (then cache).
  */
-const SHELL_CACHE = 'reg-slayer-shell-v131';
+const SHELL_CACHE = 'reg-slayer-shell-v132';
 const TILE_CACHE = 'reg-slayer-tiles-v2';
 const DATA_CACHE = 'reg-slayer-data-v1';
-/** Soft cap on cached map tiles (~18KB avg Ã¢â€ â€™ ~45MB). Oldest entries dropped first. */
+/** Soft cap on cached map tiles (~18KB avg → ~45MB). Oldest entries dropped first. */
 const TILE_CACHE_MAX_ENTRIES = 2500;
 
 const SHELL_ASSETS = [
@@ -37,7 +37,7 @@ const SHELL_ASSETS = [
   './icons/tools/draw.png',
   './icons/tools/track.png',
   './icons/tools/layers.png',
-  // Pin glyphs Ã¢â‚¬â€ needed offline when opening a map with saved pins
+  // Pin glyphs — needed offline when opening a map with saved pins
   './icons/pins/alligator.png',
   './icons/pins/arrow.png',
   './icons/pins/beaver_dam.png',
@@ -117,7 +117,7 @@ function isTileUrl(url) {
   }
 }
 
-/** Drop oldest tile entries when over budget (Cache API key order Ã¢â€°Ë† insert order). */
+/** Drop oldest tile entries when over budget (Cache API key order ≈ insert order). */
 function trimTileCache(cache) {
   return cache.keys().then((keys) => {
     const over = keys.length - TILE_CACHE_MAX_ENTRIES;
@@ -151,7 +151,7 @@ function isApiUrl(url) {
   }
 }
 
-/** Live party / auth / map state Ã¢â‚¬â€ never long-cache (presence must stay current) */
+/** Live party / auth / map state — never long-cache (presence must stay current) */
 function isSupabaseUrl(url) {
   try {
     const h = new URL(url).hostname;
@@ -270,7 +270,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Supabase (presence, maps, auth): always network Ã¢â‚¬â€ never cache live GPS / map_state
+  // Supabase (presence, maps, auth): always network — never cache live GPS / map_state
   if (isSupabaseUrl(url)) {
     event.respondWith(
       fetch(req).catch(() => Response.error())
@@ -278,7 +278,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Radar tiles: network-only (short-lived frames Ã¢â‚¬â€ do not bloat TILE_CACHE)
+  // Radar tiles: network-only (short-lived frames — do not bloat TILE_CACHE)
   if (isRadarTileUrl(url)) {
     event.respondWith(
       fetch(req).catch(() => Response.error())
@@ -287,7 +287,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Map tiles: cache-first (offline packs + already-browsed tiles). No background revalidate
-  // on every hit Ã¢â‚¬â€ saves cellular when panning over known tiles. New areas still network-fetch.
+  // on every hit — saves cellular when panning over known tiles. New areas still network-fetch.
   if (isTileUrl(url)) {
     event.respondWith(
       caches.open(TILE_CACHE).then((cache) =>
@@ -316,7 +316,7 @@ self.addEventListener('fetch', (event) => {
         .then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
-            // RainViewer frame lists change constantly Ã¢â‚¬â€ do not fill DATA_CACHE
+            // RainViewer frame lists change constantly — do not fill DATA_CACHE
             if (!url.includes('api.rainviewer.com')) {
               caches.open(DATA_CACHE).then((c) => c.put(req, copy)).catch(() => {});
             }
@@ -382,5 +382,3 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
-
-
