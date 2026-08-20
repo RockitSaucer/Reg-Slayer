@@ -2137,10 +2137,15 @@
     }
   }
 
+  function liveShareUiEnabled() {
+    return !!$('share-loc-btn');
+  }
+
   function startSharing(opts) {
     opts = opts || {};
     var silent = !!opts.silent;
     var resume = !!opts.resume;
+    if (!liveShareUiEnabled()) return;
     var vs = C.getViewState && C.getViewState();
     if (!vs || vs.mode !== 'shared' || !vs.sharedMapId) {
       if (!silent) {
@@ -4550,7 +4555,7 @@
         defaultType: 'pin',
         fromChooser: true
       };
-      // Same modal shell as pin share; include party live share option
+      // Same modal shell as pin share (copy / send to another map)
       showSimpleModal('Share', '', [
         {
           label: 'Share to another map',
@@ -4570,14 +4575,6 @@
               if (navigator.clipboard) navigator.clipboard.writeText(u);
               else window.prompt('Copy:', u);
             }
-          }
-        },
-        {
-          label: sharing ? 'Stop sharing with party' : 'Share with party (live)',
-          close: true,
-          onClick: function () {
-            if (!sharing) startSharing();
-            else stopSharing();
           }
         },
         { label: 'Cancel', close: true }
@@ -4972,12 +4969,16 @@
     sharing = false;
     shareWanted = false;
     try {
-      var pref = readSharePref();
-      if (pref && (pref.want || pref.on)) {
-        shareWanted = true;
-        if (pref.started) shareStartedAt = Number(pref.started) || Date.now();
-        if (pref.lastView) lastMapViewAt = Number(pref.lastView) || Date.now();
-        // Prefer stale lastView for idle calc until user opens the map
+      if (liveShareUiEnabled()) {
+        var pref = readSharePref();
+        if (pref && (pref.want || pref.on)) {
+          shareWanted = true;
+          if (pref.started) shareStartedAt = Number(pref.started) || Date.now();
+          if (pref.lastView) lastMapViewAt = Number(pref.lastView) || Date.now();
+          // Prefer stale lastView for idle calc until user opens the map
+        }
+      } else {
+        clearSharePref();
       }
     } catch (ePref) {}
     updateShareLocBtn();

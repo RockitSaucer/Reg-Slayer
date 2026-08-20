@@ -1,0 +1,9 @@
+REG SLAYER 8.2.4 → 8.2.5
+
+- Removed the bottom-bar “Share location” button (live GPS share with other party members).
+- Current Location GPS button stays.
+- Live share cannot auto-resume from a leftover preference (no UI to stop it).
+- “Share with party (live)” dropped from the my-location share chooser.
+- Copy location / share to another map unchanged (pin and map-dot menus).
+- Hunt Slayer unchanged.
+- Shell `reg-slayer-shell-v174`.

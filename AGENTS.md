@@ -5,7 +5,7 @@
 **Vercel:** `reg-slayer` (ex `test-offline`) team AlaHunt  
 **Same code family as Hunt-Slayer** — V6.9.3 Nice baseline; open-at-launch defaults may diverge later.
 
-**Live (2026-08-19):** `APP_VERSION = '8.2.4'` · badge **V8.2.4** · shell `reg-slayer-shell-v173`. Lower-48 packs in `states/` (AK/HI not packed).
+**Live (2026-08-20):** `APP_VERSION = '8.2.5'` · badge **V8.2.5** · shell `reg-slayer-shell-v174`. Live party-share toolbar button removed. Lower-48 packs in `states/` (AK/HI not packed).
 
 ## Ship
 1. Edit only under `Desktop/HuntApp/_push_reg_slayer/` for regslayer.com

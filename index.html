@@ -11433,7 +11433,7 @@
     <div class="brand-logo-wrap">
       <div class="brand-title" id="brand-title-text">Reg <span>Slayer</span></div>
       <div class="brand-tagline" id="brand-tagline-text">Know before you go</div>
-      <span class="brand-version" aria-label="Version 8.2.4">V8.2.4</span>
+      <span class="brand-version" aria-label="Version 8.2.5">V8.2.5</span>
     </div>
     <div class="brand-header-actions">
       <button type="button" class="brand-howto-btn" id="brand-state-btn" title="Choose hunting state">Alabama</button>
@@ -12066,7 +12066,7 @@
               </div>
             </div>
 
-            <!-- Center cluster must be ONE grid cell (GPS + share) or right tools wrap below the bar -->
+            <!-- Center cluster: Current Location only (live party-share is Hunt-only) -->
             <div class="mbb-center" id="mbb-center">
               <button type="button" class="mbb-icon-btn mbb-gps mbb-ctrl" id="gps-snap-btn" onclick="snapToGPS()" data-mbb-tip="My location" aria-label="Current Location">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -12074,13 +12074,6 @@
                   <path d="M12 2.5v3.2M12 18.3v3.2M2.5 12h3.2M18.3 12h3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                   <path d="M12 8.2c-1.55 0-2.8 1.2-2.8 2.7 0 2.05 2.8 5 2.8 5s2.8-2.95 2.8-5c0-1.5-1.25-2.7-2.8-2.7z" fill="currentColor"/>
                   <circle cx="12" cy="10.9" r="1" fill="#fff"/>
-                </svg>
-              </button>
-              <button type="button" class="mbb-icon-btn mbb-share-loc mbb-ctrl" id="share-loc-btn" data-mbb-tip="Share location" aria-label="Share location" aria-pressed="false">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="12" r="3.2" fill="currentColor"/>
-                  <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.7"/>
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.35"/>
                 </svg>
               </button>
             </div>
@@ -13120,7 +13113,7 @@
 
   <script>
     // ========== STATE ==========
-    const APP_VERSION = '8.2.4';
+    const APP_VERSION = '8.2.5';
     /** Site brand: 'hunt' (huntslayer.com) or 'reg' (regslayer.com) — drives first-launch defaults only. */
     const SITE_ID = 'reg';
     // #91 Plan-style text brand by site
