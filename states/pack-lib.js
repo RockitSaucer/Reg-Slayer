@@ -2,6 +2,8 @@
 (function () {
   var PADUS = 'https://services.arcgis.com/v01gqwM5QqNysAAi/arcgis/rest/services/Manager_Name_PADUS/FeatureServer/0/query';
   var FWS = 'https://services.arcgis.com/QVENGdaPbd4LUkLV/arcgis/rest/services/FWS_NWRS_HQ_PublicHuntUnits_view/FeatureServer/0/query';
+  /** USFS surface ownership (USDA FOREST SERVICE only). Not the proclamation boundary. */
+  var USFS_OWN = 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_BasicOwnership_01/MapServer/0/query';
   /** Fee + open-access only — never Forest System proclamation boundaries (those include private inholdings). */
   function padusOpenFeeWhere(code, mangName) {
     return "Mang_Name = '" + mangName + "' AND State_Nm = '" + code +
@@ -121,16 +123,15 @@
     if (hasUsfs(spec)) {
       out.push({
         key: 'usfs', label: 'National Forest', typeLabel: 'National Forest',
-        url: PADUS,
-        where: padusOpenFeeWhere(code, 'USFS'),
+        url: USFS_OWN,
+        where: "ownerclassification = 'USDA FOREST SERVICE'",
         useBbox: true, paginate: true,
-        outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,FeatClass,GIS_Acres,OBJECTID',
+        outFields: 'ownerclassification,forestname,region,objectid',
         color: usfs.color, fillOpacity: usfs.fillOpacity, weight: usfs.weight,
-        listMode: 'unit', nameFields: ['Unit_Nm', 'Loc_Nm'],
+        listMode: 'unit', nameFields: ['forestname'],
         nameSuffix: ' (USFS)',
-        drawOnMap: true, interactive: false, maxOffset: 0.00035,
-        notes: 'USFS fee-owned open-access land in ' + spec.name +
-          ' (not the forest proclamation boundary). Private inholdings are omitted. Confirm forest orders and ' +
+        drawOnMap: true, interactive: true, maxOffset: 0.00025,
+        notes: 'USFS surface ownership only (USDA Forest Service). Private inholdings are not drawn. Confirm forest orders and ' +
           (spec.confirmLabel || spec.agency) + '.'
       });
     }
@@ -275,15 +276,28 @@
       if (m && m.region) return m.region;
       return regionOrder[0] || 'U';
     }
+    function rowIsStatewide(r) {
+      return !r || r.areas === 'ALL' || r.areas == null;
+    }
     function rowsForArea(id) {
       var nid = normId(id);
       var k = areaKey(areas, nid);
       if (k == null) k = areaKey(areas, id);
       var out = [];
       for (var i = 0; i < seasons.length; i++) {
-        if (rowHasArea(seasons[i], nid, k) || rowHasArea(seasons[i], id, k)) out.push(seasons[i]);
+        if (rowIsStatewide(seasons[i]) || rowHasArea(seasons[i], nid, k) || rowHasArea(seasons[i], id, k)) {
+          out.push(seasons[i]);
+        }
       }
       return out;
+    }
+    function calendarIsStatewide() {
+      if (!seasons.length) return false;
+      return seasons.every(function (r) {
+        if (rowIsStatewide(r)) return true;
+        return !!(r.areas && r.areas.length && Object.keys(areas).length &&
+          r.areas.length >= Math.max(3, Object.keys(areas).length * 0.85));
+      });
     }
     function matchRules(areaNum, dateStr, weapon, land, locSource) {
       areaNum = normId(areaNum);
@@ -334,6 +348,12 @@
       }
       return out;
     }
+    function matchStatewide(dateStr, weapon, land, locSource) {
+      if (!calendarIsStatewide()) return [];
+      var keys = Object.keys(areas);
+      if (!keys.length) return matchRules('ALL', dateStr, weapon, land, locSource);
+      return matchRules(keys[0], dateStr, weapon, land, locSource);
+    }
 
     var pack = {
       code: spec.code,
@@ -370,6 +390,8 @@
       regionForUnit: spec.regionForUnit || regionForUnit,
       rowsForArea: rowsForArea,
       matchRules: matchRules,
+      matchStatewide: matchStatewide,
+      calendarIsStatewide: calendarIsStatewide,
       anyOpen: function (a, d, w, l, s) { return matchRules(a, d, w, l, s).length > 0; },
       layers: function () { return standardLayers(spec); },
       extraVsAlabama: spec.extraVsAlabama || [],
@@ -393,6 +415,6 @@
     buildAndRegister: buildAndRegister,
     PADUS: PADUS,
     FWS: FWS,
-    USFS: USFS
+    USFS_OWN: USFS_OWN
   };
 })();

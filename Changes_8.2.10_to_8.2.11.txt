@@ -1,0 +1,5 @@
+REG SLAYER 8.2.10 → 8.2.11
+
+- USGS water-gauge pins (cyan ~ markers) only show when Alabama is the selected state.
+- Leaving Alabama clears those pins; coming back redraws them.
+- Shell `reg-slayer-shell-v180`.

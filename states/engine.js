@@ -77,12 +77,10 @@
     };
     window.RS_STATE = pack;
     try {
-      if (ring.length) {
-        window.ACTIVE_STATE_RING = ring;
-        ACTIVE_STATE_RING = ring;
-      }
+      window.ACTIVE_STATE_RING = ring.length ? ring : (code === 'AL' ? window.AL_STATE_RING || ring : ring);
+      if (typeof ACTIVE_STATE_RING !== 'undefined') ACTIVE_STATE_RING = window.ACTIVE_STATE_RING;
     } catch (eR) {
-      window.ACTIVE_STATE_RING = ring;
+      window.ACTIVE_STATE_RING = ring.length ? ring : [];
     }
     var btn = document.getElementById('brand-state-btn');
     if (btn) {

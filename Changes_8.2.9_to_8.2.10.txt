@@ -1,0 +1,6 @@
+REG SLAYER 8.2.9 → 8.2.10
+
+- Leaving Alabama clears Alabama-only map overlays: WMA permit zones, deer zone A–E fills, peak-rut flash, and GIS public-land rows.
+- The outside-state mask no longer falls back to the Alabama outline when another state is selected.
+- Alabama WMA zone slices are not injected into the hunt list outside Alabama.
+- Shell `reg-slayer-shell-v179`.

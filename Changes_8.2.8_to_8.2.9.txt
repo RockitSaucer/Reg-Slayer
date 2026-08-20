@@ -1,0 +1,8 @@
+REG SLAYER 8.2.8 → 8.2.9
+
+- State packs load again (pack-lib crash from missing USFS export).
+- Map clicks use hunt-unit GIS to answer OPEN / CLOSED instead of “Verify before hunting”.
+- Hunt-unit polygons treat holes correctly; unit GIS is cached (not force-refreshed away) and paginated.
+- Statewide-calendar states (DE, etc.) get a yes/no even before the unit map finishes.
+- Alabama: National Forest / USACE / TVA / BLM / generic public land use Zone A–E dates; SOA is CLOSED unless drawn; Forever Wild is CLOSED unless a host WMA permit is open.
+- Shell `reg-slayer-shell-v178`.

@@ -1,0 +1,6 @@
+REG SLAYER 8.2.7 → 8.2.8
+
+- Forest overlay uses USFS Basic Ownership (USDA FOREST SERVICE surface only). NON-FS / private inholdings are not drawn.
+- Clicking a colored forest polygon reports National Forest, not private property (overlays are clickable; map clicks also hit-test the overlay).
+- Public-lands cache bumped (v4 / AL v8).
+- Shell `reg-slayer-shell-v177`.

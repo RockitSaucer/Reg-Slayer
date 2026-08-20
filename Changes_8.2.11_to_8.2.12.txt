@@ -1,0 +1,6 @@
+REG SLAYER 8.2.11 → 8.2.12
+
+- Terrain (USGS 3DEP) no longer looks like Aerial.
+- Cause: switching basemaps called bringToBack on each Terrain layer in add order, which put the satellite underlay on top of the hillshade. Hillshade was also only 62% opaque.
+- Fix: keep hillshade on top at full opacity (3DEP shaded relief). Imagery underlay is grayscale fallback for ocean / missed tiles only.
+- Shell `reg-slayer-shell-v181`.

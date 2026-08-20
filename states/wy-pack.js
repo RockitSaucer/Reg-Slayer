@@ -570,15 +570,15 @@
     return [
       {
         key: 'usfs', label: 'National Forest', typeLabel: 'National Forest',
-        url: PADUS,
-        where: "Mang_Name = 'USFS' AND State_Nm = 'WY' AND Pub_Access = 'OA' AND FeatClass = 'Fee' AND Mang_Type <> 'PVT'",
+        url: 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_BasicOwnership_01/MapServer/0/query',
+        where: "ownerclassification = 'USDA FOREST SERVICE'",
         useBbox: true, paginate: true,
-        outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,FeatClass,GIS_Acres,OBJECTID',
+        outFields: 'ownerclassification,forestname,region,objectid',
         color: usfs.color, fillOpacity: usfs.fillOpacity, weight: usfs.weight,
-        listMode: 'unit', nameFields: ['Unit_Nm', 'Loc_Nm'],
+        listMode: 'unit', nameFields: ['forestname'],
         nameSuffix: ' (USFS)',
-        drawOnMap: true, interactive: false, maxOffset: 0.00035,
-        notes: 'USFS fee-owned open-access land in Wyoming (not the forest proclamation boundary). Private inholdings omitted. Confirm forest-specific orders and WGFD hunt-area seasons.'
+        drawOnMap: true, interactive: true, maxOffset: 0.00025,
+        notes: 'USFS surface ownership only (USDA Forest Service). Private inholdings are not drawn. Confirm forest-specific orders and WGFD hunt-area seasons.'
       },
       {
         key: 'blm', label: 'BLM public land', typeLabel: 'BLM',

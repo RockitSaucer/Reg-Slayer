@@ -1,0 +1,6 @@
+REG SLAYER 8.2.12 → 8.2.13
+
+- Map-click weather uses the clicked spot’s local time and current conditions, not the user’s clock or a 7 AM fallback.
+- NWS `/points` timezone (IANA) is stored on the forecast. “Now” is the hourly period that contains this instant at that lat/lng.
+- Hourly labels, wind “Now”, and sunrise/sunset use that spot timezone (e.g. MDT in Idaho, not Central).
+- Shell `reg-slayer-shell-v182`.
