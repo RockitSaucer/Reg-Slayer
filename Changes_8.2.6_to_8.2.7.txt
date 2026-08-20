@@ -1,0 +1,8 @@
+REG SLAYER 8.2.6 → 8.2.7
+
+- Forest overlay no longer paints National Forest proclamation boundaries (those include private inholdings).
+- Forest / BLM / USACE / generic state hunt land now use PAD-US fee-owned, open-access public land only.
+- Private, NGO, closed (XA), and proclamation polygons are not highlighted.
+- Applies in every state pack (Idaho included). Custom drawn shapes still work for private land you have permission on.
+- Public-lands cache bumped (v3 / AL v7) so old forest blobs are dropped.
+- Shell `reg-slayer-shell-v176`.

@@ -5,7 +5,7 @@
   var GIS = 'https://services6.arcgis.com/cWzdqIyxbijuhPLw/arcgis/rest/services';
   var PADUS = 'https://services.arcgis.com/v01gqwM5QqNysAAi/arcgis/rest/services/Manager_Name_PADUS/FeatureServer/0/query';
   var FWS = 'https://services.arcgis.com/QVENGdaPbd4LUkLV/arcgis/rest/services/FWS_NWRS_HQ_PublicHuntUnits_view/FeatureServer/0/query';
-  var USFS = 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_ForestSystemBoundaries_01/MapServer/0/query';
+
   var areas = {
     1: { n:1, name:'Crook', region:'A', herd:'Black Hills' },
     2: { n:2, name:'Bearlodge', region:'A', herd:'Black Hills' },
@@ -570,17 +570,20 @@
     return [
       {
         key: 'usfs', label: 'National Forest', typeLabel: 'National Forest',
-        url: USFS, where: '1=1', useBbox: true,
-        outFields: 'forestname,gis_acres,region,objectid',
+        url: PADUS,
+        where: "Mang_Name = 'USFS' AND State_Nm = 'WY' AND Pub_Access = 'OA' AND FeatClass = 'Fee' AND Mang_Type <> 'PVT'",
+        useBbox: true, paginate: true,
+        outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,FeatClass,GIS_Acres,OBJECTID',
         color: usfs.color, fillOpacity: usfs.fillOpacity, weight: usfs.weight,
-        listMode: 'unit', nameFields: ['forestname'],
-        drawOnMap: true, interactive: false, maxOffset: 0.0008,
-        notes: 'USFS in Wyoming. Confirm forest-specific orders and WGFD hunt-area seasons.'
+        listMode: 'unit', nameFields: ['Unit_Nm', 'Loc_Nm'],
+        nameSuffix: ' (USFS)',
+        drawOnMap: true, interactive: false, maxOffset: 0.00035,
+        notes: 'USFS fee-owned open-access land in Wyoming (not the forest proclamation boundary). Private inholdings omitted. Confirm forest-specific orders and WGFD hunt-area seasons.'
       },
       {
         key: 'blm', label: 'BLM public land', typeLabel: 'BLM',
         url: PADUS,
-        where: "Mang_Name = 'BLM' AND State_Nm = 'WY' AND Pub_Access = 'OA' AND (Des_Tp = 'REC' OR Des_Tp = 'PUB' OR Des_Tp = 'HUNT')",
+        where: "Mang_Name = 'BLM' AND State_Nm = 'WY' AND Pub_Access = 'OA' AND FeatClass = 'Fee' AND Mang_Type <> 'PVT'",
         useBbox: true, paginate: true,
         outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,GIS_Acres,OBJECTID',
         color: '#c4a35a', fillOpacity: 0.22, weight: 1.05,
@@ -635,7 +638,7 @@
       {
         key: 'usace', label: 'USACE Corps Land', typeLabel: 'USACE',
         url: PADUS,
-        where: "Mang_Name = 'USACE' AND State_Nm = 'WY' AND Pub_Access = 'OA' AND (Des_Tp = 'REC' OR Des_Tp = 'PUB')",
+        where: "Mang_Name = 'USACE' AND State_Nm = 'WY' AND Pub_Access = 'OA' AND FeatClass = 'Fee' AND Mang_Type <> 'PVT' AND (Des_Tp = 'REC' OR Des_Tp = 'PUB')",
         useBbox: true,
         outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,GIS_Acres,OBJECTID',
         color: usace.color, fillOpacity: usace.fillOpacity, weight: usace.weight,
