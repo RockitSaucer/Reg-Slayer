@@ -1,0 +1,8 @@
+REG SLAYER 8.2.5 → 8.2.6
+
+- Huntable public-land overlays are brighter and easier to see on satellite/topo.
+- Stronger fills, thicker outlines, and colors that do not wash into forest/brown tiles.
+- WMA zone slices use the same hot-orange WMA paint (no olive/tan wash).
+- Layers legend swatches match the new overlay colors.
+- Opacity slider still works (70% default).
+- Shell `reg-slayer-shell-v175`.

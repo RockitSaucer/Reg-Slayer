@@ -108,10 +108,11 @@
 
   function standardLayers(spec) {
     var code = spec.code;
-    var wma = sty('wma', { color: '#e59a18', fillOpacity: 0.34, weight: 1.25 });
-    var usfs = sty('usfs', { color: '#2f9e4f', fillOpacity: 0.16, weight: 1.0 });
-    var nwr = sty('nwr', { color: '#2f9e4f', fillOpacity: 0.32, weight: 1.25 });
-    var usace = sty('usace', { color: '#6b7c3a', fillOpacity: 0.32, weight: 1.25 });
+    var wma = sty('wma', { color: '#ff8f1f', fillOpacity: 0.46, weight: 2.4 });
+    var usfs = sty('usfs', { color: '#00d26a', fillOpacity: 0.34, weight: 2.1 });
+    var nwr = sty('nwr', { color: '#00d26a', fillOpacity: 0.44, weight: 2.3 });
+    var usace = sty('usace', { color: '#ffe14a', fillOpacity: 0.42, weight: 2.3 });
+    var blm = sty('blm', { color: '#ffc14d', fillOpacity: 0.40, weight: 2.2 });
     var out = [];
     if (hasUsfs(spec)) {
       out.push({
@@ -131,7 +132,7 @@
         where: "Mang_Name = 'BLM' AND State_Nm = '" + code + "' AND Pub_Access = 'OA' AND (Des_Tp = 'REC' OR Des_Tp = 'PUB' OR Des_Tp = 'HUNT')",
         useBbox: true, paginate: true,
         outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,GIS_Acres,OBJECTID',
-        color: '#c4a35a', fillOpacity: 0.22, weight: 1.05,
+        color: blm.color, fillOpacity: blm.fillOpacity, weight: blm.weight,
         listMode: 'unit', nameFields: ['Unit_Nm', 'Loc_Nm'],
         nameSuffix: ' (BLM)',
         drawOnMap: true, maxOffset: 0.00035,
@@ -213,7 +214,7 @@
     var hasWmaToggle = extras.some(function (x) { return x && x.key === 'wma'; });
     if (!hasWmaToggle) {
       t.push({
-        key: 'wma', color: '#e59a18', text: '#111',
+        key: 'wma', color: (sty('wma', { color: '#ff8f1f' }).color), text: '#111',
         label: (spec.wma && (spec.wma.short || spec.wma.typeLabel)) || hl.short,
         title: (spec.wma && spec.wma.label) || hl.title
       });
@@ -222,19 +223,19 @@
     var hasForestToggle = extras.some(function (x) { return x && x.key === 'forestNwr'; });
     var hasUsaceToggle = extras.some(function (x) { return x && x.key === 'usace'; });
     if (spec.hasBlm) {
-      t.push({ key: 'blm', color: '#c4a35a', text: '#111', label: 'BLM', title: 'BLM public land' });
+      t.push({ key: 'blm', color: (sty('blm', { color: '#ffc14d' }).color), text: '#111', label: 'BLM', title: 'BLM public land' });
     }
     if (!hasForestToggle) {
       if (hasUsfs(spec) && hasNwr(spec)) {
-        t.push({ key: 'forestNwr', color: '#2f9e4f', text: '#fff', label: 'Forest/NWR', title: 'National Forests & NWR' });
+        t.push({ key: 'forestNwr', color: (sty('nwr', { color: '#00d26a' }).color), text: '#111', label: 'Forest/NWR', title: 'National Forests & NWR' });
       } else if (hasUsfs(spec)) {
-        t.push({ key: 'forestNwr', color: '#2f9e4f', text: '#fff', label: 'Forest', title: 'National Forest' });
+        t.push({ key: 'forestNwr', color: (sty('usfs', { color: '#00d26a' }).color), text: '#111', label: 'Forest', title: 'National Forest' });
       } else if (hasNwr(spec)) {
-        t.push({ key: 'forestNwr', color: '#2f9e4f', text: '#fff', label: 'NWR', title: 'National Wildlife Refuge' });
+        t.push({ key: 'forestNwr', color: (sty('nwr', { color: '#00d26a' }).color), text: '#111', label: 'NWR', title: 'National Wildlife Refuge' });
       }
     }
     if (!hasUsaceToggle && hasUsace(spec)) {
-      t.push({ key: 'usace', color: '#6b7c3a', text: '#fff', label: 'USACE', title: 'U.S. Army Corps of Engineers' });
+      t.push({ key: 'usace', color: (sty('usace', { color: '#ffe14a' }).color), text: '#111', label: 'USACE', title: 'U.S. Army Corps of Engineers' });
     }
     return t;
   }
