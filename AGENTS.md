@@ -5,7 +5,7 @@
 **Vercel:** `reg-slayer` (ex `test-offline`) team AlaHunt  
 **Same code family as Hunt-Slayer** — V6.9.3 Nice baseline; open-at-launch defaults may diverge later.
 
-**Shipped (2026-08-20):** `APP_VERSION = '9.0-beta'` · badge **V9.0 Beta** · shell `reg-slayer-shell-v198`. Shared with Hunt except no track / share-location / pin photos. First login: one-time beta notice + Report an issue.
+**Shipped (2026-08-20):** `APP_VERSION = '9.0.1-beta'` · badge **V9.0.1 Beta** · shell `reg-slayer-shell-v200`. Shared with Hunt except no track / share-location / pin photos. First login: one-time beta notice + Report an issue.
 
 ## Ship
 1. Edit only under `Desktop/HuntApp/_push_reg_slayer/` for regslayer.com
