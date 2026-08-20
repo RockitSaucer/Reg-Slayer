@@ -1,0 +1,11 @@
+REG SLAYER local 8.2.3 → 8.2.4 (not production-pushed)
+
+Public-land overlays on non-Alabama states now default on and actually paint, like Alabama:
+
+- NWR fills used an Alabama-only refuge name list, so other states drew no refuges. Non-AL now uses the FWS Huntable layer.
+- BLM, walk-in, state trust, and hunter-management polygons were treated as “unknown” and hidden unless GIS said CanHunt=Yes. They now draw when their overlay toggle is on.
+- National Forest fill is still skipped in Alabama (WMAs carry the color). Other states paint USFS at low opacity — that is the huntable land in much of the West.
+- State WMA / SGL / Game Land layers now query by the state envelope and page results so they actually load.
+- Public-land cache key bumped to v2 so empty/partial older caches are not reused.
+
+Overlay toggles still default ON for that state’s huntable types (WMA/SGL/Game land, Forest/NWR, USACE, BLM when the state has it).

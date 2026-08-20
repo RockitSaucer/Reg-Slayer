@@ -1,0 +1,13 @@
+REG SLAYER V8.2.4 — first production push (live testing)
+
+Pushed from local `_push_reg_slayer/` to RockitSaucer/Reg-Slayer `main` → Vercel `reg-slayer` → https://regslayer.com
+
+Includes:
+- Lower-48 deer packs (Alabama in index.html + 47 `states/*-pack.js`). Catalog: 48 full / 0 building.
+- Overlay paint fix so non-AL public huntable land draws like Alabama (8.2.4).
+- Report-issue labels: from-site-app / from-site-regs + optional state.
+- Shell `reg-slayer-shell-v173` (live was v160). Hard-refresh after deploy.
+
+Not in this drop:
+- Alaska and Hawaii (never packed; do not invent seasons).
+- Hunt-Slayer / huntslayer.com (Reg only, as requested).

@@ -3,8 +3,8 @@
  * Token stays server-side only (Vercel env GITHUB_ISSUE_TOKEN).
  * Never embed a token in index.html / client JS.
  *
- * POST JSON: { message, title?, site: 'hunt'|'reg', contact? }
- * Creates issue on RockitSaucer/Hunt-Slayer with labels from-site + from-huntslayer|from-regslayer.
+ * POST JSON: { message, title?, site: 'hunt'|'reg', contact?, kind?: 'app'|'regs', state? }
+ * Labels: from-site + origin + from-site-app|from-site-regs
  */
 
 const REPO = 'RockitSaucer/Hunt-Slayer';
@@ -106,6 +106,10 @@ module.exports = async function handler(req, res) {
   const site = siteRaw === 'reg' || siteRaw === 'regslayer' ? 'reg' : 'hunt';
   const siteLabel = site === 'reg' ? 'from-regslayer' : 'from-huntslayer';
   const siteName = site === 'reg' ? 'REG SLAYER' : 'HUNT SLAYER';
+  const kindRaw = String(body.kind || 'app').toLowerCase();
+  const kind = kindRaw === 'regs' || kindRaw === 'rules' ? 'regs' : 'app';
+  const kindLabel = kind === 'regs' ? 'from-site-regs' : 'from-site-app';
+  const stateCode = sanitize(body.state, 4).toUpperCase();
   const message = sanitize(body.message, MAX_MSG);
   const titleIn = sanitize(body.title, MAX_TITLE);
   const contact = sanitize(body.contact, 120);
@@ -118,12 +122,15 @@ module.exports = async function handler(req, res) {
   }
 
   const title = titleIn ||
-    ('[' + siteName + '] ' + message.replace(/\s+/g, ' ').slice(0, 72) + (message.length > 72 ? '…' : ''));
+    ('[' + siteName + (kind === 'regs' ? ' REGS' : ' APP') + (stateCode ? ' ' + stateCode : '') + '] ' +
+      message.replace(/\s+/g, ' ').slice(0, 64) + (message.length > 64 ? '…' : ''));
 
   const issueBody = [
     '## User report (from site)',
     '',
     '**Site:** ' + siteName + ' (`' + site + '`)',
+    '**Kind:** ' + (kind === 'regs' ? 'Rules & regs' : 'Site / app'),
+    stateCode ? ('**State:** ' + stateCode) : '**State:** _(not provided)_',
     contact ? ('**Contact:** ' + contact) : '**Contact:** _(not provided)_',
     '**Submitted:** ' + new Date().toISOString(),
     '',
@@ -149,7 +156,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         title: title,
         body: issueBody,
-        labels: ['from-site', siteLabel]
+        labels: ['from-site', siteLabel, kindLabel]
       })
     });
 

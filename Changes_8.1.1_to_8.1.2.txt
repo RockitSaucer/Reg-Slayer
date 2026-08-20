@@ -1,0 +1,5 @@
+REG SLAYER — V8.1.1 → V8.1.2 (LOCAL)
+
+- Weather: NWS fetch no longer sends a custom Accept header (that CORS preflight broke map-click weather). Hourly uses the selected state's timezone; if a day has no matched hours, first 24 periods are used.
+- ZIP: Census ZIP-only returns no matches. Lookup uses zippopotam, then Nominatim.
+- Other states: public hunt land (WMA/PAD-US, forests, NWR, USACE) lists and draws like Alabama. Seasons still say confirm the official agency until that state's digest is wired the Alabama way. Alabama rules are unchanged.

@@ -1,0 +1,8 @@
+REG SLAYER local 8.2.1 → 8.2.2 (not production-pushed)
+
+- APP_VERSION 8.2.2 · badge V8.2.2 · SHELL_CACHE reg-slayer-shell-v171
+- Leftover packs: AZ, LA, MS, NM, NV, OR (full, conservative) and NJ (building — 2026-27 digest not posted)
+- Hunt-unit overlay: Alabama-style zone-type colors when a pack has more than one region; single-calendar packs still hash per unit so units stay distinguishable
+- WMA / state hunt-land overlay: official agency layer when packed; otherwise PAD-US open-access state fish-and-wildlife / hunt land
+- Arkansas / Kansas / Georgia zone groups now have distinct overlay colors
+- Accuracy leftovers: docs/STATE_PACK_ISSUES.md

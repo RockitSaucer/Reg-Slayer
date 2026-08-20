@@ -1,0 +1,17 @@
+V8.1.5 → V8.2.0 (local Reg only — not pushed)
+
+Multi-state wave: lazy pack loader + shared pack-lib so new states are drop-in files.
+
+New full packs (official 2026 sources, Alabama click/overlay rules):
+- Arkansas — AGFC 2026-27 zone page + official deer-zone GIS
+- Delaware — DNREC eRegulations (June 25, 2026) + Census counties
+- Florida — FWC 2026-27 zone dates + official 12-DMU GIS
+- Idaho — IDFG 2026 Big Game brochure Regular Deer + 100 official GMUs
+- Texas — TPWD Outdoor Annual 2026-27 (conservative North/South overlap only)
+- Connecticut — 2026 DEEP guide + official deer/turkey zone GIS
+- California — CDFW 2026 Deer Seasons by Zone + BIOS ds342 GIS
+- Georgia, Iowa, Illinois, Indiana, Kansas, Kentucky, Maine, Massachusetts, Minnesota, Missouri, Montana — official 2026 dates + official GIS (see STATE_PACK_ISSUES.md for leftovers)
+
+Accuracy leftovers for every pack: `_push_reg_slayer/docs/STATE_PACK_ISSUES.md`
+
+Not pushed. Hunt twin unchanged.

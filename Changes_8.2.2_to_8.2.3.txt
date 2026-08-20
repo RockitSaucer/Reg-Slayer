@@ -1,0 +1,6 @@
+REG SLAYER local 8.2.2 → 8.2.3 (not production-pushed)
+
+- APP_VERSION 8.2.3 · badge V8.2.3 · SHELL_CACHE reg-slayer-shell-v172
+- New Jersey pack is full: N.J.A.C. 7:25-5 Game Code formulas for 2026-27 + official DMZ GIS + WMA polygons. Youth dates match the official NJFW 2026-27 youth page.
+- Overlay settings: hunt-land button uses that state’s name (WMA, SGL, Game land, WA, SWA, SGA, CA, GPA, WHMA, …). Types a state does not have are hidden (no TVA/Forever Wild/SOA/PDHA outside Alabama; no BLM unless the pack has BLM; no National Forest button in states with no USFS; no USACE in Rhode Island).
+- Removed the duplicate “Next: …” / “How to use” strip above the map. How to use stays in the header banner.

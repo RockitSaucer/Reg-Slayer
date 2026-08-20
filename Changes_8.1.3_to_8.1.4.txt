@@ -1,0 +1,8 @@
+V8.1.4 — Wyoming / other-state UX matches Alabama click rules
+
+- No cursor hover info card while moving across the map (zone tooltips removed)
+- Hunt-area / deer-zone colors stay off until you turn them on in Layers
+- Huntable public land (WHMA, walk-in, HMA, BLM, forest/NWR) still draws by default
+- Map click is still orange-dot only; can/can’t hunt opens when you tap the dot
+- Other states: top regs/source is that state’s agency (WGFD Chapter 6 in Wyoming), never Outdoor Alabama
+- Local only, not pushed

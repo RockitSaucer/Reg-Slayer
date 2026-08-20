@@ -9,8 +9,8 @@
   <title>REG SLAYER - Know Before You Go</title>
   <meta name="theme-color" content="#0a0c09">
   <meta name="description" content="REG SLAYER: Alabama deer planner with map tools, offline packs, weather, and shared maps.">
-  <meta name="apple-mobile-web-app-title" content="Hunt Slayer">
-  <meta name="application-name" content="Hunt Slayer">
+  <meta name="apple-mobile-web-app-title" content="Reg Slayer">
+  <meta name="application-name" content="Reg Slayer">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/app/hunt-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/app/hunt-192.png">
@@ -27,6 +27,13 @@
   <script src="./calendar-events.js"></script>
   <!-- WMA permit-zone rings (Black Warrior A/B) — embedded so file:// / offline works without fetch -->
   <script src="./wma-zones-data.js"></script>
+  <script src="./states/catalog.js"></script>
+  <script src="./states/us-rings.js"></script>
+  <script src="./states/pack-host.js"></script>
+  <script src="./states/pack-lib.js"></script>
+  <script src="./states/wy-pack.js"></script>
+  <script src="./states/co-pack.js"></script>
+  <script src="./states/engine.js"></script>
   <!-- Detect phone vs desktop as early as possible (reduces layout flash) -->
   <script>
     (function () {
@@ -2034,8 +2041,14 @@
       padding: 8px 10px 10px;
     }
     .available-tracts-panel.is-minimized .available-tracts-body,
-    #locations-under-steps.is-minimized .available-tracts-body {
+    #locations-under-steps.is-minimized .available-tracts-body,
+    .available-tracts-panel.is-minimized .hunt-list-lead,
+    #locations-under-steps.is-minimized .hunt-list-lead {
       display: none !important;
+    }
+    .available-tracts-panel > .hunt-list-lead {
+      padding: 0 12px 6px;
+      margin: 0;
     }
     .available-tracts-panel.is-minimized .available-tracts-header {
       border-radius: 10px;
@@ -4032,6 +4045,7 @@
       height: 100% !important;
     }
     html.map-is-fullscreen .brand-header,
+    html.map-is-fullscreen .hunt-guide,
     html.map-is-fullscreen .site-footer,
     html.map-is-fullscreen .app-shell {
       /* Keep in layout for restore, but invisible — map paints over everything */
@@ -9181,6 +9195,7 @@
       max-width: 100% !important;
     }
     html.settings-map-only .brand-header,
+    html.settings-map-only .hunt-guide,
     html.settings-map-only .site-footer { display: none !important; }
     html.settings-map-only-note .map-only-banner { display: flex !important; }
     .map-only-banner {
@@ -10077,6 +10092,13 @@
       grid-template-columns: repeat(5, 1fr);
       gap: 6px;
       margin-top: 4px;
+    }
+    .zone-toggles.wy-regions {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .zone-toggles.wy-regions .zone-toggle-btn {
+      font-size: 11px;
+      padding: 6px 2px 5px;
     }
     .zone-toggle-btn {
       display: flex;
@@ -11138,6 +11160,268 @@
       accent-color: var(--accent);
       cursor: pointer;
     }
+
+    /* ===== First-run / plain-language layer (local V8.0.31) ===== */
+    .hunt-guide {
+      flex-shrink: 0;
+      background:
+        linear-gradient(180deg, rgba(32, 38, 26, 0.96) 0%, rgba(22, 26, 18, 0.98) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px 9px;
+      box-sizing: border-box;
+      z-index: 40;
+    }
+    .hunt-guide-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    .hg-steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+    }
+    .hg-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 4px 8px 4px 4px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(10, 12, 9, 0.45);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .hg-step.is-ready {
+      border-color: rgba(229, 154, 24, 0.45);
+      color: var(--ink);
+      background: rgba(229, 154, 24, 0.08);
+    }
+    .hg-step.is-done {
+      border-color: rgba(72, 106, 47, 0.7);
+      color: #e8f0e0;
+      background: rgba(72, 106, 47, 0.28);
+    }
+    .hg-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--border);
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .hg-step.is-ready .hg-num { background: var(--accent); color: #111; }
+    .hg-step.is-done .hg-num { background: var(--green); color: #fff; }
+    .hg-step-text { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .hg-arrow { color: var(--muted); font-size: 14px; font-weight: 800; opacity: 0.7; flex-shrink: 0; }
+    .hg-copy {
+      min-width: 0;
+      flex: 0 1 420px;
+    }
+    .hg-next {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 750;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .hg-next span { color: var(--accent); }
+    .brand-howto-btn,
+    .hg-help-btn {
+      flex: 0 0 auto;
+      appearance: none;
+      border: 1px solid rgba(229, 154, 24, 0.6);
+      background: linear-gradient(180deg, #3a4a28 0%, #2a361e 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      padding: 7px 11px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 6px rgba(0,0,0,0.35);
+    }
+    .brand-howto-btn:hover,
+    .hg-help-btn:hover {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, #4a5e32 0%, #364626 100%);
+    }
+    .howto-modal { max-width: 520px; }
+    .howto-modal h3 { margin: 0 0 6px; font-size: 22px; letter-spacing: 0.02em; }
+    .howto-lead {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .howto-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+    .howto-card {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(10, 12, 9, 0.45);
+    }
+    .howto-card-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #111;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    .howto-card strong { display: block; font-size: 15px; margin-bottom: 2px; }
+    .howto-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+    .howto-note {
+      margin: 0 0 14px;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .howto-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+    .howto-actions .ri-submit { min-width: 140px; }
+    .step-title-wrap {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .step-hint {
+      display: block;
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+    .weapon-stack .filter-btn .wpn-main {
+      display: block;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+    .weapon-stack .filter-btn .wpn-sub {
+      display: block;
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: 0;
+      text-transform: none;
+      opacity: 0.82;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+    html.layout-desktop .weapon-stack .filter-btn .wpn-sub { display: none; }
+    html.layout-desktop .weapon-stack .filter-btn .wpn-main { font-size: 11px; }
+    .hunt-list-lead {
+      margin: 4px 0 0;
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--muted);
+      text-transform: none;
+      letter-spacing: 0;
+      line-height: 1.35;
+    }
+    .hunt-empty {
+      text-align: center;
+      padding: 22px 16px;
+      color: var(--ink);
+    }
+    .hunt-empty strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    .hunt-empty p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .loc-go {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .map-first-hint {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 650;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      max-width: min(92%, 420px);
+      padding: 8px 10px 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(229, 154, 24, 0.55);
+      background: rgba(13, 15, 12, 0.92);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 750;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      pointer-events: auto;
+    }
+    .map-first-hint.is-on { display: inline-flex; }
+    .map-first-hint button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 2px;
+      font-weight: 700;
+    }
+    #db-blank h3 { font-size: 16px; margin: 0 0 8px; color: var(--ink); }
+    #db-blank p { margin: 0 auto; max-width: 320px; font-size: 13px; line-height: 1.45; }
+    html.layout-phone .hunt-guide { padding: 8px 10px 9px; }
+    html.layout-phone .hunt-guide-inner { flex-wrap: wrap; }
+    html.layout-phone .hg-copy { flex: 1 1 100%; order: -1; }
+    html.layout-phone .hg-step-text { max-width: 140px; font-size: 11px; }
+    html.layout-phone .hg-help-btn { font-size: 11px; padding: 6px 9px; }
+    html.layout-phone .brand-howto-btn { display: inline-flex; }
+    html.layout-phone #brand-state-btn { display: inline-flex !important; }
+    html.layout-phone .step-hint { font-size: 12px; }
+    /* Street look from public USGS topo (no CARTO). Hydro overlay added in JS. */
+    .basemap-street-tiles .leaflet-tile {
+      filter: saturate(0.38) brightness(1.22) contrast(0.92);
+    }
+    /* Seasonal Esri Wayback removed — one public USGS aerial layer */
+    #satellite-mode-panel { display: none !important; }
   </style>
   <link rel="stylesheet" href="plan-kit/plan-ui.css" />
 </head>
@@ -11149,9 +11433,11 @@
     <div class="brand-logo-wrap">
       <div class="brand-title" id="brand-title-text">Reg <span>Slayer</span></div>
       <div class="brand-tagline" id="brand-tagline-text">Know before you go</div>
-      <span class="brand-version" aria-label="Version 8.0.30">V8.0.30</span>
+      <span class="brand-version" aria-label="Version 8.2.4">V8.2.4</span>
     </div>
     <div class="brand-header-actions">
+      <button type="button" class="brand-howto-btn" id="brand-state-btn" title="Choose hunting state">Alabama</button>
+      <button type="button" class="brand-howto-btn" id="brand-howto-btn" title="How to use REG SLAYER">How to use</button>
       <button type="button" class="brand-report-btn" id="brand-report-issue-btn" title="Report a problem with the app">Report an issue</button>
       <button type="button" class="brand-sister-link" id="brand-other-slay-btn" title="Open Hunt, Reg, or Plan Slayer">
         <span class="brand-sister-label">Other ways to slay</span>
@@ -11159,6 +11445,79 @@
       <button type="button" class="brand-report-btn" id="brand-user-btn" title="Account / settings" aria-label="Account">Account</button>
     </div>
   </header>
+  <!-- Always-on hunt plan strip: date → weapon → places (How to use lives in the banner) -->
+  <div class="hunt-guide" id="hunt-guide" role="status" aria-live="polite">
+    <div class="hunt-guide-inner">
+      <div class="hg-steps">
+        <div class="hg-step" id="hg-step-date">
+          <span class="hg-num">1</span>
+          <span class="hg-step-text" id="hg-date-text">Pick a day</span>
+        </div>
+        <span class="hg-arrow" aria-hidden="true">→</span>
+        <div class="hg-step" id="hg-step-wpn">
+          <span class="hg-num">2</span>
+          <span class="hg-step-text" id="hg-wpn-text">Pick a weapon</span>
+        </div>
+        <span class="hg-arrow" aria-hidden="true">→</span>
+        <div class="hg-step" id="hg-step-list">
+          <span class="hg-num">3</span>
+          <span class="hg-step-text" id="hg-list-text">See open places</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- One-state picker (lower 48). Only the chosen state's pack is loaded. -->
+  <div id="state-pick-overlay" class="report-issue-overlay" aria-hidden="true">
+    <div class="report-issue-modal" role="dialog" aria-modal="true" aria-labelledby="state-pick-title" style="max-width:420px">
+      <h3 id="state-pick-title">Which state are you hunting?</h3>
+      <p class="ri-sub">The map and rules load for <strong>one state at a time</strong> so the app stays small and clear. Pick your state:</p>
+      <label for="state-pick-select">State</label>
+      <select id="state-pick-select" style="width:100%;margin:6px 0 12px;padding:10px;border-radius:8px;background:#0f140e;color:var(--ink);border:1px solid var(--border);font-size:16px;font-weight:700;"></select>
+      <p class="ri-sub" style="margin-top:0">Only one state loads at a time. Always confirm that state’s official hunting agency before you hunt.</p>
+      <div class="ri-actions">
+        <button type="button" id="state-pick-cancel">Cancel</button>
+        <button type="button" class="ri-submit" id="state-pick-go">Show this state</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- First-visit how-to (plain language). Reopen anytime from How to use. -->
+  <div id="howto-overlay" class="report-issue-overlay" aria-hidden="true">
+    <div class="report-issue-modal howto-modal" role="dialog" aria-modal="true" aria-labelledby="howto-title">
+      <h3 id="howto-title">How REG SLAYER works</h3>
+      <p class="howto-lead">This site tells you where you can hunt deer in Alabama for the day and weapon you pick. Three steps:</p>
+      <div class="howto-cards">
+        <div class="howto-card">
+          <span class="howto-card-num">1</span>
+          <div>
+            <strong>Pick the day you want to hunt</strong>
+            <p>Tap a date on the calendar. Today is already selected. If the list is empty, that day is closed — tap a day in deer season (usually October through January).</p>
+          </div>
+        </div>
+        <div class="howto-card">
+          <span class="howto-card-num">2</span>
+          <div>
+            <strong>Pick how you will hunt</strong>
+            <p>Any, Bow, Rifle, or Muzzleloader. The list of open places changes with this choice.</p>
+          </div>
+        </div>
+        <div class="howto-card">
+          <span class="howto-card-num">3</span>
+          <div>
+            <strong>Tap a place — or tap the map</strong>
+            <p>The list shows public places that are open. Tap a name to go there. Or tap any spot on the map to see if you can hunt it that day.</p>
+          </div>
+        </div>
+      </div>
+      <p class="howto-note" id="howto-agency-note">Green checkmarks on the map match the list. Weather and sunrise show after you pick a place. Always confirm official Outdoor Alabama / WFF rules before you hunt.</p>
+      <div class="howto-actions">
+        <button type="button" id="howto-close">Close</button>
+        <button type="button" class="ri-submit" id="howto-start">Got it — let’s go</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Share to home screen control moved to Settings → Defaults (#91); keep hidden hook for install API -->
   <button type="button" id="brand-homescreen-btn" style="display:none !important" aria-hidden="true" tabindex="-1">Share to home screen</button>
 
@@ -11190,11 +11549,16 @@
   <div id="report-issue-overlay" class="report-issue-overlay" aria-hidden="true">
     <div class="report-issue-modal" role="dialog" aria-modal="true" aria-labelledby="report-issue-title">
       <h3 id="report-issue-title">Report an issue</h3>
-      <p class="ri-sub">Describe what went wrong. This creates a ticket for the developer (no password or map data is sent).</p>
+      <p class="ri-sub">Be as detailed as possible about the issue. This creates a ticket (no password or map data is sent).</p>
+      <p class="ri-sub" style="margin-top:-6px">What kind of issue is this?</p>
+      <div class="lf-seg" id="report-issue-kind-seg" style="display:flex;gap:8px;margin:0 0 12px">
+        <button type="button" class="filter-btn active" id="report-kind-app" data-kind="app">Site / app</button>
+        <button type="button" class="filter-btn" id="report-kind-regs" data-kind="regs">Rules &amp; regs</button>
+      </div>
       <label for="report-issue-title-in">Title (optional)</label>
       <input id="report-issue-title-in" type="text" maxlength="120" placeholder="Short summary" autocomplete="off" />
       <label for="report-issue-msg">What happened?</label>
-      <textarea id="report-issue-msg" maxlength="4000" placeholder="What were you doing? What did you expect? What happened instead?"></textarea>
+      <textarea id="report-issue-msg" maxlength="4000" placeholder="Be as detailed as possible about the issue. Example: state, date, weapon, place or zone, what the app said, and what the official digest says."></textarea>
       <label for="report-issue-contact">Contact (optional)</label>
       <input id="report-issue-contact" type="text" maxlength="120" placeholder="Email or username if you want a reply" autocomplete="email" />
       <p class="ri-status" id="report-issue-status" role="status"></p>
@@ -11209,8 +11573,8 @@
   <div id="auth-gate" aria-hidden="true">
     <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
       <h2 id="auth-title">REG SLAYER</h2>
-      <p class="auth-sub">Sign in to sync maps across devices and share live location with your hunting party.</p>
-      <p class="auth-sub" style="margin-top:-4px;font-size:11px;opacity:0.9;">One account works on <strong>regslayer.com</strong> and <strong>huntslayer.com</strong> — same username and password on both.</p>
+      <p class="auth-sub">Sign in to save your maps on every phone and computer, and to share live location with your hunting party. You can still plan a hunt without signing in.</p>
+      <p class="auth-sub" style="margin-top:-4px;font-size:11px;opacity:0.9;">One username and password works on <strong>regslayer.com</strong> and <strong>huntslayer.com</strong>.</p>
       <p id="auth-error" role="alert"></p>
       <div id="auth-panel-signin">
         <div class="auth-field"><label for="auth-si-user">Username</label><input id="auth-si-user" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
@@ -11298,10 +11662,13 @@
           <div class="step-section active" id="step-1-section">
             <div class="step-header">
               <div class="step-num">1</div>
-              <span class="step-title section-qual">Select Hunt Date</span>
+              <div class="step-title-wrap">
+                <span class="step-title section-qual">When are you hunting?</span>
+                <span class="step-hint">Tap a day on the calendar</span>
+              </div>
               <div class="step-header-actions">
                 <span id="sec-dock-left-host-cal" class="sec-dock-host" aria-hidden="true"></span>
-                <button type="button" class="sec-minmax-btn" id="sec-min-step1" onclick="toggleSectionMin('step1')" title="Minimize Select Hunt Date" aria-label="Minimize Select Hunt Date" aria-expanded="true">−</button>
+                <button type="button" class="sec-minmax-btn" id="sec-min-step1" onclick="toggleSectionMin('step1')" title="Minimize hunt date" aria-label="Minimize hunt date" aria-expanded="true">−</button>
               </div>
             </div>
             <div class="calendar-container" id="calendar-container">
@@ -11370,14 +11737,29 @@
           <div class="step-section locked" id="step-2-section">
             <div class="step-header">
               <div class="step-num">2</div>
-              <span class="step-title section-qual">Choose Your Weapon</span>
-              <button type="button" class="sec-minmax-btn" id="sec-min-step2" onclick="toggleSectionMin('step2')" title="Minimize Choose Your Weapon" aria-label="Minimize Choose Your Weapon" aria-expanded="true">−</button>
+              <div class="step-title-wrap">
+                <span class="step-title section-qual">How will you hunt?</span>
+                <span class="step-hint">This changes which places are open</span>
+              </div>
+              <button type="button" class="sec-minmax-btn" id="sec-min-step2" onclick="toggleSectionMin('step2')" title="Minimize weapon choice" aria-label="Minimize weapon choice" aria-expanded="true">−</button>
             </div>
             <div class="btn-group weapon-stack">
-              <button class="filter-btn" id="wpn-either" onclick="setWeapon('Either')">Either weapon</button>
-              <button class="filter-btn" id="wpn-archery" onclick="setWeapon('Archery')">Archery</button>
-              <button class="filter-btn" id="wpn-gun" onclick="setWeapon('Gun')" title="Rifle (modern gun season)">Rifle</button>
-              <button class="filter-btn" id="wpn-primitive" onclick="setWeapon('Primitive')">Primitive</button>
+              <button class="filter-btn" id="wpn-either" onclick="setWeapon('Either')" title="Any legal weapon — rifle, bow, or muzzleloader">
+                <span class="wpn-main">Any</span>
+                <span class="wpn-sub">Rifle, bow, or muzzleloader</span>
+              </button>
+              <button class="filter-btn" id="wpn-archery" onclick="setWeapon('Archery')" title="Bow / archery season">
+                <span class="wpn-main">Bow</span>
+                <span class="wpn-sub">Archery season</span>
+              </button>
+              <button class="filter-btn" id="wpn-gun" onclick="setWeapon('Gun')" title="Rifle (modern gun season)">
+                <span class="wpn-main">Rifle</span>
+                <span class="wpn-sub">Modern gun season</span>
+              </button>
+              <button class="filter-btn" id="wpn-primitive" onclick="setWeapon('Primitive')" title="Muzzleloader and other primitive weapons">
+                <span class="wpn-main">Muzzleloader</span>
+                <span class="wpn-sub">Primitive weapons</span>
+              </button>
             </div>
           </div>
         </div>
@@ -11386,22 +11768,25 @@
           <div class="step-section active" id="step-3-section">
             <div class="step-header">
               <div class="step-num">3</div>
-              <span class="step-title section-qual" id="list-label">Open Tracts</span>
+              <div class="step-title-wrap">
+                <span class="step-title section-qual" id="list-label">Narrow the list</span>
+                <span class="step-hint">Public land, distance, and starting point</span>
+              </div>
               <div class="step-header-actions">
-                <button type="button" class="sec-minmax-btn" id="sec-min-step3" onclick="toggleSectionMin('step3')" title="Minimize hunt locations filters" aria-label="Minimize hunt locations filters" aria-expanded="true">−</button>
+                <button type="button" class="sec-minmax-btn" id="sec-min-step3" onclick="toggleSectionMin('step3')" title="Minimize list filters" aria-label="Minimize list filters" aria-expanded="true">−</button>
               </div>
             </div>
             <!-- Land + distance filters (list stays full-width under steps) -->
             <div class="location-filters-box" id="location-filters-box">
               <div class="lf-row" id="land-btn-group">
-                <span class="lf-label">Land</span>
+                <span class="lf-label">What land?</span>
                 <div class="lf-seg">
-                  <button type="button" class="filter-btn active" id="land-public" onclick="setLand('Public')">Public</button>
-                  <button type="button" class="filter-btn" id="land-private" onclick="setLand('Private')">Private</button>
+                  <button type="button" class="filter-btn active" id="land-public" onclick="setLand('Public')" title="Public hunting land (WMA, forest, refuge)">Public</button>
+                  <button type="button" class="filter-btn" id="land-private" onclick="setLand('Private')" title="Private land — you must have permission">Private</button>
                 </div>
               </div>
               <div class="lf-row">
-                <span class="lf-label">From</span>
+                <span class="lf-label">Starting from</span>
                 <div class="lf-seg lf-seg-from" id="dist-origin-seg">
                   <button type="button" class="filter-btn active" id="dist-origin-gps" onclick="setDistOriginMode('gps')">My Location</button>
                   <button type="button" class="filter-btn" id="dist-origin-zip" onclick="setDistOriginMode('zip')">ZIP</button>
@@ -11412,7 +11797,7 @@
               </div>
               <div class="lf-row">
                 <div class="lf-within">
-                  <label for="dist-radius-select">Within</label>
+                  <label for="dist-radius-select">How far?</label>
                   <select id="dist-radius-select" onchange="setDistRadius(this.value)">
                     <option value="0">Any distance</option>
                     <option value="25">25 miles</option>
@@ -11427,7 +11812,7 @@
                 <input type="text" id="dist-zip-input" inputmode="numeric" maxlength="6" placeholder="35203" title="ZIP code" autocomplete="postal-code">
                 <button type="button" class="dist-zip-apply" onclick="applyDistZip()">Apply</button>
               </div>
-              <div id="dist-status">Using GPS when available · default 50 mi</div>
+              <div id="dist-status">Finding your location · showing places within 50 miles</div>
             </div>
             <div id="selected-area-distance" class="selected-area-distance" style="display:none;" aria-live="polite"></div>
           </div>
@@ -11438,8 +11823,8 @@
       <div class="planner-right-col" id="planner-right-col">
       <div id="dashboard-container" class="dashboard-under-steps">
       <div id="db-blank" style="text-align:center;padding:120px 0;color:var(--muted);">
-        <h3>Step 4: Weather & Water Dashboard</h3>
-        <p>Select a date and weapon, then choose a location or use Current Location. Water levels appear only when within 3 miles of a USGS gauge.</p>
+        <h3>Weather shows after you pick a place</h3>
+        <p>Tap a name in the list, tap the map, or use My Location. Sunrise, wind, and hourly weather will appear here. Water level only shows if you are within 3 miles of a river gauge.</p>
       </div>
       <div id="db-loading" style="display:none;text-align:center;padding:120px 0;">
         <div class="loader"></div>
@@ -11452,7 +11837,7 @@
           <span id="db-reg-summary" style="font-weight:bold;color:var(--accent);">Season Open Rules</span>
           <p id="db-subtitle" style="color:var(--muted);font-size:12.5px;margin:5px 0 0;">Area specifics</p>
           <p id="db-distance-line" class="db-distance-line" style="display:none;margin:6px 0 0;font-size:13px;font-weight:700;color:#7dd3fc;"></p>
-          <div id="weather-source-badge" style="display:none;">Source: Open-Meteo</div>
+          <div id="weather-source-badge" style="display:none;">Source: National Weather Service</div>
           <div id="wind-speed-text" style="display:none;"></div>
           <div id="scent-drift-text" style="display:none;"></div>
         </div>
@@ -11479,7 +11864,7 @@
         </div>
         <div class="wx-section" id="wx-solunar-section">
           <div class="wx-section-header">
-            <span class="section-qual step-title">Solunar &amp; Legal Hours</span>
+            <span class="section-qual step-title">Sunrise &amp; legal hours</span>
             <div class="wx-header-actions">
               <span id="sec-dock-left-host-solunar" class="sec-dock-host" aria-hidden="true"></span>
               <button type="button" class="sec-minmax-btn" id="sec-min-solunar" onclick="toggleSectionMin('solunar')" title="Minimize Solunar &amp; Legal Hours" aria-label="Minimize Solunar and Legal Hours" aria-expanded="true">−</button>
@@ -11531,19 +11916,20 @@
       <!-- Full-width under steps + weather (side-by-side): far left → map edge -->
       <div class="available-tracts-panel" id="locations-under-steps">
         <div class="available-tracts-header">
-          <span class="available-tracts-title section-qual">Available tracts / huntable areas</span>
+          <span class="available-tracts-title section-qual">Places you can hunt <span id="hunt-list-count"></span></span>
           <div class="available-tracts-header-actions">
             <!-- Dock button reparents to Solunar (←) or calendar (→); host kept empty -->
             <span id="sec-dock-left-host-tracts" class="sec-dock-host" style="display:none !important;" aria-hidden="true"></span>
             <button type="button" class="sec-minmax-btn sec-dock-left-btn" id="sec-dock-left" onclick="togglePlannerDockLeft()" title="Dock list under steps (narrow planner, large map)" aria-label="Dock list under steps" aria-pressed="false">←</button>
-            <button type="button" class="sec-minmax-btn" id="sec-min-tracts" onclick="toggleSectionMin('tracts')" title="Minimize available tracts" aria-label="Minimize available tracts" aria-expanded="true">−</button>
+            <button type="button" class="sec-minmax-btn" id="sec-min-tracts" onclick="toggleSectionMin('tracts')" title="Minimize hunt list" aria-label="Minimize hunt list" aria-expanded="true">−</button>
           </div>
         </div>
+        <p class="hunt-list-lead" id="hunt-list-lead">Tap a name to open it on the map. Green checks match this list.</p>
         <div class="available-tracts-body" id="available-tracts-body">
           <div class="list-toolbar">
             <div class="list-toolbar-left">
-              <button class="filter-btn active" id="v-toggle-all" onclick="setViewFilterMode('all')">Show All</button>
-              <button class="filter-btn" id="v-toggle-sel" onclick="setViewFilterMode('selected')">Selected</button>
+              <button class="filter-btn active" id="v-toggle-all" onclick="setViewFilterMode('all')" title="Show every open place">All places</button>
+              <button class="filter-btn" id="v-toggle-sel" onclick="setViewFilterMode('selected')" title="Show only the place you picked">My pick</button>
               <button type="button" class="filter-btn" id="sort-by-btn" onclick="openSortHuntsModal()" title="Change list order">Sort by</button>
             </div>
             <button id="restore-hidden-btn" onclick="restoreAllHidden()" style="background:var(--green);border:none;color:#fff;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:bold;display:none;">Restore</button>
@@ -11607,6 +11993,10 @@
             </div>
           </div>
           <!-- Stand placement: click map after + Add Stand -->
+          <div class="map-first-hint" id="map-first-hint" role="status">
+            <span>Tap any spot to see if you can hunt there</span>
+            <button type="button" id="map-first-hint-close" title="Dismiss" aria-label="Dismiss map hint">×</button>
+          </div>
           <div id="stand-place-banner" class="stand-place-banner" style="display:none;" role="status">
             <span id="stand-place-banner-text">Click the map to place your stand</span>
             <button type="button" id="stand-place-cancel" onclick="cancelStandPlacement()" style="background:none;border:1px solid var(--border);color:var(--ink);border-radius:4px;padding:3px 8px;cursor:pointer;font-size:11px;font-weight:600;">Cancel</button>
@@ -11748,11 +12138,11 @@
                           </label>
                           <label class="ml-option">
                             <input type="radio" name="map-basemap" id="basemap-street" value="street" onchange="setMapBasemap('street')">
-                            <span class="ml-opt-text">Roads &amp; Waterways</span>
+                            <span class="ml-opt-text">Roads &amp; water</span>
                           </label>
                           <label class="ml-option">
                             <input type="radio" name="map-basemap" id="basemap-satellite" value="satellite" onchange="setMapBasemap('satellite')">
-                            <span class="ml-opt-text">Satellite</span>
+                            <span class="ml-opt-text">Aerial (USGS)</span>
                           </label>
                           <div class="sat-mode-panel" id="satellite-mode-panel" role="group" aria-label="Satellite imagery season">
                             <div class="sat-mode-row">
@@ -11763,7 +12153,7 @@
                           </div>
                           <label class="ml-option">
                             <input type="radio" name="map-basemap" id="basemap-lidar" value="lidar" onchange="setMapBasemap('lidar')">
-                            <span class="ml-opt-text">LiDAR Terrain</span>
+                            <span class="ml-opt-text">Terrain (USGS 3DEP)</span>
                           </label>
           
                           <div class="ml-section">Overlays</div>
@@ -11823,7 +12213,7 @@
                           <!-- 3) Roads & waterways -->
                           <label class="ml-option">
                             <input type="checkbox" id="toggle-roads-overlay-chk" onchange="toggleRoadsOverlay(this.checked)">
-                            <span class="ml-opt-text">Roads &amp; waterways</span>
+                            <span class="ml-opt-text">Waterways (USGS)</span>
                           </label>
                           <div class="ml-opacity-row" id="roads-opacity-row">
                             <span>Opacity</span>
@@ -11841,7 +12231,7 @@
                           <!-- 5) Property lines -->
                           <label class="ml-option">
                             <input type="checkbox" id="toggle-parcels-chk" onchange="togglePropertyLines(this.checked)">
-                            <span class="ml-opt-text">Property lines</span>
+                            <span class="ml-opt-text">Property lines (Hunt upgrade)</span>
                           </label>
                           <div class="ml-opacity-row" id="parcels-opacity-row">
                             <span>Opacity</span>
@@ -12046,10 +12436,10 @@
   <!-- Tagline + official links moved to bottom (v3.9) -->
   <footer class="site-footer" role="contentinfo">
     <div class="site-footer-inner">
-      <p>Alabama public &amp; private land · USGS gauges · topo terrain · wind &amp; scent</p>
+      <p id="rs-footer-state">Alabama public &amp; private land · USGS gauges · topo terrain · wind &amp; scent</p>
       <span class="version-badge">Ruleset: 2026-2027 Season</span>
       <a href="https://waterdata.usgs.gov/state/Alabama/" target="_blank" rel="noopener">USGS Water</a>
-      <a href="https://www.outdooralabama.com/seasons-and-bag-limits/deer-season" target="_blank" rel="noopener">Outdoor Alabama</a>
+      <a href="https://www.outdooralabama.com/seasons-and-bag-limits/deer-season" target="_blank" rel="noopener" id="rs-footer-agency">Outdoor Alabama</a>
       <a href="https://www.arcgis.com/apps/Embed/index.html?webmap=b110b866ffec492cb95e5c62b1a4f40f" target="_blank" rel="noopener">TVA Lands</a>
       <a href="https://conservationgis.alabama.gov/dcnr/" target="_blank" rel="noopener">ADCNR GIS</a>
     </div>
@@ -12214,7 +12604,7 @@
   <!-- Sort Available Hunts list -->
   <div id="sort-hunts-modal" class="app-prompt-modal" hidden style="display:none;" onclick="if(event.target===this)closeSortHuntsModal()">
     <div class="shape-save-card" role="dialog" aria-modal="true" aria-labelledby="sort-hunts-title">
-      <h3 id="sort-hunts-title">Sort Available Hunts</h3>
+      <h3 id="sort-hunts-title">Sort the hunt list</h3>
       <div class="ss-meta">Choose how open tracts are ordered in the list.</div>
       <div class="sort-options" id="sort-options">
         <button type="button" class="sort-option-btn" data-sort="alpha" onclick="applyHuntListSort('alpha')">
@@ -12730,7 +13120,7 @@
 
   <script>
     // ========== STATE ==========
-    const APP_VERSION = '8.0.30';
+    const APP_VERSION = '8.2.4';
     /** Site brand: 'hunt' (huntslayer.com) or 'reg' (regslayer.com) — drives first-launch defaults only. */
     const SITE_ID = 'reg';
     // #91 Plan-style text brand by site
@@ -13024,6 +13414,56 @@
     const HIDDEN_LOCS_KEY = 'alabama_hunt_hidden_locations_v1';
     const USER_STANDS_KEY = 'alabama_hunt_user_stands_v1';
     const AL_BBOX = '-88.473,30.14,-84.889,35.008'; // tight Alabama envelope for GIS queries
+    function getActiveStateBbox() {
+      if (window.RS_STATE && window.RS_STATE.bboxStr) return window.RS_STATE.bboxStr;
+      return AL_BBOX;
+    }
+    function getPublicLandsCacheKey() {
+      var st = (window.RS_STATE && window.RS_STATE.code) || 'AL';
+      if (st === 'AL') return ADCNR_CACHE_KEY;
+      if (st === 'WY') return 'wy_hunt_public_lands_v2';
+      return String(st).toLowerCase() + '_hunt_public_lands_v2';
+    }
+    function isAlabamaPack() {
+      return !window.RS_STATE || window.RS_STATE.code === 'AL';
+    }
+    function isWyomingPack() {
+      var p = typeof activePack === 'function' ? activePack() : null;
+      return !!(p && p.code === 'WY');
+    }
+    window.isWyomingPack = isWyomingPack;
+    function officialConfirmLabel() {
+      var p = typeof activePack === 'function' ? activePack() : null;
+      if (p) return p.confirmLabel || p.agency || 'official regs';
+      if (isAlabamaPack()) return 'Outdoor Alabama';
+      var m = window.RS_STATE;
+      return (m && (m.agency || m.name)) || 'the state wildlife agency';
+    }
+    function officialStateSources() {
+      var m = window.RS_STATE || {};
+      var p = typeof activePack === 'function' ? activePack() : null;
+      if (p) {
+        return {
+          law: { label: p.lawLabel || ((p.agency || m.name) + ' deer regulations'), url: p.lawUrl || m.lawUrl },
+          agency: { label: p.agencyLabel || ((p.agency || m.agency) + ' — hunting'), url: p.agencyUrl || m.agencyUrl },
+          extra: p.mapUrl ? [{ label: (p.year || '') + ' ' + (p.unitLabel || 'hunt unit') + ' map', url: p.mapUrl }] : []
+        };
+      }
+      if (isAlabamaPack()) {
+        return {
+          law: LEGISLATION.stateDeer,
+          agency: LEGISLATION.stateDeer,
+          extra: []
+        };
+      }
+      return {
+        law: { label: (m.name || 'State') + ' hunting regulations', url: m.lawUrl },
+        agency: { label: (m.agency || m.name || 'State agency') + ' — hunting', url: m.agencyUrl },
+        extra: []
+      };
+    }
+    window.officialConfirmLabel = officialConfirmLabel;
+    window.officialStateSources = officialStateSources;
     // Approximate Alabama state outline [lng, lat] for in-state checks (list + hunt options)
     const AL_BOUNDARY_RING = [
       [-88.200, 35.008], [-85.605, 35.008], [-85.500, 34.500], [-84.892, 32.300],
@@ -13051,8 +13491,13 @@
       soa:         { color: '#c026d3', fillOpacity: 0.30, weight: 1.25 },
       pdha:        { color: '#14b8a6', fillOpacity: 0.32, weight: 1.25 },
       usace:       { color: '#6b7c3a', fillOpacity: 0.32, weight: 1.25 },
-      nps:         { color: '#a16207', fillOpacity: 0.18, weight: 1.0 }
+      nps:         { color: '#a16207', fillOpacity: 0.18, weight: 1.0 },
+      blm:         { color: '#c4a35a', fillOpacity: 0.22, weight: 1.05 },
+      walkin:      { color: '#22c55e', fillOpacity: 0.30, weight: 1.20 },
+      hma:         { color: '#fb923c', fillOpacity: 0.28, weight: 1.20 },
+      stl:         { color: '#a78bfa', fillOpacity: 0.22, weight: 1.10 }
     };
+    window.PUBLIC_LAND_COLORS = PUBLIC_LAND_COLORS;
     function publicLandDrawStyle(layerKey) {
       return PUBLIC_LAND_COLORS[layerKey] || { color: '#94a3b8', fillOpacity: 0.25, weight: 1.15 };
     }
@@ -13130,6 +13575,10 @@
       if (layerKey === 'usfs' || layerKey === 'nwr') return !!publicLandTypeVisible.forestNwr;
       if (layerKey === 'nps') return false;
       if (layerKey === 'custom') return !!publicLandTypeVisible.custom;
+      if (layerKey === 'whma' || layerKey === 'swa' || layerKey === 'sgl' || layerKey === 'wa' ||
+          layerKey === 'sga' || layerKey === 'gpa' || layerKey === 'ca') {
+        return publicLandTypeVisible.wma !== false;
+      }
       return !!publicLandTypeVisible[layerKey];
     }
 
@@ -13145,7 +13594,13 @@
       if (ls === 'tva' || ty === 'TVA') return 'tva';
       if (ls === 'foreverwild' || ty === 'Forever Wild') return 'foreverWild';
       if (ls === 'usace' || ty === 'USACE') return 'usace';
-      if (ls === 'wma' || ty === 'WMA') return 'wma';
+      if (ls === 'wma' || ty === 'WMA' || ty === 'WHMA' || ty === 'SWA' || ty === 'SGL' ||
+          ty === 'WA' || ty === 'SGA' || ty === 'GPA' || ty === 'CA' || ty === 'Game land' ||
+          ty === 'Game Land' || ls === 'whma' || ls === 'swa' || ls === 'sgl') return 'wma';
+      if (ls === 'walkin' || ty === 'Walk-In') return 'walkin';
+      if (ls === 'hma' || ty === 'HMA') return 'hma';
+      if (ls === 'stl' || ty === 'STL') return 'stl';
+      if (ls === 'blm' || ty === 'BLM') return 'blm';
       if (ls === 'nps') return 'nps';
       return ls || null;
     }
@@ -13161,10 +13616,13 @@
     window.isPublicLocListAllowed = isPublicLocListAllowed;
 
     function anyPublicLandFillVisible() {
-      return !!(publicLandTypeVisible.wma || publicLandTypeVisible.forestNwr ||
-        publicLandTypeVisible.tva || publicLandTypeVisible.foreverWild ||
-        publicLandTypeVisible.soa || publicLandTypeVisible.pdha ||
-        publicLandTypeVisible.usace);
+      var skip = { listPins: true, custom: true };
+      var keys = Object.keys(publicLandTypeVisible || {});
+      for (var i = 0; i < keys.length; i++) {
+        if (skip[keys[i]]) continue;
+        if (publicLandTypeVisible[keys[i]]) return true;
+      }
+      return false;
     }
 
     function anyPublicLandTypeVisible() {
@@ -13363,6 +13821,117 @@
         notes: 'U.S. Army Corps of Engineers project land. Hunting rules vary by lake/project — free Corps hunting permit often required. Confirm Mobile District / project office maps and Alabama seasons before hunting.'
       }
     ];
+    var ACTIVE_PUBLIC_LAYERS = ADCNR_LAYERS;
+
+    function buildGenericStateLayers(code) {
+      var st = String(code || 'AL').toUpperCase();
+      var padus = 'https://services.arcgis.com/v01gqwM5QqNysAAi/arcgis/rest/services/Manager_Name_PADUS/FeatureServer/0/query';
+      return [
+        {
+          key: 'usfs', label: 'National Forest', typeLabel: 'National Forest',
+          url: 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_ForestSystemBoundaries_01/MapServer/0/query',
+          where: '1=1', useBbox: true,
+          outFields: 'forestname,gis_acres,region,objectid',
+          color: PUBLIC_LAND_COLORS.usfs.color,
+          fillOpacity: PUBLIC_LAND_COLORS.usfs.fillOpacity,
+          weight: PUBLIC_LAND_COLORS.usfs.weight,
+          listMode: 'unit', nameFields: ['forestname'],
+          drawOnMap: true, interactive: true, maxOffset: 0.001
+        },
+        {
+          key: 'wma', label: 'State hunt land', typeLabel: 'WMA',
+          url: padus,
+          where: "State_Nm = '" + st + "' AND Pub_Access = 'OA' AND (Des_Tp = 'REC' OR Des_Tp = 'PUB' OR Des_Tp = 'HUNT')",
+          useBbox: true,
+          outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,GIS_Acres,OBJECTID',
+          color: PUBLIC_LAND_COLORS.wma.color,
+          fillOpacity: PUBLIC_LAND_COLORS.wma.fillOpacity,
+          weight: PUBLIC_LAND_COLORS.wma.weight,
+          listMode: 'unit', nameFields: ['Unit_Nm', 'Loc_Nm'],
+          drawOnMap: true, maxOffset: 0.0002,
+          notes: 'PAD-US open-access state/public hunt land. Confirm official ' + st + ' seasons and unit rules before hunting.'
+        },
+        {
+          key: 'nwr', label: 'National Wildlife Refuge', typeLabel: 'NWR',
+          url: 'https://services.arcgis.com/QVENGdaPbd4LUkLV/arcgis/rest/services/FWS_NWRS_HQ_PublicHuntUnits_view/FeatureServer/0/query',
+          where: "State = '" + st + "' AND Organization_Type = 'NWR' AND Huntable <> 'No'",
+          useBbox: true,
+          outFields: 'Organization_Name,Hunt_Unit_Name,Huntable,Acreage,Organization_Code,Hunting_Website,Station_Website,Permit_Required,State,OBJECTID',
+          color: PUBLIC_LAND_COLORS.nwr.color,
+          fillOpacity: PUBLIC_LAND_COLORS.nwr.fillOpacity,
+          weight: PUBLIC_LAND_COLORS.nwr.weight,
+          listMode: 'unit', nameFields: ['Organization_Name', 'Hunt_Unit_Name'],
+          noSunday: true, splitByZone: true, drawOnMap: true, maxOffset: 0,
+          notes: 'FWS Public Hunt Units. Confirm the signed refuge brochure before hunting.'
+        },
+        {
+          key: 'usace', label: 'USACE Corps Land', typeLabel: 'USACE',
+          url: padus,
+          where: "Mang_Name = 'USACE' AND State_Nm = '" + st + "' AND Pub_Access = 'OA' AND (Des_Tp = 'REC' OR Des_Tp = 'PUB')",
+          useBbox: true,
+          outFields: 'Mang_Name,Unit_Nm,Loc_Nm,State_Nm,Des_Tp,Pub_Access,GIS_Acres,OBJECTID',
+          color: PUBLIC_LAND_COLORS.usace.color,
+          fillOpacity: PUBLIC_LAND_COLORS.usace.fillOpacity,
+          weight: PUBLIC_LAND_COLORS.usace.weight,
+          listMode: 'unit', nameFields: ['Unit_Nm', 'Loc_Nm'],
+          nameSuffix: ' (USACE)',
+          splitByZone: true, drawOnMap: true, maxOffset: 0.00015,
+          notes: 'U.S. Army Corps of Engineers project land. Confirm project office maps and official state seasons.'
+        }
+      ];
+    }
+    window.buildGenericStateLayers = buildGenericStateLayers;
+
+    window.rsOnStateApplied = function (pack) {
+      if (!pack) return;
+      var livePack = (typeof activePack === 'function') ? activePack() : null;
+      if (pack.code === 'AL') {
+        ACTIVE_PUBLIC_LAYERS = ADCNR_LAYERS;
+      } else if (livePack && typeof livePack.layers === 'function') {
+        ACTIVE_PUBLIC_LAYERS = livePack.layers();
+      } else {
+        ACTIVE_PUBLIC_LAYERS = buildGenericStateLayers(pack.code);
+      }
+      try {
+        adcnrLandsData = null;
+        adcnrLoading = null;
+        lastListedHuntLocations = [];
+        huntUnitData = null;
+        huntUnitLoading = null;
+        wyHuntAreaData = null;
+        wyHuntAreaLoading = null;
+      } catch (eC) {}
+      try {
+        if (adcnrOverlayGroup) adcnrOverlayGroup.clearLayers();
+        if (adcnrOpenPinGroup) adcnrOpenPinGroup.clearLayers();
+        if (stateZonesGroup) stateZonesGroup.clearLayers();
+      } catch (eL) {}
+      try {
+        if (typeof rebuildStateZoneToggles === 'function') rebuildStateZoneToggles(pack);
+        if (typeof rebuildPublicLandToggles === 'function') rebuildPublicLandToggles(pack);
+      } catch (eT) {}
+      try {
+        if (typeof drawActiveStateMask === 'function') drawActiveStateMask();
+        if (typeof applyActiveStateMapBounds === 'function') applyActiveStateMapBounds();
+        if (typeof applyInitialStatewideView === 'function' && map) applyInitialStatewideView();
+      } catch (eM) {}
+      try {
+        if (livePack && typeof loadPackHuntUnits === 'function') {
+          loadPackHuntUnits(true).then(function () {
+            if (typeof drawStateZonesOverlay === 'function') drawStateZonesOverlay();
+            if (typeof updateAvailableList === 'function' && selectedDate) updateAvailableList();
+          }).catch(function () {});
+        }
+      } catch (eW) {}
+      try {
+        if (typeof syncPublicLandsOverlay === 'function') {
+          syncPublicLandsOverlay({ showLoading: true, forceRefresh: pack.code !== 'AL' });
+        }
+      } catch (eS) {}
+      try {
+        if (typeof updateAvailableList === 'function' && selectedDate) updateAvailableList();
+      } catch (eU) {}
+    };
 
     // Explicit deer-weapon profiles (Outdoor Alabama + 50 CFR §32.20 Alabama NWR hunt regs).
     // Fields: allow, archeryOnly, noHuntDays (weekday names), huntDaysOnly, antlerRestriction, seasons[]
@@ -13673,6 +14242,7 @@
 
     /** Lookup OA AREA map PDF by unit name (WMA zone-aware names still match). */
     function lookupWmaAreaMapPdf(name) {
+      if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) return null;
       if (!name) return null;
       var n = String(name).toLowerCase();
       // Strip list suffixes like "(WMA Zone B)" for matching
@@ -13699,6 +14269,28 @@
       attrs = attrs || {};
       var layerKey = (layer && layer.key) || '';
       var n = name || '';
+      if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) {
+        var gisOther = [
+          { url: attrs.MoreInfoLink, label: 'Official unit information' },
+          { url: attrs.Hunting_Website || attrs.Station_Website, label: 'Refuge hunting map & rules (FWS)' },
+          { url: attrs.Link || attrs.PageLink || attrs.MapLink, label: 'Official unit map' }
+        ];
+        for (var gi = 0; gi < gisOther.length; gi++) {
+          if (gisOther[gi].url && String(gisOther[gi].url).indexOf('http') === 0) {
+            return { url: gisOther[gi].url, label: gisOther[gi].label, source: 'gis' };
+          }
+        }
+        var off = officialStateSources();
+        if (layerKey === 'nwr' || /national\s*wildlife\s*refuge|\bnwr\b/i.test(n)) {
+          var stNm = (window.RS_STATE && window.RS_STATE.name) || 'Wyoming';
+          return {
+            url: 'https://www.fws.gov/our-facilities?state_name=' + encodeURIComponent(stNm) + '&field_facility_purpose_value=National%20Wildlife%20Refuge',
+            label: 'FWS — find this refuge hunting map & brochure',
+            source: 'fallback'
+          };
+        }
+        return { url: off.law.url, label: off.law.label, source: 'fallback' };
+      }
 
       // 1) GIS-provided map / AREA permit (most current unit PDF when present)
       var gisCandidates = [
@@ -13802,6 +14394,7 @@
       if (layerKey === 'nwr' || /national\s*wildlife\s*refuge|\bnwr\b/i.test(n)) return 'federal';
       if (layerKey === 'tva' || /\btva\b/i.test(n)) return 'tva';
       if (layerKey === 'usfs' || /national\s*forest/i.test(n)) return 'federal';
+      if (layerKey === 'blm' || /\bblm\b/i.test(n)) return 'federal';
       if (layerKey === 'nps' || /national\s*park|national\s*monument|national\s*preserve/i.test(n)) return 'federal';
       return 'state'; // WMA, SOA, PDHA, Forever Wild, etc.
     }
@@ -13985,6 +14578,80 @@
       return null;
     }
 
+    function buildNonAlabamaSpotBullets(name, layerKey, attrs, dateObj, ds, weapon, land) {
+      var bullets = [];
+      var pack = window.RS_STATE || {};
+      var agency = officialConfirmLabel();
+      var lat = attrs.lat, lng = attrs.lng;
+      var zone = attrs.zone;
+      var sp = typeof activePack === 'function' ? activePack() : null;
+      if (sp && (zone == null || zone === '' || zone === 'A') && lat != null && lng != null) {
+        zone = detectPackHuntUnit(lat, lng);
+      }
+      var zoneLabel = pack.name ? (pack.name + ' public land') : 'Public land';
+      var meta = (sp && sp.areaMeta) ? sp.areaMeta(zone) : null;
+      var unitWord = (sp && sp.unitLabel) || 'Hunt unit';
+      if (sp) {
+        zoneLabel = meta
+          ? (unitWord + ' ' + meta.n + ' — ' + meta.name)
+          : (unitWord + ' ' + (zone || '?'));
+      }
+      bullets.push('Selected day: ' + prettyDate(dateObj) + '.');
+      bullets.push('Place: ' + (name || 'Public land') + ' · ' + zoneLabel + '.');
+      if (weapon && weapon !== 'Either') bullets.push('Your selected weapon filter: ' + displayWeaponName(weapon) + '.');
+      else bullets.push('Weapon filter: Either (all legal deer weapons for this hunt area).');
+
+      var matched = [];
+      var canHuntToday = false;
+      var statusKnown = false;
+      var closedReason = '';
+      if (sp && typeof sp.matchRules === 'function' && zone) {
+        matched = sp.matchRules(zone, ds, weapon, land || 'Public', layerKey);
+        canHuntToday = matched.length > 0;
+        statusKnown = true;
+        if (canHuntToday) {
+          bullets.push('Status on selected day: OPEN for deer on this public land under ' + zoneLabel +
+            ' with ' + (weapon === 'Either' ? 'legal deer weapons' : displayWeaponName(weapon)) +
+            ' (confirm ' + agency + ').');
+          matched.slice(0, 4).forEach(function (r) {
+            bullets.push('• ' + displayWeaponName(r.weapon) + ' · ' + (r.target || '') + ' · ' + (r.limit || '') +
+              (r.notes ? ' — ' + r.notes : ''));
+          });
+        } else {
+          var wPub = weapon === 'Either' ? 'deer weapons' : displayWeaponName(weapon);
+          var alt = [];
+          ['Archery', 'Primitive', 'Gun'].forEach(function (w) {
+            if (w === weapon) return;
+            if (sp.matchRules(zone, ds, w, land || 'Public', layerKey).length) alt.push(w);
+          });
+          if (weapon && weapon !== 'Either' && alt.length) {
+            closedReason = "Can't hunt that day with " + wPub +
+              '. Can hunt with: ' + alt.map(displayWeaponName).join(' · ') + '.';
+            bullets.push('Status on selected day: CLOSED for ' + wPub + ' on ' + zoneLabel +
+              ' — Can hunt with: ' + alt.map(displayWeaponName).join(' · ') + '.');
+          } else {
+            closedReason = "Can't hunt that day with " + wPub + ' on ' + zoneLabel + '.';
+            bullets.push('Status on selected day: CLOSED for deer with the selected weapon under ' + zoneLabel + ' seasons.');
+          }
+        }
+      } else {
+        bullets.push('Status on selected day: confirm official ' + (pack.agency || agency) +
+          ' seasons for this unit, date, and weapon.');
+      }
+      if (layerKey === 'walkin') bullets.push('Walk-In area: foot access only unless posted otherwise. Confirm access dates.');
+      if (layerKey === 'hma') bullets.push('Hunter Management Area: permission slip usually required.');
+      if (layerKey === 'stl') bullets.push('State Trust Land: hunting allowed where posted open. Confirm access rules.');
+      if (layerKey === 'blm') bullets.push('BLM public land. Confirm field-office travel rules.');
+      if (layerKey === 'wma' && sp && sp.wmaNote) bullets.push(sp.wmaNote);
+      bullets.push('Always confirm ' + agency + ' seasons, bag limits, and unit rules before hunting.');
+      return {
+        bullets: bullets,
+        canHuntToday: canHuntToday,
+        statusKnown: statusKnown,
+        closedReason: closedReason
+      };
+    }
+
     function buildCondensedDeerBullets(name, layerKey, attrs) {
       var bullets = [];
       var dateObj = selectedDate || new Date();
@@ -13996,10 +14663,14 @@
 
       // ---- Private land (not on public overlay): statewide zone seasons ----
       if (layerKey === 'private') {
-        var zone = attrs.zone || 'A';
+        var privPack = typeof activePack === 'function' ? activePack() : null;
+        var zone = attrs.zone || (privPack && attrs.lat != null ? detectPackHuntUnit(attrs.lat, attrs.lng) : 'A');
         var rid = typeof statewideLocIdForZone === 'function' ? statewideLocIdForZone(zone) : 10;
+        var zoneLabel = privPack
+          ? (((privPack.unitLabel || 'Hunt unit') + ' ' + (zone || '?')))
+          : ('Zone ' + zone);
         bullets.push('Selected day: ' + prettyDate(dateObj) + '.');
-        bullets.push('Land type: Private property · Zone ' + zone + '.');
+        bullets.push('Land type: Private property · ' + zoneLabel + '.');
         if (attrs.owner) bullets.push('Property owner (tax / parcel data): ' + attrs.owner + '.');
         if (attrs.address) bullets.push('Parcel address: ' + attrs.address + '.');
         if (attrs.parcelnumb) bullets.push('Parcel #: ' + attrs.parcelnumb + '.');
@@ -14007,16 +14678,23 @@
         if (weapon && weapon !== 'Either') bullets.push('Your selected weapon filter: ' + displayWeaponName(weapon) + '.');
         else bullets.push('Weapon filter: Either (all legal deer weapons for private land in this zone).');
 
-        var matched = typeof matchRulesForLocId === 'function'
-          ? matchRulesForLocId(rid, dateObj, weapon, 'Private', ds)
-          : [];
+        function matchPrivateZone(wpn) {
+          if (privPack && typeof privPack.matchRules === 'function') {
+            return privPack.matchRules(zone, ds, wpn, 'Private', 'private');
+          }
+          return typeof matchRulesForLocId === 'function'
+            ? matchRulesForLocId(rid, dateObj, wpn, 'Private', ds)
+            : [];
+        }
+        var matched = matchPrivateZone(weapon);
         var canHuntToday = matched.length > 0;
         var statusKnown = true;
         var closedReason = '';
+        var agencyShort = officialConfirmLabel();
         if (canHuntToday) {
-          bullets.push('Status on selected day: OPEN for deer on private land under statewide Zone ' + zone +
+          bullets.push('Status on selected day: OPEN for deer on private land under ' + zoneLabel +
             ' with ' + (weapon === 'Either' ? 'legal deer weapons' : displayWeaponName(weapon)) +
-            ' (confirm Outdoor Alabama).');
+            ' (confirm ' + agencyShort + ').');
           matched.slice(0, 4).forEach(function(r) {
             bullets.push('• ' + displayWeaponName(r.weapon) + ' · ' + (r.target || '') + ' · ' + (r.limit || '') +
               (r.notes ? ' — ' + r.notes : ''));
@@ -14027,30 +14705,32 @@
           try {
             ['Archery', 'Primitive', 'Gun'].forEach(function(w) {
               if (w === weapon) return;
-              if (typeof matchRulesForLocId === 'function' && matchRulesForLocId(rid, dateObj, w, 'Private', ds).length) {
-                altPriv.push(w);
-              }
+              if (matchPrivateZone(w).length) altPriv.push(w);
             });
           } catch (eAp) {}
           if (weapon && weapon !== 'Either' && altPriv.length) {
             closedReason = "Can't hunt that day with " + wPriv +
               '. Can hunt with: ' + altPriv.map(displayWeaponName).join(' · ') + '.';
             bullets.push('Status on selected day: CLOSED for ' + wPriv +
-              ' on private land in Deer Zone ' + zone +
+              ' on private land in ' + zoneLabel +
               ' — Can hunt with: ' + altPriv.map(displayWeaponName).join(' · ') + '.');
           } else {
             closedReason = "Can't hunt that day with " + wPriv +
-              ' on private land in Deer Zone ' + zone + '.';
-            bullets.push('Status on selected day: CLOSED for deer with the selected weapon under Zone ' + zone + ' statewide seasons.');
+              ' on private land in ' + zoneLabel + '.';
+            bullets.push('Status on selected day: CLOSED for deer with the selected weapon under ' + zoneLabel + ' seasons.');
           }
         }
-        bullets.push('Always confirm Outdoor Alabama zone seasons, bag limits, and antler rules before hunting.');
+        bullets.push('Always confirm ' + agencyShort + ' seasons, bag limits, and antler rules before hunting.');
         return {
           bullets: bullets,
           canHuntToday: canHuntToday,
           statusKnown: statusKnown,
           closedReason: closedReason
         };
+      }
+
+      if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) {
+        return buildNonAlabamaSpotBullets(name, layerKey, attrs, dateObj, ds, weapon, land);
       }
 
       var profile = findUnitDeerProfile(name);
@@ -14305,8 +14985,21 @@
       }
       var legislation = [];
       var outdoorAlabama = [];
+      var official = officialStateSources();
 
-      if (jurisdiction === 'federal') {
+      if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) {
+        legislation.push(official.law);
+        outdoorAlabama.push(official.agency);
+        (official.extra || []).forEach(function (x) { outdoorAlabama.push(x); });
+        if (jurisdiction === 'federal') {
+          legislation.push(LEGISLATION.federalPart32);
+        }
+        var gisOther = attrs.MoreInfoLink || attrs.Hunting_Website || attrs.Station_Website ||
+          attrs.Link || attrs.PageLink || attrs.MapLink || '';
+        if (gisOther && String(gisOther).indexOf('http') === 0) {
+          outdoorAlabama.unshift({ label: 'Official unit information', url: gisOther });
+        }
+      } else if (jurisdiction === 'federal') {
         legislation.push(LEGISLATION.federalNWR);
         legislation.push(LEGISLATION.federalPart32);
         // State permit often still required when refuge is managed with WMA overlay
@@ -14327,24 +15020,26 @@
         outdoorAlabama.push(LEGISLATION.stateDeer);
       }
 
-      // Area-specific Outdoor Alabama / permit links
-      OA_AREA_PAGES.forEach(function(p) {
-        if (p.match.test(name || '') || p.match.test(layerKey || '')) {
-          outdoorAlabama.push({ label: p.label, url: p.url });
+      if (isAlabamaPack()) {
+        // Area-specific Outdoor Alabama / permit links
+        OA_AREA_PAGES.forEach(function(p) {
+          if (p.match.test(name || '') || p.match.test(layerKey || '')) {
+            outdoorAlabama.push({ label: p.label, url: p.url });
+          }
+        });
+        // Official AREA map PDF — prefer GIS Link, then built-in 2026–27 WMA PDF table
+        var gisLink = attrs.Link || attrs.PageLink || attrs.TractInfoL || attrs.MapLink || attrs.PMapLink || attrs.Link2 || '';
+        var pdfLookup = lookupWmaAreaMapPdf(name);
+        if (gisLink && /\.pdf(\?|$)/i.test(String(gisLink))) {
+          outdoorAlabama.unshift({ label: 'Official AREA map (PDF) · Outdoor Alabama 2026–27', url: gisLink });
+        } else if (pdfLookup) {
+          outdoorAlabama.unshift({ label: pdfLookup.label, url: pdfLookup.url });
+        } else if (gisLink) {
+          outdoorAlabama.push({ label: 'Area map / rules (ADCNR link)', url: gisLink });
         }
-      });
-      // Official AREA map PDF — prefer GIS Link, then built-in 2026–27 WMA PDF table
-      var gisLink = attrs.Link || attrs.PageLink || attrs.TractInfoL || attrs.MapLink || attrs.PMapLink || attrs.Link2 || '';
-      var pdfLookup = lookupWmaAreaMapPdf(name);
-      if (gisLink && /\.pdf(\?|$)/i.test(String(gisLink))) {
-        outdoorAlabama.unshift({ label: 'Official AREA map (PDF) · Outdoor Alabama 2026–27', url: gisLink });
-      } else if (pdfLookup) {
-        outdoorAlabama.unshift({ label: pdfLookup.label, url: pdfLookup.url });
-      } else if (gisLink) {
-        outdoorAlabama.push({ label: 'Area map / rules (ADCNR link)', url: gisLink });
-      }
-      if (attrs.RESERVOIRURL) {
-        outdoorAlabama.push({ label: 'TVA reservoir information', url: attrs.RESERVOIRURL });
+        if (attrs.RESERVOIRURL) {
+          outdoorAlabama.push({ label: 'TVA reservoir information', url: attrs.RESERVOIRURL });
+        }
       }
 
       // Dedupe by URL
@@ -14359,8 +15054,9 @@
 
       if (layerKey === 'private') {
         jurisdiction = 'private';
-        legislation = [LEGISLATION.stateDeer];
-        outdoorAlabama = [LEGISLATION.stateDeer];
+        var privSrc = officialStateSources();
+        legislation = [privSrc.law];
+        outdoorAlabama = [privSrc.agency].concat(privSrc.extra || []);
       }
 
       // Tag sources for UI buttons (legislation first, then field/OA sources)
@@ -14376,8 +15072,16 @@
         jurisdiction: jurisdiction,
         jurisdictionLabel: jurisdiction === 'federal' ? 'Federal land (USFWS / NWR)'
           : jurisdiction === 'tva' ? 'TVA public land + Alabama deer seasons'
-          : jurisdiction === 'private' ? ('Private property · Zone ' + (attrs.zone || '?') + (attrs.owner ? ' · ' + attrs.owner : ''))
-          : 'State of Alabama public hunting land',
+          : jurisdiction === 'private' ? (function () {
+              var ap = typeof activePack === 'function' ? activePack() : null;
+              var zlab = ap ? ((ap.unitLabel || 'Hunt unit') + ' ' + (attrs.zone || '?')) : ('Zone ' + (attrs.zone || '?'));
+              return 'Private property · ' + zlab + (attrs.owner ? ' · ' + attrs.owner : '');
+            })()
+          : (function () {
+              var ap = typeof activePack === 'function' ? activePack() : null;
+              if (ap) return (ap.agency || (window.RS_STATE && window.RS_STATE.name) || 'State') + ' public hunting land';
+              return 'State of Alabama public hunting land';
+            })(),
         bullets: bullets,
         canHuntToday: condensed.canHuntToday,
         statusKnown: condensed.statusKnown,
@@ -14648,6 +15352,8 @@
     var parcelGridCache = {};
     var PARCEL_TILE_BASE = 'https://tiles.regrid.com/api/v1/parcels/{z}/{x}/{y}.png';
     var PARCEL_GRID_BASE = 'https://tiles.regrid.com/api/v1/parcels/{z}/{x}/{y}.json';
+    /** Free Reg: no Regrid demo tiles. Licensed parcels are a Hunt upgrade. */
+    var REGRID_ENABLED = false;
 
     function getRegridToken() {
       try {
@@ -14757,6 +15463,7 @@
 
     /** Query Regrid parcel UTFGrid at lat/lng (owner / address when available). */
     function queryParcelAt(lat, lng) {
+      if (!REGRID_ENABLED) return Promise.resolve(null);
       if (lat == null || lng == null || !map) return Promise.resolve(null);
       var z = Math.min(18, Math.max(12, Math.floor(map.getZoom())));
       var tile = lonLatToTileXY(lng, lat, z);
@@ -14831,6 +15538,18 @@
     }
 
     function togglePropertyLines(on) {
+      if (!REGRID_ENABLED) {
+        parcelsEnabled = false;
+        var off = document.getElementById('toggle-parcels-chk');
+        if (off) off.checked = false;
+        if (on && typeof showAppCopyToast === 'function') {
+          showAppCopyToast(
+            '<span class="act">Property lines</span><br>' +
+            'Owner parcels are a Hunt Slayer upgrade. Free Reg does not load Regrid tiles.'
+          );
+        }
+        return;
+      }
       parcelsEnabled = !!on;
       var chk = document.getElementById('toggle-parcels-chk');
       if (chk) chk.checked = parcelsEnabled;
@@ -14946,29 +15665,30 @@
             // Labels/roads reference + transportation (two layers for reliability)
             var o = overlayOpacity.roads != null ? overlayOpacity.roads : 0.9;
             var roadsA = L.tileLayer(
-              'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+              'https://basemap.nationalmap.gov/arcgis/rest/services/USGSHydroCached/MapServer/tile/{z}/{y}/{x}',
               {
                 maxZoom: 22,
-                maxNativeZoom: 19,
+                maxNativeZoom: 16,
                 opacity: o,
                 pane: 'rsRoadsPane',
                 zIndex: 450,
                 detectRetina: false,
                 crossOrigin: false,
-                attribution: 'Roads Esri',
+                attribution: 'USGS Hydrography',
                 className: 'roads-overlay-tiles'
               }
             );
             var roadsB = L.tileLayer(
-              'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+              'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
               {
                 maxZoom: 22,
-                maxNativeZoom: 19,
-                opacity: o * 0.85,
+                maxNativeZoom: 16,
+                opacity: o * 0.42,
                 pane: 'rsRoadsPane',
                 zIndex: 451,
                 detectRetina: false,
                 crossOrigin: false,
+                attribution: 'USGS Topo',
                 className: 'roads-overlay-tiles-b'
               }
             );
@@ -15062,6 +15782,9 @@
         var layerKey = pl.layer.key || pl.layer.type || 'wma';
         var plAttrs = Object.assign({}, pl.attrs || {});
         if (pl.wmaZone && !plAttrs.wmaZone) plAttrs.wmaZone = pl.wmaZone;
+        if (pl.lat != null) plAttrs.lat = pl.lat;
+        if (pl.lng != null) plAttrs.lng = pl.lng;
+        if (zone) plAttrs.zone = zone;
         var plName = pl.name || 'Public land';
         var info = buildDeerRegsInfo(plName, layerKey, plAttrs);
         var wmaZ = plAttrs.wmaZone || pl.wmaZone || null;
@@ -15098,19 +15821,25 @@
       }
 
       // Not on a public overlay → treat as private property for labeling
+      var privPack2 = typeof activePack === 'function' ? activePack() : null;
+      var privLabel = privPack2
+        ? ('Private land · ' + (privPack2.unitLabel || 'Hunt unit') + ' ' + (zone || '?'))
+        : ('Private land · Zone ' + zone);
       var privAttrs = {
         zone: zone,
+        lat: lat,
+        lng: lng,
         owner: parcel && parcel.owner ? parcel.owner : '',
         address: parcel && parcel.address ? parcel.address : '',
         parcelnumb: parcel && parcel.parcelnumb ? parcel.parcelnumb : ''
       };
       var privInfo = buildDeerRegsInfo(
-        'Private land · Zone ' + zone,
+        privLabel,
         'private',
         privAttrs
       );
       var privAlts = (!privInfo.canHuntToday && privInfo.statusKnown)
-        ? altWeaponsFromClosedReason(privInfo.closedReason, 'Private land · Zone ' + zone, 'private', privAttrs)
+        ? altWeaponsFromClosedReason(privInfo.closedReason, privLabel, 'private', privAttrs)
         : [];
       return {
         canHunt: !!privInfo.canHuntToday,
@@ -15118,7 +15847,7 @@
         closedReason: privInfo.closedReason || '',
         altWeapons: privAlts,
         landKind: 'private',
-        name: 'Private land · Zone ' + zone,
+        name: privLabel,
         layerKey: 'private',
         zone: zone,
         wmaZone: null,
@@ -15608,6 +16337,9 @@
     function displayWeaponName(weapon) {
       if (!weapon) return '';
       if (weapon === 'Gun') return 'Rifle';
+      if (weapon === 'Either') return 'Any';
+      if (weapon === 'Archery') return 'Bow';
+      if (weapon === 'Primitive') return 'Muzzleloader';
       return String(weapon);
     }
     function getDistanceMiles(lat1, lon1, lat2, lon2) {
@@ -15684,6 +16416,7 @@
     };
 
     function normalizeDeerZoneLetter(zone) {
+      if (typeof activePack === 'function' && activePack()) return String(zone || '');
       var z = String(zone || 'A').toUpperCase().charAt(0);
       return ZONE_PEAK_RUT[z] ? z : 'A';
     }
@@ -15694,7 +16427,10 @@
      */
     function peakRutWindowForZone(zone, refDate) {
       var z = normalizeDeerZoneLetter(zone);
-      var def = ZONE_PEAK_RUT[z] || ZONE_PEAK_RUT.A;
+      var apRut = typeof activePack === 'function' ? activePack() : null;
+      var def = (apRut && apRut.peakRut)
+        ? apRut.peakRut
+        : (ZONE_PEAK_RUT[z] || ZONE_PEAK_RUT.A);
       var ref = refDate instanceof Date && !isNaN(refDate.getTime())
         ? refDate
         : (selectedDate || new Date());
@@ -15718,7 +16454,9 @@
         end: end,
         mid: mid,
         label: def.label,
-        sourceNote: 'Planning avg (Outdoor Alabama / WFF weighted highest, then OnX, then other guides)'
+        sourceNote: (apRut && apRut.peakRut
+          ? ('Planning avg for ' + (apRut.agency || 'this state') + ' (not a legal window). Confirm field reports.')
+          : 'Planning avg (Outdoor Alabama / WFF weighted highest, then OnX, then other guides)')
       };
     }
 
@@ -16667,6 +17405,17 @@
 
     // ========== BOUNDARY ==========
     function detectBoundaryAndZone(lat, lng) {
+      var apB = typeof activePack === 'function' ? activePack() : null;
+      if (apB) {
+        var ha = detectPackHuntUnit(lat, lng);
+        var meta = apB.areaMeta ? apB.areaMeta(ha) : null;
+        var uword = apB.unitLabel || 'Hunt unit';
+        var name = meta ? (uword + ' ' + meta.n + ' — ' + meta.name) : (ha ? (uword + ' ' + ha) : (apB.agency || 'This state'));
+        var desc = meta
+          ? (name + (meta.region ? (' · Region ' + meta.region) : '') + (meta.herd ? (' · ' + meta.herd) : '') + '. Confirm ' + (apB.confirmLabel || apB.agency) + '.')
+          : ('Confirm ' + (apB.confirmLabel || apB.agency) + ' deer seasons before hunting.');
+        return { id: ha || apB.code, name: name, type: 'Hunt Area', zone: ha || '', desc: desc };
+      }
       if (lat >= 34.45 && lat <= 34.68 && lng >= -87.12 && lng <= -86.68) {
         const n = lat >= 34.56;
         return { id: n?3:4, name: n?'Wheeler North Wildlife Refuge':'Wheeler South Wildlife Refuge', type:'Refuge', zone:n?'A':'C', desc:'Federal Wildlife Refuge. Archery-only. NO SUNDAY HUNTING.' };
@@ -17227,7 +17976,7 @@
     // ========== ADCNR WMA / PUBLIC HUNTING LANDS OVERLAY ==========
     function readAdcnrCache() {
       try {
-        var raw = localStorage.getItem(ADCNR_CACHE_KEY);
+        var raw = localStorage.getItem(getPublicLandsCacheKey());
         if (!raw) return null;
         var parsed = JSON.parse(raw);
         if (!parsed || !parsed.timestamp || !parsed.layers) return null;
@@ -17243,11 +17992,12 @@
         for (var i = 0; i < layers.length; i++) {
           totalFeats += ((layers[i] && layers[i].features) || []).length;
         }
-        if (totalFeats < 5) {
+        var minFeats = (typeof isAlabamaPack === 'function' && !isAlabamaPack()) ? 1 : 5;
+        if (totalFeats < minFeats) {
           console.warn('ADCNR cache skip: too few features (' + totalFeats + ')');
           return false;
         }
-        localStorage.setItem(ADCNR_CACHE_KEY, JSON.stringify(payload));
+        localStorage.setItem(getPublicLandsCacheKey(), JSON.stringify(payload));
         return true;
       } catch (e) {
         console.warn('ADCNR cache save failed (quota?):', e);
@@ -17270,26 +18020,41 @@
     }
 
     function fetchAdcnrLayer(layerDef) {
-      var params = [
-        'where=' + encodeURIComponent(layerDef.where || '1=1'),
-        'outFields=' + encodeURIComponent(layerDef.outFields || '*'),
-        'returnGeometry=true',
-        'outSR=4326',
-        'maxAllowableOffset=' + (layerDef.maxOffset != null ? layerDef.maxOffset : 0.00005),
-        'f=json'
-      ];
-      if (layerDef.useBbox) {
-        params.push('geometry=' + AL_BBOX);
-        params.push('geometryType=esriGeometryEnvelope');
-        params.push('inSR=4326');
-        params.push('spatialRel=esriSpatialRelIntersects');
+      function onePage(offset) {
+        var params = [
+          'where=' + encodeURIComponent(layerDef.where || '1=1'),
+          'outFields=' + encodeURIComponent(layerDef.outFields || '*'),
+          'returnGeometry=true',
+          'outSR=4326',
+          'maxAllowableOffset=' + (layerDef.maxOffset != null ? layerDef.maxOffset : 0.00005),
+          'resultRecordCount=2000',
+          'resultOffset=' + (offset || 0),
+          'f=json'
+        ];
+        if (layerDef.useBbox) {
+          params.push('geometry=' + getActiveStateBbox());
+          params.push('geometryType=esriGeometryEnvelope');
+          params.push('inSR=4326');
+          params.push('spatialRel=esriSpatialRelIntersects');
+        }
+        return fetch(layerDef.url + '?' + params.join('&')).then(function(res) {
+          if (!res.ok) throw new Error(layerDef.key + ' HTTP ' + res.status);
+          return res.json();
+        });
       }
-      return fetch(layerDef.url + '?' + params.join('&')).then(function(res) {
-        if (!res.ok) throw new Error(layerDef.key + ' HTTP ' + res.status);
-        return res.json();
-      }).then(function(data) {
+      function collect(offset, acc) {
+        return onePage(offset).then(function(data) {
+          var feats = data.features || [];
+          acc = acc.concat(feats);
+          if (layerDef.paginate !== false && data.exceededTransferLimit && feats.length && acc.length < 8000) {
+            return collect(offset + feats.length, acc);
+          }
+          return acc;
+        });
+      }
+      return collect(0, []).then(function(feats) {
         return Object.assign({}, layerDef, {
-          features: (data.features || []).map(function(f) {
+          features: feats.map(function(f) {
             return { attributes: f.attributes || {}, geometry: f.geometry || null };
           })
         });
@@ -17338,11 +18103,11 @@
 
       if (adcnrLoading && !forceRefresh) return adcnrLoading;
 
-      adcnrLoading = Promise.all(ADCNR_LAYERS.map(fetchAdcnrLayer)).then(function(layers) {
+      adcnrLoading = Promise.all((typeof ACTIVE_PUBLIC_LAYERS !== 'undefined' && ACTIVE_PUBLIC_LAYERS ? ACTIVE_PUBLIC_LAYERS : ADCNR_LAYERS).map(fetchAdcnrLayer)).then(function(layers) {
         var payload = {
           timestamp: Date.now(),
           source: 'ADCNR + TVA + FWS Public Hunt Units 2025-26 + USFS + USACE (PAD-US) + NPS',
-          cacheKey: ADCNR_CACHE_KEY,
+          cacheKey: getPublicLandsCacheKey(),
           layers: layers
         };
         adcnrLandsData = payload;
@@ -17568,7 +18333,10 @@
         cacheId: cacheId,
         lat: lat,
         lng: lng,
-        wmaZone: attrs.wmaZone || null
+        wmaZone: attrs.wmaZone || null,
+        zone: (typeof detectDeerZoneLetter === 'function' && lat != null && lng != null)
+          ? detectDeerZoneLetter(lat, lng)
+          : (attrs.zone || null)
       };
       return lastClickPublicLand;
     }
@@ -17964,7 +18732,18 @@
 
     function isInAlabama(lat, lng) {
       if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return false;
-      // Quick reject outside state envelope
+      var env = window.RS_STATE && window.RS_STATE.env;
+      if (env) {
+        var pad = 0.08;
+        if (lat < env.south - pad || lat > env.north + pad || lng < env.west - pad || lng > env.east + pad) return false;
+        var ring = (window.RS_STATE.ring && window.RS_STATE.ring.length)
+          ? window.RS_STATE.ring
+          : (typeof ACTIVE_STATE_RING !== 'undefined' ? ACTIVE_STATE_RING : null);
+        if (ring && ring.length >= 4 && typeof pointInLatLngRing === 'function') {
+          return pointInLatLngRing(lat, lng, ring);
+        }
+      }
+      // Alabama fallback envelope
       if (lat < 30.14 || lat > 35.01 || lng < -88.48 || lng > -84.88) return false;
       return pointInRing(lng, lat, AL_BOUNDARY_RING);
     }
@@ -18097,7 +18876,9 @@
             var orgForList = attrs.Organization_Name || name;
             if (explicitCanHuntFlag(attrs) === false) return;
             if (/redstone\s*arsenal|administrative\s*area/i.test(attrs.Hunt_Unit_Name || '')) return;
-            if (!isHuntableDeerRefugeName(orgForList) && !isHuntableDeerRefugeName(name)) return;
+            if (typeof isAlabamaPack === 'function' && isAlabamaPack()) {
+              if (!isHuntableDeerRefugeName(orgForList) && !isHuntableDeerRefugeName(name)) return;
+            }
             // List under refuge name (collapse subunits like Main Hunt Area / Garth into one row)
             name = normalizeUnitName(orgForList || name);
           }
@@ -18418,20 +19199,20 @@
       var el = document.getElementById('dist-status');
       if (!el) return;
       if (!distRadiusMiles) {
-        el.textContent = 'Showing all open Alabama tracts (any distance)';
+        el.textContent = 'Showing every open place in Alabama (any distance)';
         return;
       }
       if (distOriginLat == null || distOriginLng == null) {
         if (distOriginMode === 'zip') {
-          el.textContent = 'Enter a ZIP and click Apply to filter by distance';
+          el.textContent = 'Type a ZIP code, then tap Apply';
         } else if (distOriginMode === 'address') {
-          el.textContent = 'Enter an address to filter by distance';
+          el.textContent = 'Type a street address to measure from';
         } else {
-          el.textContent = 'Waiting for GPS… or switch to ZIP / Address';
+          el.textContent = 'Finding your location… or use ZIP or Address';
         }
         return;
       }
-      el.textContent = 'Within ' + distRadiusMiles + ' mi of ' + (distOriginLabel || 'origin');
+      el.textContent = 'Places within ' + distRadiusMiles + ' miles of ' + (distOriginLabel || 'your start point');
     }
 
     function requestDistGps() {
@@ -18642,7 +19423,8 @@
       }
 
       function fromPhoton() {
-        // Bias toward Alabama / SE US
+        // Photon/komoot demo is not licensed for a commercial app — Census only
+        return Promise.resolve([]);
         var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(q) +
           '&limit=6&lang=en&lat=32.8&lon=-86.8&zoom=6';
         return fetch(url, { referrerPolicy: 'no-referrer' })
@@ -19018,10 +19800,22 @@
       return out.slice(0, 10);
     }
 
-    /** Photon typeahead for cities / areas / addresses (biased to map center). */
+    /** Census geocoder typeahead for US cities / addresses (no Photon). */
     function geocodeMapSearchSuggestions(query) {
       var q = String(query || '').trim();
       if (q.length < 2) return Promise.resolve([]);
+      return geocodeStreetAddress(q).then(function(hits) {
+        return (hits || []).slice(0, 8).map(function(h) {
+          return {
+            label: h.label,
+            sub: 'US Census',
+            kind: 'geo',
+            lat: h.lat,
+            lng: h.lng,
+            source: 'census'
+          };
+        });
+      });
       var lat = 32.8, lng = -86.8, zoom = 6;
       try {
         if (typeof map !== 'undefined' && map && map.getCenter) {
@@ -19422,12 +20216,23 @@
     function applyDistZip() {
       var zip = (document.getElementById('dist-zip-input').value || '').trim();
       if (!/^\d{5}$/.test(zip)) {
-        alert('Enter a valid 5-digit ZIP code.');
+        if (typeof showAppCopyToast === 'function') {
+          showAppCopyToast('<span class="act">ZIP</span><br>Enter a valid 5-digit ZIP code.');
+        }
         return;
       }
       distZip = zip;
       var status = document.getElementById('dist-status');
       if (status) status.textContent = 'Looking up ZIP ' + zip + '…';
+      function applyZipLatLng(lat, lng, label) {
+        distOriginLat = lat;
+        distOriginLng = lng;
+        distOriginLabel = label;
+        clearDistOriginMarker();
+        updateDistStatus();
+        updateAvailableList();
+        if (typeof loadWeatherForDistanceOrigin === 'function') loadWeatherForDistanceOrigin();
+      }
       fetch('https://api.zippopotam.us/us/' + zip)
         .then(function(res) {
           if (!res.ok) throw new Error('ZIP not found');
@@ -19436,16 +20241,27 @@
         .then(function(data) {
           var place = data.places && data.places[0];
           if (!place) throw new Error('ZIP not found');
-          distOriginLat = parseFloat(place.latitude);
-          distOriginLng = parseFloat(place.longitude);
-          distOriginLabel = zip + ' (' + (place['place name'] || 'ZIP') + ', ' + (place['state abbreviation'] || 'AL') + ')';
-          clearDistOriginMarker();
-          updateDistStatus();
-          updateAvailableList();
-          if (typeof loadWeatherForDistanceOrigin === 'function') loadWeatherForDistanceOrigin();
+          var lat = parseFloat(place.latitude);
+          var lng = parseFloat(place.longitude);
+          if (isNaN(lat) || isNaN(lng)) throw new Error('ZIP not found');
+          applyZipLatLng(lat, lng, zip + ' (' + (place['place name'] || 'ZIP') + ', ' + (place['state abbreviation'] || '') + ')');
         })
         .catch(function() {
-          alert('Could not find that ZIP code. Try another.');
+          return fetch('https://nominatim.openstreetmap.org/search?postalcode=' + encodeURIComponent(zip) +
+            '&country=us&format=json&limit=1', { referrerPolicy: 'no-referrer' })
+            .then(function(res) { if (!res.ok) throw new Error('ZIP not found'); return res.json(); })
+            .then(function(arr) {
+              var hit = arr && arr[0];
+              var lat = hit && parseFloat(hit.lat);
+              var lng = hit && parseFloat(hit.lon);
+              if (isNaN(lat) || isNaN(lng)) throw new Error('ZIP not found');
+              applyZipLatLng(lat, lng, zip);
+            });
+        })
+        .catch(function() {
+          if (typeof showAppCopyToast === 'function') {
+            showAppCopyToast('<span class="act">ZIP not found</span><br>Try another 5-digit ZIP.');
+          }
           updateDistStatus();
         });
     }
@@ -19577,18 +20393,18 @@
       if (layer.key === 'usfs') return true;
 
       // Federal refuges: FWS hunt-unit polygons only when Huntable≠No (already filtered in where)
-      // and refuge is on the deer-hunt whitelist (Wheeler, Cahaba, Eufaula, …).
       if (layer.key === 'nwr' || layer.typeLabel === 'NWR' || layer.typeLabel === 'Refuge') {
-        // Prefer Organization_Name for profile match (Hunt_Unit_Name alone is "Main Hunt Area")
         var orgName = attrs.Organization_Name || name;
         if (canHunt === false) return false;
-        // Closed FWS subunits that sometimes slip through naming (arsenal / admin HQ)
         if (/redstone\s*arsenal|administrative\s*area|visitor\s*center/i.test(attrs.Hunt_Unit_Name || '') ||
             /redstone\s*arsenal/i.test(name || '')) {
           return false;
         }
-        // Match deer profile on refuge org name (not subunit label)
-        return isHuntableDeerRefugeName(orgName) || isHuntableDeerRefugeName(name);
+        // Alabama: only named deer-hunt refuges. Other states: query already dropped Huntable=No.
+        if (typeof isAlabamaPack === 'function' && isAlabamaPack()) {
+          return isHuntableDeerRefugeName(orgName) || isHuntableDeerRefugeName(name);
+        }
+        return true;
       }
 
       // Forever Wild: only highlight when CanHunt is explicitly Yes.
@@ -19616,9 +20432,9 @@
         return true;
       }
 
-      // WMA, SOA, PDHA, TVA: managed hunting programs / public recreation lands with known hunt use
-      // (still blocked above if CanHunt is explicitly No)
-      if (layer.key === 'wma' || layer.key === 'soa' || layer.key === 'pdha' || layer.key === 'tva') {
+      // Managed hunt land (state WMA/SGL/Game Lands/WA and western BLM / walk-in / trust)
+      if (layer.key === 'wma' || layer.key === 'soa' || layer.key === 'pdha' || layer.key === 'tva' ||
+          layer.key === 'blm' || layer.key === 'walkin' || layer.key === 'stl' || layer.key === 'hma') {
         return true;
       }
 
@@ -20077,11 +20893,13 @@
       var layersToDraw = (adcnrLandsData.layers || []).slice().sort(function(a, b) {
         var rank = function(k) {
           if (k === 'usfs') return 0;
+          if (k === 'blm' || k === 'stl') return 0.5;
           if (k === 'foreverWild') return 1;
           if (k === 'tva') return 2;
           if (k === 'usace') return 2.5;
           if (k === 'nwr') return 3;
           if (k === 'soa' || k === 'pdha') return 4;
+          if (k === 'walkin' || k === 'hma') return 4.5;
           if (k === 'wma') return 5;
           return 3;
         };
@@ -20090,9 +20908,10 @@
 
       layersToDraw.forEach(function(layer) {
         if (layer.drawOnMap === false) return;
-        // National forest outlines are statewide context only — skip mass USFS fill
-        // (Forest/NWR toggle still shows NWR; WMA etc. use their own colors)
-        if (layer.key === 'usfs' || layer.key === 'nps') return;
+        // Alabama: skip mass USFS fill (forests are context; WMAs/NWR carry the color).
+        // Other states: National Forest is often the huntable public land — paint it.
+        if (layer.key === 'nps') return;
+        if (layer.key === 'usfs' && (typeof isAlabamaPack === 'function' ? isAlabamaPack() : true)) return;
         // Per-type toggle (Layers menu color buttons) — default all ON at launch
         if (!isPublicLandLayerKeyVisible(layer.key)) return;
         (layer.features || []).forEach(function(feat) {
@@ -20776,11 +21595,15 @@
       if (a0[0] !== aN[0] || a0[1] !== aN[1]) r.push([a0[0], a0[1]]);
       return r;
     }
+    function getActiveStateRing() {
+      if (window.RS_STATE && window.RS_STATE.ring && window.RS_STATE.ring.length) return window.RS_STATE.ring;
+      if (typeof ACTIVE_STATE_RING !== 'undefined' && ACTIVE_STATE_RING && ACTIVE_STATE_RING.length) return ACTIVE_STATE_RING;
+      if (typeof AL_STATE_RING !== 'undefined' && AL_STATE_RING) return AL_STATE_RING;
+      return null;
+    }
     function drawActiveStateMask() {
       if (!map || typeof L === 'undefined') return;
-      var ringSrc = (typeof ACTIVE_STATE_RING !== 'undefined' && ACTIVE_STATE_RING && ACTIVE_STATE_RING.length)
-        ? ACTIVE_STATE_RING
-        : AL_STATE_RING;
+      var ringSrc = getActiveStateRing();
       var ring = closedStateRing(ringSrc);
       if (ring.length < 4) return;
 
@@ -20864,10 +21687,14 @@
      * Keep the map centered on the active state — no wide SE / out-of-region scrolling.
      * Multi-state later: swap ACTIVE_STATE_RING and call this again.
      */
-    function getActiveStateLatLngBounds() {
-      var ring = (typeof ACTIVE_STATE_RING !== 'undefined' && ACTIVE_STATE_RING && ACTIVE_STATE_RING.length)
-        ? ACTIVE_STATE_RING
-        : (typeof AL_STATE_RING !== 'undefined' ? AL_STATE_RING : null);
+    function getActiveStateLatLngBounds(tight) {
+      var ring = (typeof getActiveStateRing === 'function') ? getActiveStateRing() : null;
+      if ((!ring || !ring.length) && window.RS_STATE && window.RS_STATE.env) {
+        var e = window.RS_STATE.env;
+        if (typeof L === 'undefined') return null;
+        var pad0 = tight ? 0.12 : 1.15;
+        return L.latLngBounds([e.south - pad0, e.west - pad0], [e.north + pad0, e.east + pad0]);
+      }
       if (!ring || !ring.length || typeof L === 'undefined') return null;
       var minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
       for (var i = 0; i < ring.length; i++) {
@@ -20879,9 +21706,8 @@
         if (ln < minLng) minLng = ln;
         if (ln > maxLng) maxLng = ln;
       }
-      // Generous pad — free drag around AL + neighbors (not a hard “stay inside AL” cage)
-      var padLat = 2.8;
-      var padLng = 3.2;
+      var padLat = tight ? 0.12 : 1.15;
+      var padLng = tight ? 0.12 : 1.3;
       return L.latLngBounds(
         [minLat - padLat, minLng - padLng],
         [maxLat + padLat, maxLng + padLng]
@@ -20893,11 +21719,13 @@
      */
     /** Desktop minZoom ~7 so full AL borders fit; phone lower for small viewports. */
     function getMapMinZoomFloor() {
-      try {
-        if (typeof isPhoneLayout === 'function' && isPhoneLayout()) return 6;
-      } catch (eMz) {}
-      // One step further out than 8 so every state border is visible on a typical desktop map pane
-      return 7;
+      // Large western states need to zoom out further than Alabama
+      var phone = false;
+      try { phone = (typeof isPhoneLayout === 'function' && isPhoneLayout()); } catch (eMz) {}
+      var code = (window.RS_STATE && window.RS_STATE.code) || 'AL';
+      var big = /^(CA|TX|MT|AK|NV|AZ|OR|WA|ID|CO|NM|WY|UT|SD|ND|NE|KS|OK|MN)$/.test(code);
+      if (big) return phone ? 4 : 5;
+      return phone ? 6 : 7;
     }
     function applyActiveStateMapBounds() {
       if (!map || typeof L === 'undefined') return;
@@ -20922,15 +21750,20 @@
     function applyInitialStatewideView() {
       if (!map || typeof L === 'undefined') return;
       try {
-        var phone = (typeof isPhoneLayout === 'function' && isPhoneLayout());
-        var b = (typeof getActiveStateLatLngBounds === 'function') ? getActiveStateLatLngBounds() : null;
-        if (phone && b && b.isValid && b.isValid()) {
-          map.fitBounds(b, { animate: false, padding: [18, 18], maxZoom: 8 });
+        var tight = (typeof getActiveStateLatLngBounds === 'function') ? getActiveStateLatLngBounds(true) : null;
+        if (tight && tight.isValid && tight.isValid()) {
+          map.setMinZoom(4);
+          map.fitBounds(tight, { animate: false, padding: [22, 22], maxZoom: 8 });
           var minZ = getMapMinZoomFloor();
-          if (map.getZoom() < minZ) map.setZoom(minZ);
-        } else {
-          map.setView([32.7794, -86.8287], 8, { animate: false });
+          try { map.setMinZoom(Math.min(minZ, Math.max(4, map.getZoom() - 1))); } catch (eMz2) {}
+          return;
         }
+        var env = window.RS_STATE && window.RS_STATE.env;
+        if (env) {
+          map.setView([(env.south + env.north) / 2, (env.west + env.east) / 2], getMapMinZoomFloor(), { animate: false });
+          return;
+        }
+        map.setView([32.7794, -86.8287], 8, { animate: false });
       } catch (eInitV) {
         try { map.setView([32.7794, -86.8287], 8, { animate: false }); } catch (e2) {}
       }
@@ -21244,9 +22077,11 @@
       return out.length >= 4 ? out : ring;
     }
 
-    /** Zone letter from polygons (D → E → C → B → A). */
+    /** Zone letter from polygons (D → E → C → B → A). Wyoming returns hunt-area number. */
     function detectDeerZoneLetter(lat, lng) {
-      if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return 'A';
+      if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return (typeof activePack === 'function' && activePack()) ? '' : 'A';
+      if (typeof activePack === 'function' && activePack()) return detectPackHuntUnit(lat, lng);
+      if (window.RS_STATE && window.RS_STATE.code && window.RS_STATE.code !== 'AL') return 'A';
       if (!isInsideAlabama(lat, lng)) return 'A';
       var order = ['D', 'E', 'C', 'B'];
       for (var o = 0; o < order.length; o++) {
@@ -21263,7 +22098,11 @@
     }
 
     function anyDeerZoneVisible() {
-      return !!(deerZoneVisible.A || deerZoneVisible.B || deerZoneVisible.C || deerZoneVisible.D || deerZoneVisible.E);
+      var keys = Object.keys(deerZoneVisible || {});
+      for (var i = 0; i < keys.length; i++) {
+        if (deerZoneVisible[keys[i]]) return true;
+      }
+      return false;
     }
 
     function isStateZonesOverlayWanted() {
@@ -21276,7 +22115,7 @@
     }
 
     function updateDeerZoneToggleUI() {
-      ['A', 'B', 'C', 'D', 'E'].forEach(function(letter) {
+      Object.keys(deerZoneVisible || {}).forEach(function(letter) {
         var btn = document.getElementById('zone-btn-' + letter);
         if (!btn) return;
         var on = !!deerZoneVisible[letter];
@@ -21290,6 +22129,14 @@
 
     function drawStateZonesOverlay() {
       if (!map) return;
+      if (typeof activePack === 'function' && activePack()) {
+        drawPackHuntUnits();
+        return;
+      }
+      if (window.RS_STATE && window.RS_STATE.code && window.RS_STATE.code !== 'AL') {
+        if (stateZonesGroup) try { stateZonesGroup.clearLayers(); } catch (eZ) {}
+        return;
+      }
       if (!stateZonesGroup) {
         stateZonesGroup = L.layerGroup().addTo(map);
       } else if (!map.hasLayer(stateZonesGroup)) {
@@ -21325,12 +22172,6 @@
             className: 'state-zone-poly zone-' + z.zone,
             smoothFactor: 1.15
           });
-          poly.bindTooltip(
-            '<strong style="color:' + z.color + ';">Deer Season ' + z.name + '</strong>' +
-            '<br><span style="font-size:11px;color:#c5d0be;">' + (z.desc || '') + '</span>' +
-            '<br><span style="font-size:10px;color:#8d9c84;">Click for weather at this spot · confirm Outdoor Alabama regs</span>',
-            { sticky: true, opacity: 0.96, direction: 'top', className: 'state-zone-tooltip' }
-          );
           poly.on('click', function(e) {
             if (mapDrawMode === 'measure' || mapDrawMode === 'draw' || mapDrawMode === 'drawline') {
               if (e && e.originalEvent) {
@@ -21404,7 +22245,19 @@
 
     function setAllDeerZones(on) {
       on = !!on;
-      deerZoneVisible = { A: on, B: on, C: on, D: on, E: on };
+      var keys = Object.keys(deerZoneVisible || {});
+      if (!keys.length) {
+        var apZ = typeof activePack === 'function' ? activePack() : null;
+        deerZoneVisible = apZ
+          ? (function () {
+              var o = {};
+              (apZ.regionOrder || []).forEach(function (r) { o[r] = on; });
+              return o;
+            })()
+          : { A: on, B: on, C: on, D: on, E: on };
+      } else {
+        keys.forEach(function (k) { deerZoneVisible[k] = on; });
+      }
       updateDeerZoneToggleUI();
       if (on) ensureStateZonesDrawn();
       else if (stateZonesGroup) {
@@ -21412,6 +22265,314 @@
       }
     }
     window.setAllDeerZones = setAllDeerZones;
+
+    var huntUnitData = null;
+    var huntUnitLoading = null;
+    var huntUnitCacheCode = '';
+    var HUNT_UNIT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+    var wyHuntAreaData = null;
+    var wyHuntAreaLoading = null;
+
+    function detectPackHuntUnit(lat, lng) {
+      if (!huntUnitData || !huntUnitData.features) return '';
+      var feats = huntUnitData.features;
+      for (var i = 0; i < feats.length; i++) {
+        var f = feats[i];
+        if (!f || !f.rings) continue;
+        if (f.minLat != null && (lat < f.minLat || lat > f.maxLat || lng < f.minLng || lng > f.maxLng)) continue;
+        for (var r = 0; r < f.rings.length; r++) {
+          if (pointInLatLngRing(lat, lng, f.rings[r])) {
+            return String(f.area || '');
+          }
+        }
+      }
+      return '';
+    }
+    window.detectPackHuntUnit = detectPackHuntUnit;
+    function detectWyHuntArea(lat, lng) { return detectPackHuntUnit(lat, lng); }
+    window.detectWyHuntArea = detectWyHuntArea;
+
+    function normalizePackHuntFeature(raw, pack) {
+      pack = pack || (typeof activePack === 'function' ? activePack() : null) || {};
+      var attrs = (raw && raw.attributes) || {};
+      var geom = (raw && raw.geometry) || null;
+      var rings = [];
+      var minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+      if (geom && geom.rings) {
+        for (var i = 0; i < geom.rings.length; i++) {
+          var ring = [];
+          var src = geom.rings[i] || [];
+          for (var j = 0; j < src.length; j++) {
+            var lng = src[j][0], lat = src[j][1];
+            ring.push([lat, lng]);
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+          }
+          if (ring.length >= 3) rings.push(ring);
+        }
+      }
+      var uf = pack.unitField || 'HUNTAREA';
+      var nf = pack.unitNameField || 'HUNTNAME';
+      var rf = pack.regionField || 'Region';
+      var rawId = attrs[uf];
+      var n = rawId;
+      if (rawId != null && rawId !== '' && !isNaN(Number(rawId))) n = Number(rawId);
+      var meta = (pack.areaMeta) ? pack.areaMeta(n) : null;
+      var region = attrs[rf] || (meta && meta.region) || '';
+      if (!region && pack.regionForUnit) region = pack.regionForUnit(n) || '';
+      return {
+        area: n,
+        name: attrs[nf] || (meta && meta.name) || ((pack.unitLabel || 'Unit') + ' ' + n),
+        region: region,
+        herd: attrs.MD_HERDNAM || (meta && meta.herd) || '',
+        rings: rings,
+        minLat: minLat, maxLat: maxLat, minLng: minLng, maxLng: maxLng
+      };
+    }
+
+    function packHuntUnitCacheKey(pack) {
+      return String((pack && pack.code) || 'xx').toLowerCase() + '_hunt_units_v1';
+    }
+
+    function loadPackHuntUnits(forceRefresh) {
+      var pack = typeof activePack === 'function' ? activePack() : null;
+      if (!pack || !(pack.huntUnitGis || pack.huntAreaGis)) return Promise.resolve(null);
+      var code = pack.code;
+      if (!forceRefresh && huntUnitData && huntUnitData.features && huntUnitData.features.length && huntUnitCacheCode === code) {
+        return Promise.resolve(huntUnitData);
+      }
+      if (!forceRefresh) {
+        try {
+          var raw = localStorage.getItem(packHuntUnitCacheKey(pack));
+          if (raw) {
+            var cached = JSON.parse(raw);
+            var minN = pack.minUnitCache || 20;
+            if (cached && cached.features && cached.features.length >= minN &&
+                (Date.now() - cached.timestamp) < HUNT_UNIT_TTL_MS) {
+              huntUnitData = cached;
+              huntUnitCacheCode = code;
+              return Promise.resolve(cached);
+            }
+          }
+        } catch (eC) {}
+      }
+      if (huntUnitLoading && !forceRefresh && huntUnitCacheCode === code) return huntUnitLoading;
+      var url = pack.huntUnitGis || pack.huntAreaGis;
+      var fields = pack.outFields || (pack.unitField || 'HUNTAREA') + ',' + (pack.unitNameField || 'HUNTNAME');
+      var params = [
+        'where=' + encodeURIComponent(pack.huntUnitWhere || '1=1'),
+        'outFields=' + encodeURIComponent(fields),
+        'returnGeometry=true',
+        'outSR=4326',
+        'maxAllowableOffset=' + (pack.maxOffset != null ? pack.maxOffset : 0.00002),
+        'resultRecordCount=2000',
+        'f=json'
+      ];
+      huntUnitCacheCode = code;
+      huntUnitLoading = fetch(url + '?' + params.join('&')).then(function (res) {
+        if (!res.ok) throw new Error(code + ' hunt units HTTP ' + res.status);
+        return res.json();
+      }).then(function (data) {
+        var feats = (data.features || []).map(function (raw) {
+          return normalizePackHuntFeature(raw, pack);
+        }).filter(function (f) {
+          return f.area != null && f.area !== '' && f.rings && f.rings.length;
+        });
+        huntUnitData = { timestamp: Date.now(), features: feats };
+        try { localStorage.setItem(packHuntUnitCacheKey(pack), JSON.stringify(huntUnitData)); } catch (eS) {}
+        huntUnitLoading = null;
+        return huntUnitData;
+      }).catch(function (err) {
+        console.warn(code + ' hunt units failed', err);
+        huntUnitLoading = null;
+        return huntUnitData;
+      });
+      return huntUnitLoading;
+    }
+    window.loadPackHuntUnits = loadPackHuntUnits;
+    function loadWyHuntAreas(forceRefresh) { return loadPackHuntUnits(forceRefresh); }
+    window.loadWyHuntAreas = loadWyHuntAreas;
+
+    function drawPackHuntUnits() {
+      var pack = typeof activePack === 'function' ? activePack() : null;
+      if (!map || !pack) return;
+      if (!stateZonesGroup) stateZonesGroup = L.layerGroup().addTo(map);
+      else if (!map.hasLayer(stateZonesGroup)) stateZonesGroup.addTo(map);
+      stateZonesGroup.clearLayers();
+      if (!anyDeerZoneVisible()) {
+        updateDeerZoneToggleUI();
+        return;
+      }
+      if (!huntUnitData || !huntUnitData.features) {
+        loadPackHuntUnits(false).then(function () { drawPackHuntUnits(); });
+        return;
+      }
+      huntUnitData.features.forEach(function (f) {
+        if (!f || !f.rings || !f.rings.length) return;
+        if (f.region && deerZoneVisible[f.region] === false) return;
+        if (f.region && deerZoneVisible[f.region] == null && !anyDeerZoneVisible()) return;
+        var typeColor = (f.region && pack.regionColors && pack.regionColors[f.region]);
+        var hashed = pack.colorForArea ? pack.colorForArea(f.area) : '#888888';
+        var multi = pack.regionOrder && pack.regionOrder.length > 1;
+        var color = (multi && typeColor) ? typeColor : hashed;
+        var closed = f.rings.map(function (ring) {
+          var c = ring.slice();
+          var a0 = c[0], aN = c[c.length - 1];
+          if (a0[0] !== aN[0] || a0[1] !== aN[1]) c.push([a0[0], a0[1]]);
+          return c;
+        });
+        var poly = L.polygon(closed, {
+          color: color,
+          weight: 1.55,
+          opacity: 0.95,
+          fillColor: color,
+          fillOpacity: 0.22,
+          interactive: true,
+          bubblingMouseEvents: false,
+          className: 'state-zone-poly zone-pack-' + f.area,
+          smoothFactor: 0.6
+        });
+        poly.on('click', function (e) {
+          if (mapDrawMode === 'measure' || mapDrawMode === 'draw' || mapDrawMode === 'drawline') {
+            if (e && e.originalEvent) {
+              L.DomEvent.stopPropagation(e.originalEvent);
+              L.DomEvent.preventDefault(e.originalEvent);
+            }
+            if (e && e.latlng) handleMapDrawToolClick(e.latlng, e);
+            return;
+          }
+          if (standPlaceMode && e && e.latlng) {
+            placeStandAt(e.latlng.lat, e.latlng.lng);
+            return;
+          }
+          if (e && e.originalEvent) L.DomEvent.stopPropagation(e.originalEvent);
+          if (e && e.latlng) {
+            lastClickPublicLand = null;
+            placeOrMoveMapDot(e.latlng, { skipWeather: false });
+          }
+        });
+        stateZonesGroup.addLayer(poly);
+      });
+      updateDeerZoneToggleUI();
+      try { stateZonesGroup.bringToBack(); } catch (eB) {}
+    }
+    window.drawPackHuntUnits = drawPackHuntUnits;
+    function drawWyHuntAreas() { return drawPackHuntUnits(); }
+    window.drawWyHuntAreas = drawWyHuntAreas;
+
+    function rebuildStateZoneToggles(pack) {
+      var wrap = document.getElementById('zone-toggles');
+      if (!wrap) return;
+      var foldBtn = document.getElementById('ml-fold-deer-zones');
+      wrap.innerHTML = '';
+      var live = (pack && window.RS_PACKS && window.RS_PACKS[pack.code]) ||
+        (typeof activePack === 'function' ? activePack() : null);
+      if (live && live.regionOrder && live.regionOrder.length) {
+        wrap.classList.add('wy-regions');
+        if (foldBtn) foldBtn.childNodes[0].textContent = live.overlayFoldLabel || 'Deer hunt areas';
+        deerZoneVisible = {};
+        live.regionOrder.forEach(function (letter) {
+          deerZoneVisible[letter] = false;
+          var color = (live.regionColors && live.regionColors[letter]) || '#888';
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'zone-toggle-btn';
+          btn.id = 'zone-btn-' + letter;
+          btn.setAttribute('data-zone', letter);
+          btn.style.background = color;
+          btn.title = (live.regionNames && live.regionNames[letter]) || ((live.unitLabel || 'Unit') + ' group ' + letter);
+          btn.setAttribute('aria-pressed', 'false');
+          btn.innerHTML = letter + '<span class="zt-sub">off</span>';
+          btn.onclick = function () { toggleDeerZone(letter); };
+          wrap.appendChild(btn);
+        });
+      } else {
+        wrap.classList.remove('wy-regions');
+        if (foldBtn) foldBtn.childNodes[0].textContent = 'Deer season zones';
+        deerZoneVisible = { A: false, B: false, C: false, D: false, E: false };
+        var al = [
+          ['A', '#8a8a8a', 'Zone A — default statewide'],
+          ['B', '#e6d29a', 'Zone B — south of US-80 line'],
+          ['C', '#e0913c', 'Zone C — north-central band'],
+          ['D', '#7dcf9a', 'Zone D — Bankhead / Winston–Lawrence pocket'],
+          ['E', '#9a8b3a', 'Zone E — Calhoun/Cleburne & E. Russell']
+        ];
+        al.forEach(function (row) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'zone-toggle-btn';
+          btn.id = 'zone-btn-' + row[0];
+          btn.setAttribute('data-zone', row[0]);
+          btn.style.background = row[1];
+          btn.title = row[2];
+          btn.setAttribute('aria-pressed', 'false');
+          btn.innerHTML = row[0] + '<span class="zt-sub">off</span>';
+          btn.onclick = function () { toggleDeerZone(row[0]); };
+          wrap.appendChild(btn);
+        });
+      }
+      updateDeerZoneToggleUI();
+    }
+    window.rebuildStateZoneToggles = rebuildStateZoneToggles;
+
+    function rebuildPublicLandToggles(pack) {
+      var wrap = document.getElementById('pl-toggles');
+      if (!wrap) return;
+      var keep = {
+        listPins: publicLandTypeVisible.listPins !== false,
+        custom: publicLandTypeVisible.custom !== false
+      };
+      var specs;
+      var livePl = (pack && window.RS_PACKS && window.RS_PACKS[pack.code]) ||
+        (typeof activePack === 'function' ? activePack() : null);
+      if (livePl && livePl.extraToggles && livePl.extraToggles.length) {
+        publicLandTypeVisible = { listPins: keep.listPins, custom: keep.custom };
+        specs = [];
+        livePl.extraToggles.forEach(function (t) {
+          publicLandTypeVisible[t.key] = t.off ? false : true;
+          specs.push([t.key, t.color, t.text || '#111', t.label, t.title || t.label]);
+        });
+        specs.push(['listPins', '#486a2f', '#fff', '✓ List', 'Green ✓ pins for Available Hunts']);
+        specs.push(['custom', '#c47a0f', '#fff', 'Custom', 'Custom areas drawn with the Draw tool']);
+      } else {
+        publicLandTypeVisible = {
+          wma: true, forestNwr: true, tva: true, foreverWild: true,
+          soa: false, pdha: false, usace: true,
+          listPins: keep.listPins, custom: keep.custom
+        };
+        specs = [
+          ['wma', '#e59a18', '#111', 'WMA', 'Wildlife Management Areas'],
+          ['forestNwr', '#2f9e4f', '#fff', 'Forest/NWR', 'National Forests & NWR'],
+          ['tva', '#2d8fd9', '#fff', 'TVA', 'TVA Undeveloped'],
+          ['foreverWild', '#9b59b6', '#fff', 'FW', 'Forever Wild'],
+          ['soa', '#c026d3', '#fff', 'SOA', 'Special Opportunity Areas'],
+          ['pdha', '#14b8a6', '#fff', 'PDHA', 'Disabled Hunt Areas (PDHA)'],
+          ['usace', '#6b7c3a', '#fff', 'USACE', 'U.S. Army Corps of Engineers'],
+          ['listPins', '#486a2f', '#fff', '✓ List', 'Green ✓ pins for Available Hunts'],
+          ['custom', '#c47a0f', '#fff', 'Custom', 'Custom areas drawn with the Draw tool']
+        ];
+      }
+      wrap.innerHTML = '';
+      specs.forEach(function (row) {
+        var on = !!publicLandTypeVisible[row[0]];
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pl-toggle-btn' + (on ? ' on' : '');
+        btn.id = 'pl-btn-' + row[0];
+        btn.setAttribute('data-pl', row[0]);
+        btn.style.background = row[1];
+        btn.style.color = row[2];
+        btn.title = row[4];
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.innerHTML = row[3] + '<span class="pl-sub">' + (on ? 'on' : 'off') + '</span>';
+        btn.onclick = function () { togglePublicLandType(row[0]); };
+        wrap.appendChild(btn);
+      });
+      updatePublicLandToggleUI();
+    }
+    window.rebuildPublicLandToggles = rebuildPublicLandToggles;
 
     /** Legacy: master toggle — All on / All off */
     function toggleStateZonesOverlay() {
@@ -21447,16 +22608,8 @@
           resolve();
         };
         s.onerror = function() {
-          // Fallback to CDN only if local vendor missing (online recovery)
-          var css2 = document.createElement('link');
-          css2.rel = 'stylesheet';
-          css2.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          document.head.appendChild(css2);
-          var s2 = document.createElement('script');
-          s2.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-          s2.onload = function() { resolve(); };
-          s2.onerror = function() { leafletLoading = null; reject(new Error('Leaflet failed to load')); };
-          document.head.appendChild(s2);
+          leafletLoading = null;
+          reject(new Error('Leaflet failed to load (local vendor/leaflet)'));
         };
         document.head.appendChild(s);
       });
@@ -21764,9 +22917,11 @@
     }
 
     function ensureWaybackSeasonalLayers(tilePerf) {
-      if (waybackSeasonal.loaded && waybackSeasonal.winter && waybackSeasonal.summer) {
-        return Promise.resolve(waybackSeasonal);
-      }
+      // Esri Wayback removed (not licensed for a commercial/ad-supported app).
+      // All satellite modes use the same USGS aerial layer.
+      waybackSeasonal.loaded = true;
+      waybackSeasonal.loading = null;
+      return Promise.resolve(waybackSeasonal);
       if (waybackSeasonal.loading) return waybackSeasonal.loading;
       waybackSeasonal.loading = fetch(
         'https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer?f=json',
@@ -21987,10 +23142,10 @@
               ch.options.maxZoom = mz;
               var cn = String(ch.options.className || '');
               if (cn.indexOf('basemap-lidar-tiles') >= 0) {
-                ch.options.maxNativeZoom = 16;
-                ch.options.opacity = ch.options.opacity != null ? ch.options.opacity : 0.58;
+                ch.options.maxNativeZoom = 13;
+                ch.options.opacity = ch.options.opacity != null ? ch.options.opacity : 0.62;
               } else if (cn.indexOf('basemap-lidar-under') >= 0) {
-                ch.options.maxNativeZoom = 19;
+                ch.options.maxNativeZoom = 16;
               }
               try { wireSatTileRetry(ch); } catch (eRw) {}
             });
@@ -22142,6 +23297,12 @@
 
     function refreshImageryDateLabel() {
       if (typeof activeBasemapKey === 'undefined' || activeBasemapKey !== 'satellite') {
+        setImageryDateLabel('', false);
+        return;
+      }
+      setImageryDateLabel('Aerial · USGS / NAIP', true);
+      return;
+      if (!map || typeof map.getCenter !== 'function') {
         setImageryDateLabel('', false);
         return;
       }
@@ -24044,9 +25205,7 @@
       if (cached != null) return Promise.resolve(cached);
       var key = elevCacheKey(lat, lng);
       if (window._cmElevInflight[key]) return window._cmElevInflight[key];
-      // Open-Meteo first (usually fast); EPQS only if OM fails — half the elev network
-      var p = fetchElevFtOpenMeteo(lat, lng)
-        .catch(function () { return fetchElevFtEpqs(lat, lng); })
+      var p = fetchElevFtEpqs(lat, lng)
         .then(function(ft) {
           elevCacheSet(lat, lng, ft);
           delete window._cmElevInflight[key];
@@ -24181,25 +25340,7 @@
       var meCached = myAltFt;
 
       var jobs = [];
-      // Multi-point Open-Meteo when both need network
-      if (meCached == null && thCached == null) {
-        var url = 'https://api.open-meteo.com/v1/elevation?latitude=' +
-          encodeURIComponent(userLat) + ',' + encodeURIComponent(pt.lat) +
-          '&longitude=' + encodeURIComponent(userLng) + ',' + encodeURIComponent(pt.lng);
-        jobs.push(fetch(url, { mode: 'cors' }).then(function(r) {
-          if (!r.ok) throw new Error('om pair');
-          return r.json();
-        }).then(function(data) {
-          var elev = data && data.elevation;
-          if (!elev || elev.length < 2 || elev[0] == null || elev[1] == null) throw new Error('om pair');
-          var meFt = Number(elev[0]) * 3.28084;
-          var thFt = Number(elev[1]) * 3.28084;
-          elevCacheSet(userLat, userLng, meFt);
-          elevCacheSet(pt.lat, pt.lng, thFt);
-          return { meFt: meFt, thereFt: thFt };
-        }));
-      }
-      // Per-point race (Open-Meteo + EPQS, cached)
+      // Per-point USGS EPQS (cached)
       jobs.push(Promise.all([
         meCached != null ? Promise.resolve(meCached) : fetchElevFtAt(userLat, userLng),
         thCached != null ? Promise.resolve(thCached) : fetchElevFtAt(pt.lat, pt.lng)
@@ -25210,91 +26351,80 @@
       var MAP_MAX_ZOOM = 22;
       window.__REG_SLAYER_MAP_MAX_ZOOM__ = MAP_MAX_ZOOM;
       // USGS topo default — native ~16; overscale to MAP_MAX_ZOOM
-      var topo = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', Object.assign({
+      var USGS_TOPO = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}';
+      var USGS_IMAGERY = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}';
+      var USGS_HILL = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}';
+      var USGS_HYDRO = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSHydroCached/MapServer/tile/{z}/{y}/{x}';
+      var topo = L.tileLayer(USGS_TOPO, Object.assign({
         maxZoom: MAP_MAX_ZOOM,
         maxNativeZoom: 16,
-        attribution: 'USGS'
+        attribution: 'USGS The National Map'
       }, tilePerf));
-      // Positron: native 20; overscale further so map never blanks
-      var street = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', Object.assign({
-        attribution: '&copy; OpenStreetMap & CARTO',
+      // Public street/water look: lightened USGS topo + hydro overlay (no CARTO)
+      var streetBase = L.tileLayer(USGS_TOPO, Object.assign({
         maxZoom: MAP_MAX_ZOOM,
-        maxNativeZoom: 20
+        maxNativeZoom: 16,
+        className: 'basemap-street-tiles',
+        attribution: 'USGS The National Map'
       }, tilePerf));
+      var streetHydro = L.tileLayer(USGS_HYDRO, Object.assign({
+        maxZoom: MAP_MAX_ZOOM,
+        maxNativeZoom: 16,
+        opacity: 0.88,
+        attribution: 'USGS Hydrography'
+      }, tilePerf));
+      var street = L.layerGroup([streetBase, streetHydro]);
       /*
-       * Satellite seasons (Layers → Satellite → Winter / Summer / Newest)
-       * Newest — live Esri World Imagery (current default commercial composite)
-       * Winter — newest Esri Wayback snapshot dated Dec 1 – Mar 10
-       * Summer — newest Esri Wayback snapshot dated May 1 – Aug 1
-       * Wayback catalog loads async; winter/summer layers swap in when ready.
-       *
-       * Use services.arcgisonline.com (often faster/CDN-friendly) with same path
-       * as server.arcgisonline.com. maxNativeZoom 19 + maxZoom 22 overscales HD
-       * tiles instead of requesting empty high-z tiles.
+       * Aerial: USGS Imagery Only (NAIP / public ortho). One layer —
+       * no Esri World Imagery / Wayback seasonal snapshots.
        */
       var satNewest = L.tileLayer(
-        'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        USGS_IMAGERY,
         satTileLayerOpts({
           maxZoom: MAP_MAX_ZOOM,
-          attribution: 'Esri World Imagery · Maxar, Earthstar Geographics & GIS User Community'
+          maxNativeZoom: 16,
+          attribution: 'USGS / NAIP aerial'
         })
       );
-      // Soft tile retry: if a tile fails once, try once more after a short delay
       try { wireSatTileRetry(satNewest); } catch (eRetry0) {}
-      // Placeholders until Wayback catalog resolves (same family as Newest)
       var satWinter = satNewest;
       var satSummer = satNewest;
-      try {
-        ensureWaybackSeasonalLayers(tilePerfSat).then(function() {
-          if (waybackSeasonal.winter && waybackSeasonal.winter.layer) {
-            satWinter = waybackSeasonal.winter.layer;
-            try { wireSatTileRetry(satWinter); } catch (eR1) {}
-          }
-          if (waybackSeasonal.summer && waybackSeasonal.summer.layer) {
-            satSummer = waybackSeasonal.summer.layer;
-            try { wireSatTileRetry(satSummer); } catch (eR2) {}
-          }
-        });
-      } catch (eWb) {}
 
       /*
-       * LiDAR terrain: never-blank deep zoom
-       * - Under: Esri World Imagery (native ~19) so zoom-in never empties
-       * - Over: World Hillshade relief (native ~16, overscales to MAP_MAX_ZOOM)
-       * - CDN host services.arcgisonline.com; soft tile retry on both layers
-       * - Do not use multiply blend (black voids when a tile misses)
+       * Terrain: USGS 3DEP shaded relief (public). Imagery underlay so
+       * deep zoom never blanks. Not Esri World Hillshade / World Imagery.
        */
       var LIDAR_MAX_ZOOM = MAP_MAX_ZOOM;
-      var LIDAR_HILL_NATIVE = 16;
-      var LIDAR_IMG_NATIVE = 19;
+      // USGS Shaded Relief cache ends at z13 (z14+ 404). Imagery Only ends at z16.
+      // Leaflet must overscale those last real tiles — do not request empty higher zooms.
+      var LIDAR_HILL_NATIVE = 13;
+      var LIDAR_IMG_NATIVE = 16;
       window.__REG_SLAYER_MAP_MAX_ZOOM__ = MAP_MAX_ZOOM;
       var lidarCommon = Object.assign({}, tilePerf, {
         maxZoom: LIDAR_MAX_ZOOM,
         minZoom: 0,
         keepBuffer: phoneTiles ? 6 : 12,
-        updateWhenIdle: true,
+        updateWhenIdle: false,
         updateWhenZooming: false,
         crossOrigin: false,
         errorTileUrl: ''
       });
-      // Solid underlay — same family as satellite so deep zoom always has pixels
       var lidarUnder = L.tileLayer(
-        'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        USGS_IMAGERY,
         Object.assign({}, lidarCommon, {
           maxNativeZoom: LIDAR_IMG_NATIVE,
           opacity: 1,
           className: 'basemap-lidar-under',
-          attribution: 'Esri World Imagery + Hillshade · USGS 3DEP'
+          attribution: 'USGS imagery + 3DEP hillshade'
         })
       );
-      // Hillshade relief on top (overscales past 16 instead of requesting empty z17+ tiles)
       var lidarHill = L.tileLayer(
-        'https://services.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
+        USGS_HILL,
         Object.assign({}, lidarCommon, {
           maxNativeZoom: LIDAR_HILL_NATIVE,
-          opacity: 0.58,
+          opacity: 0.62,
           className: 'basemap-lidar-tiles',
-          attribution: 'Esri World Hillshade · USGS 3DEP LiDAR DEMs'
+          attribution: 'USGS 3DEP shaded relief'
         })
       );
       try { wireSatTileRetry(lidarUnder); } catch (eLr1) {}
@@ -25930,6 +27060,7 @@
 
     function placeOrMoveMapDot(latlng, opts) {
       if (!map || typeof L === 'undefined') return;
+      if (typeof dismissMapFirstHint === 'function') dismissMapFirstHint();
       opts = opts || {};
       var skipWeather = !!opts.skipWeather;
       var openMenu = !!opts.openMenu;
@@ -27137,7 +28268,7 @@
       try { hideDrawModeChooser(); } catch (eH) {}
     }
 
-    // ========== WEATHER RADAR (RainViewer — last hour, ~5 min steps) ==========
+    // ========== WEATHER RADAR (NWS via Iowa Environmental Mesonet — last hour, 5 min steps) ==========
     var mapRadarActive = false;
     var radarState = {
       host: '',
@@ -27154,7 +28285,8 @@
     var RADAR_DWELL_MS = 120;      // brief settle after fade (keeps motion fluid)
     var RADAR_HOLD_MS = 2000;      // pause on latest scan (background loop timing)
     var RADAR_OPACITY = 0.72;
-    var RADAR_API = 'https://api.rainviewer.com/public/weather-maps.json';
+    var RADAR_API = '';
+    var IEM_RADAR_BASE = 'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/';
     var radarAnimRaf = null;
 
     function formatRadarClock(unixSec) {
@@ -27229,8 +28361,8 @@
     }
 
     function radarTileUrlFromPath(path) {
-      // RainViewer: host + path + /256/{z}/{x}/{y}/{color}/{options}.png
-      return radarState.host + path + '/256/{z}/{x}/{y}/2/1_1.png';
+      // IEM NEXRAD mosaic (NWS data): product key + /{z}/{x}/{y}.png
+      return IEM_RADAR_BASE + path + '/{z}/{x}/{y}.png';
     }
 
     /**
@@ -27269,7 +28401,7 @@
         opacity: 0,
         zIndex: zIndex != null ? zIndex : 380,
         maxZoom: 12,
-        maxNativeZoom: 7,
+        maxNativeZoom: 10,
         minZoom: 3,
         detectRetina: false,
         updateWhenIdle: true,
@@ -27277,7 +28409,7 @@
         keepBuffer: phone ? 0 : 1,
         crossOrigin: true,
         className: 'radar-frame-layer',
-        attribution: 'Radar © RainViewer / NWS'
+        attribution: 'Radar NWS / Iowa Environmental Mesonet'
       });
     }
 
@@ -27512,42 +28644,37 @@
         radarState.layers[1] = makeRadarTileLayer(381).addTo(map);
         radarState.front = 0;
 
-        fetch(RADAR_API, { cache: 'no-store' })
-          .then(function(res) {
-            if (!res.ok) throw new Error('Radar API ' + res.status);
-            return res.json();
-          })
-          .then(function(data) {
-            if (!mapRadarActive) return;
-            radarState.host = (data && data.host) || 'https://tilecache.rainviewer.com';
-            var past = (data && data.radar && data.radar.past) ? data.radar.past.slice() : [];
-            if (!past.length) throw new Error('No radar frames');
-
-            // Prefer last ~hour of native (~10 min) scans, then expand to ~5 min steps
-            var newest = past[past.length - 1].time;
-            var cutoff = newest - 60 * 60;
-            var hour = past.filter(function(f) { return f && f.time >= cutoff && f.path; });
-            if (hour.length < 2) hour = past.slice(-Math.min(past.length, 12));
-            radarState.frames = expandRadarFramesToFiveMin(hour);
-            radarState.latestTime = hour[hour.length - 1].time;
-            radarState.idx = 0;
-
-            // Internal only — not shown in HUD
-            try {
-              console.debug('[radar] steps=' + radarState.frames.length +
-                ' latest=' + (radarState.latestTime ? formatRadarClock(radarState.latestTime) : '?'));
-            } catch (eDbg) {}
-
-            setRadarUiClock(radarState.frames[0].time);
-            showRadarFrame(0);
-          })
-          .catch(function(err) {
-            console.error('Radar failed:', err);
-            if (typeof showAppCopyToast === 'function') {
-              showAppCopyToast('<span class="act">Radar failed</span><br>Could not load RainViewer frames. Check connection and retry.');
-            }
-            stopMapRadar();
+        try {
+          var nowSec = Math.floor(Date.now() / 1000);
+          var frames = [];
+          for (var m = 50; m >= 5; m -= 5) {
+            var pad = (m < 10 ? '0' : '') + m;
+            frames.push({
+              time: nowSec - (m * 60),
+              path: 'nexrad-n0q-900913-m' + pad + 'm',
+              blend: false,
+              isLatest: false
+            });
+          }
+          frames.push({
+            time: nowSec,
+            path: 'nexrad-n0q-900913',
+            blend: false,
+            isLatest: true
           });
+          radarState.host = IEM_RADAR_BASE;
+          radarState.frames = frames;
+          radarState.latestTime = nowSec;
+          radarState.idx = 0;
+          setRadarUiClock(frames[0].time);
+          showRadarFrame(0);
+        } catch (err) {
+          console.error('Radar failed:', err);
+          if (typeof showAppCopyToast === 'function') {
+            showAppCopyToast('<span class="act">Radar failed</span><br>Could not start NWS radar. Check connection and retry.');
+          }
+          stopMapRadar();
+        }
       });
     }
 
@@ -27961,9 +29088,9 @@
             if (!inside) continue;
             var uname = featureDisplayName(layer, attrs) || layer.label || 'Public land';
             // Prefer more specific units (WMA over large forests already skipped)
-            var rank = (layer.key === 'wma' || layer.key === 'soa' || layer.key === 'pdha') ? 3
+            var rank = (layer.key === 'wma' || layer.key === 'soa' || layer.key === 'pdha' || layer.key === 'walkin' || layer.key === 'hma') ? 3
               : (layer.key === 'nwr' || layer.key === 'usace') ? 2
-              : (layer.key === 'tva' || layer.key === 'foreverWild') ? 1 : 0;
+              : (layer.key === 'tva' || layer.key === 'foreverWild' || layer.key === 'blm') ? 1 : 0;
             if (!best || rank >= best.rank) {
               best = {
                 rank: rank,
@@ -28756,14 +29883,13 @@
       }
       var lats = sample.map(function(p) { return p.lat; }).join(',');
       var lngs = sample.map(function(p) { return p.lng; }).join(',');
-      var url = 'https://api.open-meteo.com/v1/elevation?latitude=' + encodeURIComponent(lats) +
-        '&longitude=' + encodeURIComponent(lngs);
-      return fetch(url).then(function(res) {
-        if (!res.ok) throw new Error('elevation ' + res.status);
-        return res.json();
-      }).then(function(data) {
-        var elevM = data && data.elevation;
-        if (!elevM || !elevM.length) throw new Error('no elevation');
+      return Promise.all(sample.map(function(p) {
+        return fetchElevFtEpqs(p.lat, p.lng).catch(function() { return null; });
+      })).then(function(elevFt) {
+        var elevM = elevFt.map(function(ft) {
+          return (ft == null || isNaN(ft)) ? null : (Number(ft) / 3.28084);
+        });
+        if (!elevM.length) throw new Error('no elevation');
         // Stamp elevM (meters) onto path points so probes can show elev Δ at a click
         for (var s = 0; s < elevM.length && s < idxs.length; s++) {
           if (elevM[s] != null && !isNaN(elevM[s]) && points[idxs[s]]) {
@@ -31571,7 +32697,7 @@ function togglePinIconPicker() {
         highTemp: dayHL.high, lowTemp: dayHL.low,
         tva: tva ? { reservoir: tva.reservoir, recType: tva.recType, restricted: tva.restricted } : null
       };
-      // Prefer live Open-Meteo high/low for that day when online
+      // Prefer live NWS high/low for that day when online
       function finishHuntSave(hunt) {
         historicalHunts.push(hunt);
         localStorage.setItem('alabama_hunt_historical_hunts', JSON.stringify(historicalHunts));
@@ -31591,19 +32717,16 @@ function togglePinIconPicker() {
         // No confirmation dialog — return straight to the map
       }
       try {
-        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + clickLat + '&longitude=' + clickLng +
-          '&daily=temperature_2m_max,temperature_2m_min&timezone=America%2FChicago&start_date=' + dateStr + '&end_date=' + dateStr;
-        if (getDaysFromToday(d) < -5) {
-          url = 'https://archive-api.open-meteo.com/v1/archive?latitude=' + clickLat + '&longitude=' + clickLng +
-            '&daily=temperature_2m_max,temperature_2m_min&timezone=America%2FChicago&start_date=' + dateStr + '&end_date=' + dateStr;
-        }
-        fetch(url).then(function(r) { return r.ok ? r.json() : null; }).then(function(j) {
-          if (j && j.daily) {
-            if (j.daily.temperature_2m_max && j.daily.temperature_2m_max[0] != null) newHunt.highTemp = Math.round(j.daily.temperature_2m_max[0]);
-            if (j.daily.temperature_2m_min && j.daily.temperature_2m_min[0] != null) newHunt.lowTemp = Math.round(j.daily.temperature_2m_min[0]);
-          }
+        if (typeof fetchWeather === 'function' && getDaysFromToday(d) >= 0) {
+          fetchWeather(clickLat, clickLng, d).then(function(j) {
+            var hl = (typeof getDayHighLow === 'function') ? getDayHighLow(j) : { high: null, low: null };
+            if (hl.high != null) newHunt.highTemp = hl.high;
+            if (hl.low != null) newHunt.lowTemp = hl.low;
+            finishHuntSave(newHunt);
+          }).catch(function() { finishHuntSave(newHunt); });
+        } else {
           finishHuntSave(newHunt);
-        }).catch(function() { finishHuntSave(newHunt); });
+        }
       } catch (eWx) {
         finishHuntSave(newHunt);
       }
@@ -33252,6 +34375,7 @@ function togglePinIconPicker() {
       unlockOpenTractsStep();
       if (typeof updateBottomBarContext === 'function') updateBottomBarContext();
       if (typeof updateCurrentDataBanner === 'function') updateCurrentDataBanner();
+      if (typeof updateHuntGuide === 'function') updateHuntGuide();
 
       const daysAhead = getDaysFromToday(selectedDate);
       isHistorical = daysAhead < 0;
@@ -34269,6 +35393,7 @@ function togglePinIconPicker() {
         if (typeof clearSelectedHuntOutline === 'function') clearSelectedHuntOutline();
       } catch (eCl) {}
       if (typeof updateBottomBarContext === 'function') updateBottomBarContext();
+      if (typeof updateHuntGuide === 'function') updateHuntGuide();
       // Load public land list + always (re)draw overlay if the checkbox is on
       ensureMap().then(function() {
         updateAvailableList();
@@ -34291,6 +35416,7 @@ function togglePinIconPicker() {
       }
       updateAvailableList();
       refreshPublicLandsOverlayIfOn();
+      if (typeof updateHuntGuide === 'function') updateHuntGuide();
       // Land filter is step 3 — keep location weather if still on default (not a hunt pick)
       if (typeof isDefaultLocationWeatherSelection === 'function' && isDefaultLocationWeatherSelection()) {
         if (typeof refreshDefaultLocationWeather === 'function') {
@@ -35354,10 +36480,11 @@ function togglePinIconPicker() {
     function formatWeaponsOpenLabel(weapons) {
       if (!weapons || !weapons.length) return '';
       return weapons.map(function(w) {
-        if (w === 'Gun') return 'Rifle';
-        if (w === 'Primitive') return 'Prim';
-        if (w === 'Archery') return 'Archery';
         if (w === 'Youth') return 'Youth';
+        if (typeof displayWeaponName === 'function') return displayWeaponName(w);
+        if (w === 'Gun') return 'Rifle';
+        if (w === 'Primitive') return 'Muzzleloader';
+        if (w === 'Archery') return 'Bow';
         return w;
       }).join(' · ');
     }
@@ -35370,17 +36497,49 @@ function togglePinIconPicker() {
       if (!loc || land === 'Private') return [];
       // Layers overlay OFF → not in Available Hunts even if date/weapon would match (#44)
       if (typeof isPublicLocListAllowed === 'function' && !isPublicLocListAllowed(loc)) return [];
-      if (loc.landSource === 'nps' || loc.landSource === 'usfs' || loc.landSource === 'foreverWild') return [];
-      if (loc.type === 'Forever Wild') return [];
+      if (loc.landSource === 'nps' || loc.type === 'Forever Wild') return [];
+      if (typeof isAlabamaPack === 'function' && isAlabamaPack()) {
+        if (loc.landSource === 'usfs' || loc.landSource === 'foreverWild') return [];
+      }
       if (loc.noSunday && date.getDay() === 0) return [];
       if (!isInAlabama(loc.lat, loc.lng)) return [];
+
+      var apR = typeof activePack === 'function' ? activePack() : null;
+      if (apR && typeof apR.matchRules === 'function') {
+        var ha = loc.zone;
+        if (ha == null || ha === '' || ha === 'A') {
+          ha = detectPackHuntUnit(loc.lat, loc.lng);
+        }
+        if (!ha) return [];
+        return apR.matchRules(ha, ds, weapon, land || 'Public', loc.landSource || loc.type);
+      }
+
+      // Other states: list public hunt land like Alabama does, with official-agency confirm
+      if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) {
+        var agency = (window.RS_STATE && window.RS_STATE.agency) || 'the state wildlife agency';
+        var url = (window.RS_STATE && window.RS_STATE.agencyUrl) || '';
+        return [{
+          locId: loc.id,
+          weapon: weapon || 'Either',
+          land: 'Public',
+          start: '2000-01-01',
+          end: '2099-12-31',
+          target: 'Confirm official season',
+          limit: 'See ' + agency,
+          notes: 'Huntable public land in ' + ((window.RS_STATE && window.RS_STATE.name) || 'this state') +
+            '. Confirm ' + agency + (url ? ' (' + url + ')' : '') +
+            ' for this date and weapon. Statewide/WMA seasons are filled the same way as Alabama as each digest is verified.'
+        }];
+      }
 
       // Hard block non-huntable refuges (Bon Secour, Fern Cave, Sauta Cave, Watercress Darter, etc.)
       if (isNonHuntableRefugeName(loc.name) || isNonHuntableRefugeName(loc.unitName)) return [];
 
-      // Federal NWR: require whitelist profile - no generic "assume archery" for unknown refuges
+      // Federal NWR: Alabama uses the named deer-hunt whitelist. Other states use the pack/FWS hunt units.
       if (loc.landSource === 'nwr' || loc.type === 'NWR' || (loc.type === 'Refuge' && !loc.id)) {
-        if (!isHuntableDeerRefugeName(loc.name) && !isHuntableDeerRefugeName(loc.unitName)) return [];
+        if (typeof isAlabamaPack === 'function' && isAlabamaPack()) {
+          if (!isHuntableDeerRefugeName(loc.name) && !isHuntableDeerRefugeName(loc.unitName)) return [];
+        }
       }
 
       // Whole GIS WMA row when this unit has permit Zone A/B geometry: do not list as one block
@@ -35657,6 +36816,10 @@ function togglePinIconPicker() {
 
         // Never list "My Location" / current GPS as a hunt destination (use real area names only)
         if (loc.id === 9999 || loc.type === 'Current Location') return;
+        // Alabama seed WMAs / refuges / statewide zones stay in AL only
+        if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) {
+          if (!loc.isPin && !loc.isCustomArea && !loc.isPublicLand) return;
+        }
         // Prefer GIS multi-zone slices / WMA zone geometry over a single built-in WMA row
         if (!loc.isPublicLand && !loc.isPin && hasGisZoneSplitsForName(loc.name)) return;
         if (!loc.isPublicLand && !loc.isPin && typeof unitHasWmaZoneGeometry === 'function' &&
@@ -35760,7 +36923,8 @@ function togglePinIconPicker() {
         }
       } catch (eCol) {}
       var list = document.getElementById('location-list');
-      document.getElementById('list-label').innerText = 'Open Tracts (' + selectedDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ')';
+      var listLabelEl = document.getElementById('list-label');
+      if (listLabelEl) listLabelEl.innerText = 'Narrow the list';
 
       // Hide list + distance filter
       var afterHide = open.filter(function(m) { return !hiddenLocationIds.has(String(m.location.id)); });
@@ -35803,15 +36967,23 @@ function togglePinIconPicker() {
       }
 
       if (open.length === 0) {
-        list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px;">No open tracts for this date/weapon.</div>';
+        list.innerHTML = '<div class="hunt-empty"><strong>Deer season is closed on this day.</strong><p>Tap a date in season on the calendar — usually October through January. Changing the weapon can also open more places.</p></div>';
+        if (typeof updateHuntGuide === 'function') updateHuntGuide(0);
         return;
       }
 
       if (!visible.length) {
-        var msg = 'No open tracts match filters.';
-        if (distDropped > 0) msg = 'No open tracts within ' + distRadiusMiles + ' miles. Try a larger radius or Any distance.';
-        else if (hiddenCount > 0) msg = 'No open tracts match filters. Use <strong>Restore Hidden</strong> if you hid locations.';
-        list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px;">' + msg + '</div>';
+        var emptyTitle = 'No places match these filters.';
+        var emptyBody = 'Try All places, or turn a land type back on in Layers.';
+        if (distDropped > 0) {
+          emptyTitle = 'No places within ' + distRadiusMiles + ' miles.';
+          emptyBody = 'Choose a larger distance, or pick Any distance.';
+        } else if (hiddenCount > 0) {
+          emptyTitle = 'No places left in this list.';
+          emptyBody = 'Tap Restore to show places you hid.';
+        }
+        list.innerHTML = '<div class="hunt-empty"><strong>' + emptyTitle + '</strong><p>' + emptyBody + '</p></div>';
+        if (typeof updateHuntGuide === 'function') updateHuntGuide(0);
         return;
       }
       var frag = document.createDocumentFragment();
@@ -35897,6 +37069,7 @@ function togglePinIconPicker() {
               '</div>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
+              '<span class="loc-go">Show</span>' +
               '<span class="badge ' + badgeClass + '"' +
                 (match.location.isPin ? ' style="background:' + match.location.color + ';color:#000;"' : '') +
               '>' + typeLabel + '</span>' + delBtn +
@@ -35915,6 +37088,7 @@ function togglePinIconPicker() {
       list.innerHTML = '';
       list.appendChild(frag);
       try { startPeakRutListFlash(); } catch (eFlash) {}
+      if (typeof updateHuntGuide === 'function') updateHuntGuide(visible.length);
     }
     function ensureHuntContext() {
       // Make sure date/weapon/steps are ready so Select always loads the dashboard
@@ -36286,9 +37460,128 @@ function togglePinIconPicker() {
       if (skipScroll) scheduleMapInViewRestore();
     }
 
+    function nwsCompassToDeg(s) {
+      var t = String(s || '').trim().toUpperCase().replace(/[^A-Z]/g, '');
+      var map = {
+        N: 0, NNE: 22.5, NE: 45, ENE: 67.5, E: 90, ESE: 112.5, SE: 135, SSE: 157.5,
+        S: 180, SSW: 202.5, SW: 225, WSW: 247.5, W: 270, WNW: 292.5, NW: 315, NNW: 337.5
+      };
+      if (map[t] != null) return map[t];
+      var n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+    function nwsParseMph(s) {
+      var m = String(s || '').match(/(\d+(?:\.\d+)?)/);
+      return m ? parseFloat(m[1]) : 0;
+    }
+    function weatherTimeZone() {
+      return (window.RS_STATE && window.RS_STATE.tz) ? window.RS_STATE.tz : 'America/Chicago';
+    }
+    function nwsLocalYmd(d) {
+      try {
+        var parts = new Intl.DateTimeFormat('en-CA', {
+          timeZone: weatherTimeZone(),
+          year: 'numeric', month: '2-digit', day: '2-digit'
+        }).formatToParts(d);
+        var y = '', mo = '', da = '';
+        parts.forEach(function(p) {
+          if (p.type === 'year') y = p.value;
+          if (p.type === 'month') mo = p.value;
+          if (p.type === 'day') da = p.value;
+        });
+        if (y && mo && da) return y + '-' + mo + '-' + da;
+      } catch (e) {}
+      var x = d instanceof Date ? d : new Date();
+      return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+    }
+    function weatherFromNwsHourly(hourlyJson, date, lat, lon) {
+      var want = nwsLocalYmd(date);
+      var periods = (hourlyJson && hourlyJson.properties && hourlyJson.properties.periods) || [];
+      var byHour = {};
+      periods.forEach(function(p) {
+        if (!p || !p.startTime) return;
+        var st = new Date(p.startTime);
+        if (nwsLocalYmd(st) !== want) return;
+        var h = st.getHours();
+        try {
+          h = parseInt(new Intl.DateTimeFormat('en-US', {
+            timeZone: weatherTimeZone(), hour: 'numeric', hour12: false
+          }).format(st), 10);
+          if (h === 24) h = 0;
+        } catch (eH) {}
+        byHour[h] = p;
+      });
+      if (!Object.keys(byHour).length && periods.length) {
+        periods.slice(0, 24).forEach(function(p, i) {
+          if (!p) return;
+          byHour[i] = p;
+        });
+      }
+      var time = [], temp = [], prob = [], rain = [], wspd = [], wdir = [], gust = [];
+      var ds = want;
+      var hi = null, lo = null;
+      var nowP = null;
+      var now = new Date();
+      for (var h = 0; h < 24; h++) {
+        time.push(ds + 'T' + String(h).padStart(2, '0') + ':00');
+        var p = byHour[h];
+        if (!p) {
+          temp.push(null); prob.push(0); rain.push(0); wspd.push(0); wdir.push(0); gust.push(0);
+          continue;
+        }
+        var t = (p.temperature != null) ? Number(p.temperature) : null;
+        temp.push(t);
+        if (t != null && !isNaN(t)) {
+          if (hi == null || t > hi) hi = t;
+          if (lo == null || t < lo) lo = t;
+        }
+        var pr = p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value;
+        prob.push(pr != null ? Number(pr) : 0);
+        rain.push(0);
+        wspd.push(nwsParseMph(p.windSpeed));
+        wdir.push(nwsCompassToDeg(p.windDirection));
+        gust.push(nwsParseMph(p.windGust || ''));
+        if (!nowP && Math.abs(new Date(p.startTime).getTime() - now.getTime()) < 90 * 60 * 1000) nowP = p;
+      }
+      var sun = { sunrise: ds + 'T06:12', sunset: ds + 'T17:48' };
+      try {
+        var tz = getAlabamaTimezoneOffset(date);
+        var ast = calculateAstronomicalSunriseSunset(lat, lon, date, tz);
+        if (ast && ast.sunrise && ast.sunrise.indexOf(':') >= 0) sun.sunrise = ds + 'T06:12';
+        if (ast && ast.sunset && ast.sunset.indexOf(':') >= 0) sun.sunset = ds + 'T17:48';
+      } catch (eS) {}
+      var out = {
+        hourly: {
+          time: time,
+          temperature_2m: temp,
+          precipitation_probability: prob,
+          rain: rain,
+          wind_speed_10m: wspd,
+          wind_direction_10m: wdir,
+          wind_gusts_10m: gust
+        },
+        daily: {
+          sunrise: [sun.sunrise],
+          sunset: [sun.sunset],
+          temperature_2m_max: [hi],
+          temperature_2m_min: [lo]
+        },
+        source: 'nws'
+      };
+      if (nowP) {
+        out.current = {
+          temperature_2m: nowP.temperature != null ? Number(nowP.temperature) : null,
+          wind_speed_10m: nwsParseMph(nowP.windSpeed),
+          wind_direction_10m: nwsCompassToDeg(nowP.windDirection),
+          wind_gusts_10m: nwsParseMph(nowP.windGust || ''),
+          precipitation: 0
+        };
+      }
+      return out;
+    }
     async function fetchWeather(lat, lon, date) {
       var daysAhead = getDaysFromToday(date);
-      var dateStr = date.toISOString().split('T')[0];
+      var dateStr = nwsLocalYmd(date);
       var cacheKey = lat.toFixed(4) + ',' + lon.toFixed(4) + ',' + dateStr;
 
       if (weatherCache.key === cacheKey && weatherCache.data && (Date.now() - weatherCache.timestamp) < CACHE_TTL) {
@@ -36296,34 +37589,37 @@ function togglePinIconPicker() {
       }
       if (weatherInflight[cacheKey]) return weatherInflight[cacheKey];
 
-      var url;
+      // NWS forecast is not a historical archive — past days use the local baseline
       if (daysAhead < 0) {
-        url = 'https://archive-api.open-meteo.com/v1/archive?latitude=' + lat + '&longitude=' + lon +
-              '&hourly=temperature_2m,precipitation_probability,rain,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
-              '&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch' +
-              '&timezone=auto&start_date=' + dateStr + '&end_date=' + dateStr;
-      } else if (daysAhead === 0) {
-        url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon +
-              '&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,weather_code' +
-              '&hourly=temperature_2m,precipitation_probability,rain,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
-              '&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch' +
-              '&timezone=auto&forecast_days=1';
-      } else {
-        url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon +
-              '&hourly=temperature_2m,precipitation_probability,rain,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
-              '&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch' +
-              '&timezone=auto&start_date=' + dateStr + '&end_date=' + dateStr;
+        var sim = generateSimulatedWeather(lat, lon, date);
+        sim.isHistorical = true;
+        weatherCache = { key: cacheKey, data: sim, timestamp: Date.now() };
+        return sim;
       }
 
-      var doFetch = (typeof RegSlayerOffline !== 'undefined' && RegSlayerOffline.fetchWithTimeout)
-        ? function() { return RegSlayerOffline.fetchWithTimeout(url, {}, 14000); }
-        : function() { return fetch(url); };
+      var pointsUrl = 'https://api.weather.gov/points/' + Number(lat).toFixed(4) + ',' + Number(lon).toFixed(4);
+      var doFetch = function(url) {
+        var opts = { cache: 'no-cache', mode: 'cors' };
+        if (typeof RegSlayerOffline !== 'undefined' && RegSlayerOffline.fetchWithTimeout) {
+          return RegSlayerOffline.fetchWithTimeout(url, opts, 16000);
+        }
+        return fetch(url, opts);
+      };
 
-      weatherInflight[cacheKey] = doFetch().then(function(res) {
-        if (!res.ok) throw new Error('Open-Meteo ' + res.status);
+      weatherInflight[cacheKey] = doFetch(pointsUrl).then(function(res) {
+        if (!res.ok) throw new Error('NWS points ' + res.status);
         return res.json();
-      }).then(function(data) {
-        data.isHistorical = daysAhead < 0;
+      }).then(function(pts) {
+        var hourlyUrl = pts && pts.properties && pts.properties.forecastHourly;
+        if (!hourlyUrl) throw new Error('NWS no hourly');
+        var join = hourlyUrl.indexOf('?') >= 0 ? '&' : '?';
+        return doFetch(hourlyUrl + join + 'units=us');
+      }).then(function(res) {
+        if (!res.ok) throw new Error('NWS hourly ' + res.status);
+        return res.json();
+      }).then(function(hourly) {
+        var data = weatherFromNwsHourly(hourly, date, lat, lon);
+        data.isHistorical = false;
         data.isCurrent = daysAhead === 0;
         weatherCache = { key: cacheKey, data: data, timestamp: Date.now() };
         try {
@@ -36333,7 +37629,6 @@ function togglePinIconPicker() {
         return data;
       }).catch(function(err) {
         delete weatherInflight[cacheKey];
-        // Offline / failed: use last saved weather for this spot+date
         try {
           if (window.RegSlayerOffline) {
             var disk = RegSlayerOffline.loadWeatherDisk(lat, lon, dateStr);
@@ -36682,10 +37977,10 @@ function togglePinIconPicker() {
       // NWS watches/warnings for this selected point (same dashboard band as water; sits under water so nearer weather)
       loadAndRenderWeatherAlerts(lat, lng);
 
-      let sourceText = 'Source: Live Open-Meteo';
+      let sourceText = 'Source: National Weather Service';
       if (weather.isSimulated) sourceText = 'Source: Offline baseline';
-      else if (weather.isHistorical) sourceText = 'Source: Open-Meteo Historical Archive';
-      else if (weather.isCurrent) sourceText = 'Source: Live Open-Meteo (Current Conditions)';
+      else if (weather.isHistorical) sourceText = 'Source: Planning baseline (NWS has no archive here)';
+      else if (weather.isCurrent) sourceText = 'Source: National Weather Service';
       document.getElementById('weather-source-badge').innerText = sourceText;
 
       // Accurate sunrise/sunset
@@ -38404,7 +39699,9 @@ function togglePinIconPicker() {
         '<th style="padding:2px 2px;font-size:10px;font-weight:700;text-align:center;">Wind</th>' +
         '</tr></thead><tbody>' +
         hourlyRows + '</tbody></table></div>' +
-        '<p style="font-size:10px;color:var(--muted);margin-top:8px;">Confirm Outdoor Alabama regs before hunting. Weather is planning-only.</p>';
+        '<p style="font-size:10px;color:var(--muted);margin-top:8px;">Confirm ' +
+        (typeof officialConfirmLabel === 'function' ? officialConfirmLabel() : 'official') +
+        ' regs before hunting. Weather is planning-only.</p>';
 
       lastMapWeatherPayload = { title: name, compactHtml: compact, detailsHtml: details };
       body.innerHTML = compact;
@@ -38423,6 +39720,11 @@ function togglePinIconPicker() {
 
     // ========== INIT (calendar first; map/Leaflet/USGS deferred until Step 3) ==========
     window.onload = function() {
+      try {
+        if (window.RSState && typeof window.RSState.ensurePicked === 'function') {
+          window.RSState.ensurePicked();
+        }
+      } catch (eStBoot) {}
       // Own the first browser location prompt so early settings/map init cannot stack a second one
       _gpsBootInflight = true;
       // WMA Zone A/B polygons + list rows (embedded data — no network)
@@ -38443,9 +39745,17 @@ function togglePinIconPicker() {
         unlockOpenTractsStep();
         document.getElementById('step-2-section').classList.remove('locked');
         document.getElementById('step-2-section').classList.add('active');
+        // List already treats a missing weapon as Either — show that on the buttons
+        if (!selectedWeapon) {
+          selectedWeapon = 'Either';
+          document.querySelectorAll('#step-2-section .filter-btn').forEach(function (b) { b.classList.remove('active'); });
+          var eitherBoot = document.getElementById('wpn-either');
+          if (eitherBoot) eitherBoot.classList.add('active');
+        }
         if (typeof updateAvailableList === 'function') updateAvailableList();
       } catch (eUnlock) {}
       if (typeof updateBottomBarContext === 'function') updateBottomBarContext();
+      if (typeof updateHuntGuide === 'function') updateHuntGuide();
       if (typeof updateSortByButtonLabel === 'function') updateSortByButtonLabel();
       if (typeof applyAllSectionMinStates === 'function') applyAllSectionMinStates();
       else {
@@ -38880,6 +40190,145 @@ function togglePinIconPicker() {
       window.saveFreeStandAt._rsCloud = true;
     }
 
+    // ===== First-run welcome + live “what to do next” (labels only; hunt logic unchanged) =====
+    var HOWTO_STORAGE_KEY = 'reg_slayer_howto_seen_v1';
+    var MAP_HINT_STORAGE_KEY = 'reg_slayer_map_hint_seen_v1';
+
+    function prettyHuntGuideDate(d) {
+      if (!d) return '';
+      try {
+        var rel = (typeof getDaysFromToday === 'function') ? getDaysFromToday(d) : null;
+        var short = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        if (rel === 0) return 'Today';
+        if (rel === 1) return 'Tomorrow';
+        if (rel === -1) return 'Yesterday';
+        return short;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function updateHuntGuide(listCount) {
+      var dateEl = document.getElementById('hg-date-text');
+      var wpnEl = document.getElementById('hg-wpn-text');
+      var listEl = document.getElementById('hg-list-text');
+      var sDate = document.getElementById('hg-step-date');
+      var sWpn = document.getElementById('hg-step-wpn');
+      var sList = document.getElementById('hg-step-list');
+      var countEl = document.getElementById('hunt-list-count');
+      var n = (typeof listCount === 'number')
+        ? listCount
+        : (typeof lastListedHuntLocations !== 'undefined' && lastListedHuntLocations
+          ? lastListedHuntLocations.length
+          : null);
+      var dateLabel = selectedDate ? prettyHuntGuideDate(selectedDate) : '';
+      var wpn = selectedWeapon || '';
+      var wpnLabel = wpn ? (typeof displayWeaponName === 'function' ? displayWeaponName(wpn) : wpn) : '';
+      if (dateEl) dateEl.textContent = dateLabel || 'Pick a day';
+      if (wpnEl) wpnEl.textContent = wpnLabel || 'Pick a weapon';
+      if (listEl) {
+        if (n == null) listEl.textContent = 'See open places';
+        else if (n === 0) listEl.textContent = 'No places open';
+        else if (n === 1) listEl.textContent = '1 place open';
+        else listEl.textContent = n + ' places open';
+      }
+      if (countEl) countEl.textContent = (n != null && n > 0) ? '(' + n + ')' : '';
+      if (sDate) {
+        sDate.classList.toggle('is-done', !!selectedDate);
+        sDate.classList.toggle('is-ready', !selectedDate);
+      }
+      if (sWpn) {
+        sWpn.classList.toggle('is-done', !!wpn);
+        sWpn.classList.toggle('is-ready', !!selectedDate && !wpn);
+      }
+      if (sList) {
+        sList.classList.toggle('is-done', n != null && n > 0);
+        sList.classList.toggle('is-ready', !!selectedDate && (n == null || n === 0));
+      }
+    }
+    window.updateHuntGuide = updateHuntGuide;
+
+    function openHowToGuide() {
+      var overlay = document.getElementById('howto-overlay');
+      if (!overlay) return;
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+    function closeHowToGuide(markSeen) {
+      var overlay = document.getElementById('howto-overlay');
+      if (overlay) {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      if (markSeen) {
+        try { localStorage.setItem(HOWTO_STORAGE_KEY, '1'); } catch (eS) {}
+      }
+    }
+    window.openHowToGuide = openHowToGuide;
+
+    function dismissMapFirstHint() {
+      var el = document.getElementById('map-first-hint');
+      if (el) el.classList.remove('is-on');
+      try { localStorage.setItem(MAP_HINT_STORAGE_KEY, '1'); } catch (eH) {}
+    }
+    window.dismissMapFirstHint = dismissMapFirstHint;
+
+    function showMapFirstHintIfNeeded() {
+      var seen = false;
+      try { seen = localStorage.getItem(MAP_HINT_STORAGE_KEY) === '1'; } catch (eR) {}
+      var el = document.getElementById('map-first-hint');
+      if (el && !seen) el.classList.add('is-on');
+    }
+
+    (function wireHowToGuide() {
+      var overlay = document.getElementById('howto-overlay');
+      var closeBtn = document.getElementById('howto-close');
+      var startBtn = document.getElementById('howto-start');
+      var headerBtn = document.getElementById('brand-howto-btn');
+      var hintClose = document.getElementById('map-first-hint-close');
+      function onHelp() { openHowToGuide(); }
+      if (headerBtn && !headerBtn._rsHowToWired) {
+        headerBtn._rsHowToWired = true;
+        headerBtn.addEventListener('click', onHelp);
+      }
+      if (closeBtn) closeBtn.addEventListener('click', function () { closeHowToGuide(true); });
+      if (startBtn) startBtn.addEventListener('click', function () { closeHowToGuide(true); });
+      if (overlay) {
+        overlay.addEventListener('click', function (ev) {
+          if (ev.target === overlay) closeHowToGuide(true);
+        });
+      }
+      if (hintClose) hintClose.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        dismissMapFirstHint();
+      });
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && overlay && overlay.classList.contains('is-open')) closeHowToGuide(true);
+      });
+      var seen = false;
+      try { seen = localStorage.getItem(HOWTO_STORAGE_KEY) === '1'; } catch (eK) {}
+      var needState = false;
+      try {
+        needState = !(window.RSState && window.RSState.savedCode && window.RSState.savedCode());
+      } catch (eSt) {}
+      if (!seen && !needState) {
+        function tryOpenHowTo() {
+          try {
+            var auth = document.getElementById('auth-gate');
+            if (auth && auth.classList.contains('active')) return false;
+          } catch (eA) {}
+          openHowToGuide();
+          return true;
+        }
+        if (!tryOpenHowTo()) {
+          setTimeout(tryOpenHowTo, 800);
+        }
+      }
+      showMapFirstHintIfNeeded();
+      updateHuntGuide();
+    })();
+
     // #86: header Account opens Settings (auth/profile lives there)
     (function wireBrandUserBtn() {
       var ub = document.getElementById('brand-user-btn');
@@ -38919,6 +40368,15 @@ function togglePinIconPicker() {
       var statusEl = document.getElementById('report-issue-status');
       if (!btn || !overlay || btn._rsReportWired) return;
       btn._rsReportWired = true;
+      var kindSeg = document.getElementById('report-issue-kind-seg');
+      if (kindSeg) {
+        kindSeg.addEventListener('click', function (ev) {
+          var b = ev.target && ev.target.closest ? ev.target.closest('.filter-btn') : null;
+          if (!b || !kindSeg.contains(b)) return;
+          kindSeg.querySelectorAll('.filter-btn').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+        });
+      }
 
       function setStatus(text, kind) {
         if (!statusEl) return;
@@ -38961,11 +40419,16 @@ function togglePinIconPicker() {
         }
         submit.disabled = true;
         setStatus('Sending…', '');
+        var kindBtn = document.querySelector('#report-issue-kind-seg .filter-btn.active');
+        var kind = (kindBtn && kindBtn.getAttribute('data-kind')) || 'app';
         var payload = {
           message: message,
           title: titleEl ? String(titleEl.value || '').trim() : '',
           contact: contactEl ? String(contactEl.value || '').trim() : '',
-          site: (typeof SITE_ID !== 'undefined' && SITE_ID === 'reg') ? 'reg' : 'hunt'
+          site: (typeof SITE_ID !== 'undefined' && SITE_ID === 'reg') ? 'reg' : 'hunt',
+          kind: kind,
+          state: (window.RS_STATE && window.RS_STATE.code) ? window.RS_STATE.code : '',
+          appVersion: (typeof APP_VERSION !== 'undefined') ? APP_VERSION : ''
         };
         fetch('/api/report-issue', {
           method: 'POST',

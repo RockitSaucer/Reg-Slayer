@@ -1,0 +1,8 @@
+V8.1.3 — Wyoming Alabama-grade deer pack (local only)
+
+- Official 2026 WGFD deer hunt areas (126 polygons, color-separated, detailed GIS borders)
+- Chapter 6 2026 seasons/weapons/bag wired like Alabama zone calendars
+- Public land: WHMA, Walk-In, HMA, BLM (WY-only), USFS, NWR, USACE
+- Same planner: date → weapon → Available Hunts + map can/can’t hunt
+- Sources: WGFD Chapter 6 PDF + 2026_Deer_Hunt_Areas FeatureServer
+- Not pushed

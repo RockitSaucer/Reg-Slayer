@@ -1,0 +1,28 @@
+V8.1.4 → V8.1.5 (local Reg only — not pushed)
+
+Block 0 (pack host)
+- New states drop in as files on window.RS_PACKS + activePack().
+- Alabama stays the in-file gold pack.
+- Wyoming already registered as RS_PACKS.WY.
+- Public-land fill visibility now follows whatever extraToggles a pack turns on (SWA, STL, walk-in, BLM, …).
+
+Colorado — first Block 1 pack (Alabama-grade)
+- Official sources: CPW 2026 Big Game Brochure (printed Feb 2026) + CPW Hunting Atlas GMU layer 81.
+- 186 GMUs with official borders (overlay OFF unless the hunter turns Mountain / Plains on).
+- Season windows from the brochure:
+  Mountain: archery Sept 2–30, muzzleloader Sept 12–20, rifle 1 Oct 14–18 (select GMUs), rifle 2 Oct 24–Nov 1, rifle 3 Nov 7–15, rifle 4 Nov 18–22.
+  Plains: archery Oct 1–23 / Nov 4–30 / Dec 15–31, muzzleloader Oct 10–18, rifle Oct 24–Nov 3, late rifle Dec 1–14.
+- Notes on every row: most deer licenses are limited by hunt code — confirm the brochure. Do not treat a window as OTC.
+- Huntable land default ON: SWA, Walk-In (big game), STL, BLM, USFS, NWR, USACE.
+- Top regs / source: Colorado Parks & Wildlife, never Outdoor Alabama.
+- Same click rules as Alabama: orange dot on free click; can/can’t hunt only on the dot; no hover card.
+
+Files
+- states/co-pack.js (new)
+- states/_build_co_pack.py
+- states/catalog.js (CO → full)
+- states/pack-host.js
+- index.html V8.1.5
+- sw.js shell v168 + co-pack.js
+
+Not pushed. Hunt twin unchanged.

@@ -1,0 +1,24 @@
+REG SLAYER — V8.0.31 → V8.0.32 (LOCAL ONLY — not pushed)
+
+Public / commercially-safer map & weather stack for the free Reg test build.
+Keeps the V8.0.31 first-run UI.
+
+Replaced (do not use in an ad-supported / paid app without a written license)
+
+| Was | Now |
+|-----|-----|
+| Esri World Imagery + Wayback winter/summer | USGS Imagery Only (NAIP / public aerial) |
+| Esri World Hillshade + Esri imagery under LiDAR | USGS 3DEP shaded relief + USGS aerial underlay |
+| CARTO Positron streets | Lightened USGS Topo + USGS Hydro overlay |
+| Esri World Transportation overlay | USGS Hydro + USGS Topo overlay |
+| Regrid parcel tiles + owner lookup | Off. Checkbox says Hunt upgrade |
+| Open-Meteo forecast / archive / elevation | NWS hourly forecast · USGS EPQS elevation · past days use local baseline |
+| RainViewer radar | NWS radar via Iowa Environmental Mesonet tiles |
+| Photon (komoot) place search | US Census geocoder only |
+| Zippopotam ZIP lookup | US Census geocoder |
+| Leaflet unpkg fallback | Local vendor/leaflet only |
+
+Offline packs now cache USGS tiles only (offline-engine.js).
+
+Shell cache: reg-slayer-shell-v162
+Undo: revert index.html + offline-engine.js + sw.js to V8.0.31 / v161

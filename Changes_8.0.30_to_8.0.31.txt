@@ -1,0 +1,41 @@
+REG SLAYER — V8.0.30 → V8.0.31 (LOCAL ONLY — not pushed)
+
+Source: latest Reg-Slayer repo upload (V8.0.30 / 7d9725e).
+Saved to: Desktop/HuntApp/_push_reg_slayer/index.html
+Undo: revert index.html + sw.js to V8.0.30 / shell v160.
+
+What changed (interface only — hunt rules, map tools, storage keys, and features are the same)
+
+1. First-visit “How REG SLAYER works” card
+   - Three plain steps: pick a day → pick a weapon → tap a place or tap the map
+   - Reopen anytime from How to use (header on desktop, strip on phone)
+   - Dismiss is remembered (localStorage reg_slayer_howto_seen_v1)
+
+2. Always-on hunt guide strip under the header
+   - Shows the live plan: date → weapon → how many places are open
+   - “Next: …” tells a first-time user what to do
+
+3. Plain-language labels (IDs and onclick handlers unchanged)
+   - When are you hunting? / How will you hunt? / Narrow the list
+   - Places you can hunt (was Available tracts / huntable areas)
+   - Weapons: Any / Bow / Rifle / Muzzleloader (internal values still Either / Archery / Gun / Primitive)
+   - All places / My pick
+   - Weather shows after you pick a place
+   - Sunrise & legal hours (was Solunar & Legal Hours)
+
+4. Empty list when the selected day is closed (e.g. August):
+   “Deer season is closed on this day. Tap a date in season…”
+   First-run card also says this — today is auto-selected, so summer visitors
+   would otherwise see a blank list and not know why.
+5. Map chip: “Tap any spot to see if you can hunt there” (once)
+6. Boot now highlights Any as the selected weapon (list already used Either)
+7. Auth copy says you can plan without signing in
+8. Homescreen name: Reg Slayer (was Hunt Slayer on this site)
+
+Not changed
+- Season / zone / WMA / can-can’t hunt logic
+- Map tools, layers, pins, parties, calendar events, settings
+- Storage keys
+- Hunt Slayer twin (this is local Reg only)
+
+Shell cache: reg-slayer-shell-v161

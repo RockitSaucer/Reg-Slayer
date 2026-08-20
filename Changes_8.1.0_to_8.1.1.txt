@@ -1,0 +1,9 @@
+REG SLAYER — V8.1.0 → V8.1.1 (LOCAL)
+
+Fix: picking California (or any state) still showed Alabama.
+
+- Desktop always recentered on Montgomery (32.78, -86.83). Now fitBounds the chosen state.
+- State outlines loaded via fetch (fails on file://). Rings now load from states/us-rings.js.
+- Clicking a state in the dropdown applies immediately.
+- Large states can zoom out (min zoom 5) so California fits.
+- Non-AL public land reloads instead of keeping Alabama WMA cache.

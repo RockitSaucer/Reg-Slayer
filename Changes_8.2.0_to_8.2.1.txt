@@ -1,0 +1,11 @@
+REG SLAYER local 8.2.0 → 8.2.1 (not production-pushed)
+
+- APP_VERSION 8.2.1 · badge V8.2.1 · SHELL_CACHE reg-slayer-shell-v170
+- New drop-in packs (lazy-loaded via loadStatePack):
+  NC, ND, NE, NH, NY, OH, OK, PA, SC, SD, TN, UT, VA, VT, WA, WI, WV, MD
+- Official 2026-27 dates + queryable GIS (state hunt-unit layer or TIGER counties)
+- Conservative encoding when splits missing (overlap / earlier close)
+- Accuracy leftovers: docs/STATE_PACK_ISSUES.md (also copied to HuntApp/docs)
+- Also packed later: MI, RI
+- Official GIS upgrades: NH (20 WMUs), ND (38 deer units), SC (4 Game Zones)
+- Still building (do not hunt from these): AZ, LA, MS, NJ, NM, NV, OR

@@ -1,0 +1,13 @@
+REG SLAYER — V8.0.33 → V8.1.0 (LOCAL ONLY)
+
+Multi-state shell (one state loaded at a time) + report-issue kinds.
+
+- First visit / header: pick a lower-48 state. Only that state's ring, bbox, and public-land layers stay in memory.
+- Alabama remains the full pack (zones, WMA A/B, seasons, ADCNR).
+- Other states: official agency + legislation links, USGS map, PAD-US / USFS / FWS / USACE clipped to that state. Seasons and WMA internal zones fill the same way as Alabama as each digest is verified (status "building" in the picker).
+- Report an issue: Site/app vs Rules & regs. Prompt asks for as much detail as possible.
+- API labels: from-site-app | from-site-regs (+ state).
+- 2-hour checker: regs tickets may auto-fix only when independently confirmed against official text.
+
+Files: states/catalog.js, states/engine.js, states/us-rings.json
+Shell: v164

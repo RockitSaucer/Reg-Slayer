@@ -88,22 +88,22 @@
       ]
     },
     street: {
-      label: 'Roads & Waterways',
+      label: 'Roads & water (USGS)',
       urls: [
-        'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSHydroCached/MapServer/tile/{z}/{y}/{x}'
       ]
     },
     satellite: {
-      label: 'Satellite',
+      label: 'Aerial (USGS/NAIP)',
       urls: [
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}'
       ]
     },
     lidar: {
-      label: 'LiDAR Terrain',
+      label: 'Terrain (USGS 3DEP)',
       urls: [
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}'
+        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}'
       ]
     }
   };
@@ -631,7 +631,7 @@
     if (!('serviceWorker' in navigator)) return Promise.resolve(null);
 
     // Shell bump: keep in sync with sw.js SHELL_CACHE so phones re-fetch the worker script
-    var SW_SCRIPT = './sw.js?v=shell160';
+    var SW_SCRIPT = './sw.js?v=shell173';
 
     // One safe reload when a new SW takes over (once per tab session).
     // Skips if user is typing so login fields aren't wiped mid-keystroke.
@@ -640,11 +640,11 @@
         navigator.serviceWorker._rsCtrlHooked = true;
         navigator.serviceWorker.addEventListener('controllerchange', function () {
           try {
-            if (sessionStorage.getItem('rs_sw_reloaded_shell159')) return;
+            if (sessionStorage.getItem('rs_sw_reloaded_shell173')) return;
             var ae = document.activeElement;
             if (ae && ae.tagName && /^(INPUT|TEXTAREA|SELECT)$/i.test(ae.tagName)) return;
             if (ae && ae.isContentEditable) return;
-            sessionStorage.setItem('rs_sw_reloaded_shell159', '1');
+            sessionStorage.setItem('rs_sw_reloaded_shell173', '1');
             location.reload();
           } catch (eR) {}
         });

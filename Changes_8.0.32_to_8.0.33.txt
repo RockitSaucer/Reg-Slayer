@@ -1,0 +1,10 @@
+REG SLAYER — V8.0.32 → V8.0.33 (LOCAL ONLY)
+
+Terrain no longer blanks at deep zoom.
+
+USGS Shaded Relief only has real tiles through zoom 13 (14+ 404).
+USGS Imagery Only only has real tiles through zoom 16 (17+ 404).
+setMapBasemap was still forcing hillshade native 16 and imagery native 19
+(Esri depths), so zoom-in requested empty tiles.
+
+Fix: overscale last good tiles (hillshade 13, imagery 16) up to map max zoom 22.
