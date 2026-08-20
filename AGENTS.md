@@ -5,7 +5,7 @@
 **Vercel:** `reg-slayer` (ex `test-offline`) team AlaHunt  
 **Same code family as Hunt-Slayer** — V6.9.3 Nice baseline; open-at-launch defaults may diverge later.
 
-**Local (2026-08-20):** `APP_VERSION = '8.2.13'` · badge **V8.2.13** · shell `reg-slayer-shell-v182`. Spot-local weather + Terrain hillshade.
+**Shipped (2026-08-20):** `APP_VERSION = '8.2.14'` · badge **V8.2.14** · shell `reg-slayer-shell-v183`. Spot-local weather + Terrain hillshade. Pushed to Reg-Slayer `main`.
 
 ## Ship
 1. Edit only under `Desktop/HuntApp/_push_reg_slayer/` for regslayer.com

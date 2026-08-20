@@ -1,0 +1,5 @@
+REG SLAYER 8.2.13 → 8.2.14
+
+- GPS / My Location no longer overwrites weather after you click a map spot.
+- Date changes keep weather on the clicked coordinates (map spots are not in the hunt list, so they used to fall back to the user’s location).
+- Shell `reg-slayer-shell-v183`.
