@@ -1,0 +1,5 @@
+REG SLAYER 8.2.28 → 9.0 Beta
+
+- Version badge is now V9.0 Beta (same as Hunt Slayer).
+- After first login, a one-time popup says the site is in beta and asks for help via Report an issue, especially rules and regs.
+- Shell `reg-slayer-shell-v198`.
