@@ -1,0 +1,7 @@
+REG SLAYER 8.2.16 → 8.2.17
+
+- Elk selection swaps the hunt-area overlay to elk-specific units.
+- Wyoming: loads WGFD ElkHuntAreas GIS (not 2026 deer hunt areas). Closed elk areas 72 and 79 are hidden. Chapter 7 PDF is the legislation link.
+- Other elk states (ID, CO, UT, MT, OR, WA, NV, KY): same GIS as deer, but units with no elk season are not drawn and not used for clicks.
+- Overlay fold label becomes elk hunt areas when Elk is selected.
+- Shell `reg-slayer-shell-v186`. Not pushed.

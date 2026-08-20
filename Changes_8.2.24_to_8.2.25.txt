@@ -1,0 +1,7 @@
+REG SLAYER 8.2.24 → 8.2.25
+
+- Header buttons (state, Report, Other ways, Account) share one look.
+- How to use sits in the 1-2-3 strip, just left of step 1 (top right under the header).
+- GPS Track removed from the toolbar and Settings (Hunt still has it).
+- Bottom-bar date/weapon chip is wider and shows the selected animal so My Location stays centered.
+- Shell `reg-slayer-shell-v194`. Not pushed.

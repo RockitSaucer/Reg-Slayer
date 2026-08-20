@@ -1,0 +1,5 @@
+REG SLAYER 8.2.18 → 8.2.19
+
+- Terrain (USGS 3DEP): replaced cached Shaded Relief tiles (native zoom 13, blurry past that) with USGS 3DEP ImageServer Hillshade Gray-Stretch (~1 m LiDAR, public domain). Sharp through zoom 18.
+- Offline terrain packs now download the same 3DEP hillshade tiles.
+- Shell `reg-slayer-shell-v188`. Not pushed.

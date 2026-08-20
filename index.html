@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-site="reg">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -30,6 +30,7 @@
   <script src="./states/catalog.js"></script>
   <script src="./states/us-rings.js"></script>
   <script src="./states/pack-host.js"></script>
+  <script src="./states/elk-2026.js"></script>
   <script src="./states/pack-lib.js"></script>
   <script src="./states/wy-pack.js"></script>
   <script src="./states/co-pack.js"></script>
@@ -247,6 +248,24 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.85);
     }
     /* Compact side-by-side actions (#91) */
+    .brand-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-end;
+      gap: 6px;
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: min(78%, 760px);
+      padding-bottom: 2px;
+    }
+    .brand-header:has(.hunt-guide) {
+      height: auto;
+      min-height: 104px;
+      max-height: none;
+      overflow: visible;
+      align-items: stretch;
+    }
     .brand-header-actions {
       position: static;
       transform: none;
@@ -260,10 +279,25 @@
       max-width: none;
       flex: 0 0 auto;
       align-self: flex-end;
-      padding-bottom: 2px;
+      padding-bottom: 0;
     }
+    #brand-state-btn {
+      border-color: var(--accent, #e59a18);
+      background: rgba(72, 106, 47, 0.78);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 0 0 1px rgba(229, 154, 24, 0.55), 0 1px 6px rgba(0,0,0,0.35);
+    }
+    #brand-state-btn:hover,
+    #brand-state-btn:focus-visible {
+      background: rgba(88, 128, 56, 0.92);
+      color: #fff;
+    }
+    .brand-header-actions > button,
     .brand-sister-link,
-    .brand-report-btn {
+    .brand-report-btn,
+    .brand-howto-btn,
+    .hg-help-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -291,34 +325,30 @@
       max-width: none;
       flex: 0 0 auto;
     }
-    .brand-report-btn {
-      border-color: rgba(160, 175, 150, 0.45);
-      font-size: 10px;
-      letter-spacing: 0.02em;
-      padding: 4px 8px;
-      text-transform: none;
-      font-weight: 650;
-      color: rgba(220, 230, 210, 0.95);
-    }
+    .brand-header-actions > button:hover,
+    .brand-header-actions > button:focus-visible,
     .brand-sister-link:hover,
     .brand-sister-link:focus-visible,
     .brand-report-btn:hover,
-    .brand-report-btn:focus-visible {
+    .brand-report-btn:focus-visible,
+    .brand-howto-btn:hover,
+    .brand-howto-btn:focus-visible,
+    .hg-help-btn:hover,
+    .hg-help-btn:focus-visible {
       border-color: var(--accent, #e59a18);
       background: rgba(72, 106, 47, 0.55);
       color: #fff;
       outline: none;
     }
+    .brand-header-actions > button:active,
     .brand-sister-link:active,
-    .brand-report-btn:active {
+    .brand-report-btn:active,
+    .brand-howto-btn:active,
+    .hg-help-btn:active {
       transform: scale(0.98);
     }
     .brand-sister-link .brand-sister-label {
-      color: var(--accent, #e59a18);
-    }
-    .brand-sister-link:hover .brand-sister-label,
-    .brand-sister-link:focus-visible .brand-sister-label {
-      color: #ffc45a;
+      color: inherit;
     }
     /* Report-an-issue modal */
     .report-issue-overlay {
@@ -436,10 +466,18 @@
       position: relative;
       flex: 0 1 auto;
       min-width: 0;
-      max-width: min(48vw, 260px);
+      max-width: min(78vw, 460px);
       display: flex;
       align-items: center;
+      gap: 6px;
       width: auto;
+    }
+    .map-title-bar #brand-state-btn {
+      flex: 0 0 auto;
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 8px;
+      line-height: 1.2;
     }
     .map-title-bar .map-title-text,
     button.map-title-text {
@@ -736,8 +774,18 @@
     }
     html.layout-phone .map-title-bar {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
+    }
+    html.layout-phone .map-title-switcher {
+      justify-content: flex-start;
+      margin: 0;
+      max-width: 100%;
+    }
+    html.layout-phone .map-title-bar .map-title-text,
+    html.layout-phone button.map-title-text {
+      text-align: left;
+      margin: 0;
     }
     html.layout-phone .map-title-settings-btn {
       display: none !important;
@@ -1014,6 +1062,7 @@
       html.layout-desktop .container { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 10px; }
       html.layout-desktop .app-shell { padding: 12px; }
       html.layout-desktop .brand-header { height: 104px; min-height: 104px; max-height: 104px; }
+      html.layout-desktop .brand-header:has(.hunt-guide) { height: auto; min-height: 104px; max-height: none; overflow: visible; }
       html.layout-desktop .brand-logo-wrap { width: min(1100px, 96vw); }
       html.layout-desktop .brand-logo { height: 168px; width: auto; object-fit: contain; }
       html.layout-desktop #dashboard-container { position: static; max-height: none; }
@@ -1131,19 +1180,16 @@
       white-space: normal;
       text-align: center;
     }
+    html.layout-phone .brand-header-actions > button,
     html.layout-phone .brand-sister-link,
-    html.layout-phone .brand-report-btn {
+    html.layout-phone .brand-report-btn,
+    html.layout-phone .brand-howto-btn {
       padding: 5px 7px;
       font-size: 9px;
       letter-spacing: 0.03em;
       border-radius: 7px;
       min-height: 26px;
       line-height: 1.15;
-    }
-    html.layout-phone .brand-report-btn {
-      font-size: 8px;
-      min-height: 24px;
-      padding: 4px 6px;
     }
     html.layout-phone .site-footer-inner { gap: 6px 10px; padding-left: 12px; padding-right: 12px; }
     html.layout-phone .site-footer-inner p { font-size: 12px; }
@@ -1161,6 +1207,12 @@
       display: contents;
     }
     /* With display:contents, assign order so tracts sit under steps, then map */
+    html.layout-phone .hunt-guide {
+      order: 0;
+      margin: 0 10px 8px;
+      width: auto;
+      max-width: calc(100% - 20px);
+    }
     html.layout-phone .planner-row {
       order: 1;
       margin: 0 10px;
@@ -1320,15 +1372,16 @@
         max-width: min(108px, 36vw);
         gap: 3px;
       }
+      .brand-header-actions > button,
       .brand-sister-link,
-      .brand-report-btn {
+      .brand-report-btn,
+      .brand-howto-btn {
         padding: 5px 7px;
         font-size: 9px;
         letter-spacing: 0.03em;
         border-radius: 7px;
         min-height: 26px;
       }
-      .brand-report-btn { font-size: 8px; min-height: 24px; padding: 4px 6px; }
       .site-footer {
         position: static !important;
         margin-top: 12px !important;
@@ -2165,7 +2218,7 @@
     html.layout-desktop .card-planner {
       display: grid;
       grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.57fr);
-      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr);
       gap: 10px 12px;
       align-items: stretch;
       height: 100% !important;
@@ -2201,9 +2254,14 @@
       border: 1px solid #1a1f16;
       min-height: 28px;
     }
+    html.layout-desktop .card-planner > .hunt-guide {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      min-width: 0;
+    }
     html.layout-desktop .card-planner > .planner-row {
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 2;
       min-width: 0;
       min-height: min-content;
       align-self: start;
@@ -2212,7 +2270,7 @@
     /* Weather column only — height matched to steps 1–3 */
     html.layout-desktop .card-planner > .planner-right-col {
       grid-column: 2;
-      grid-row: 1;
+      grid-row: 2;
       min-width: 0;
       min-height: 0;
       display: flex;
@@ -2231,7 +2289,7 @@
     html.layout-desktop .card-planner > .available-tracts-panel,
     html.layout-desktop .card-planner > #locations-under-steps {
       grid-column: 1 / -1;
-      grid-row: 2;
+      grid-row: 3;
       min-width: 0;
       min-height: 0;
       max-height: none;
@@ -2245,7 +2303,7 @@
     html.layout-desktop .card-planner > .available-tracts-panel.is-minimized,
     html.layout-desktop .card-planner > #locations-under-steps.is-minimized {
       flex: 0 0 auto;
-      grid-row: 2;
+      grid-row: 3;
       min-height: 0;
     }
     html.layout-desktop .card-planner > #locations-under-steps .available-tracts-header {
@@ -2426,7 +2484,7 @@
      */
     html.layout-desktop.planner-right-half-min .card-planner {
       grid-template-columns: minmax(0, 1fr) !important;
-      grid-template-rows: auto auto !important;
+      grid-template-rows: auto auto auto auto !important;
       align-content: start;
       align-self: start;
       height: auto !important;
@@ -2435,6 +2493,7 @@
       overflow-y: auto;
     }
     /* Half-min stack: steps, weather, then full-width tracts */
+    html.layout-desktop.planner-right-half-min .card-planner > .hunt-guide,
     html.layout-desktop.planner-right-half-min .card-planner > .planner-row,
     html.layout-desktop.planner-right-half-min .card-planner > .planner-right-col,
     html.layout-desktop.planner-right-half-min .card-planner > #locations-under-steps {
@@ -2444,14 +2503,14 @@
     }
     html.layout-desktop.planner-right-half-min .card-planner > .planner-row {
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 2;
       height: auto !important;
       align-self: start;
       min-height: 0 !important;
     }
     html.layout-desktop.planner-right-half-min .card-planner > .planner-right-col {
       grid-column: 1;
-      grid-row: 2;
+      grid-row: 3;
       height: auto !important;
       min-height: 0 !important;
       flex: 0 0 auto;
@@ -2461,7 +2520,7 @@
     }
     html.layout-desktop.planner-right-half-min .card-planner > #locations-under-steps {
       grid-column: 1;
-      grid-row: 3;
+      grid-row: 4;
       height: auto !important;
       min-height: 0 !important;
     }
@@ -2491,7 +2550,7 @@
     }
     html.layout-desktop.planner-left-half-min .card-planner {
       grid-template-columns: 1fr !important;
-      grid-template-rows: auto auto auto !important;
+      grid-template-rows: auto auto auto auto !important;
       align-content: start;
       align-self: start;
       height: auto !important;
@@ -2499,23 +2558,23 @@
     }
     html.layout-desktop.planner-left-half-min .card-planner > .planner-row {
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 2;
       height: auto !important;
       align-self: start;
     }
     html.layout-desktop.planner-left-half-min .card-planner > .planner-right-col {
       grid-column: 1;
-      grid-row: 2;
+      grid-row: 3;
       height: auto !important;
     }
     html.layout-desktop.planner-left-half-min .card-planner > #locations-under-steps {
       grid-column: 1;
-      grid-row: 3;
+      grid-row: 4;
       height: auto !important;
     }
     html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner {
       grid-template-columns: 1fr !important;
-      grid-template-rows: auto auto auto !important;
+      grid-template-rows: auto auto auto auto !important;
       align-content: start;
       align-self: start;
       height: auto !important;
@@ -2527,9 +2586,9 @@
       grid-column: 1;
       height: auto !important;
     }
-    html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner > .planner-row { grid-row: 1; }
-    html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner > .planner-right-col { grid-row: 2; }
-    html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner > #locations-under-steps { grid-row: 3; }
+    html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner > .planner-row { grid-row: 2; }
+    html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner > .planner-right-col { grid-row: 3; }
+    html.layout-desktop.planner-left-half-min.planner-right-half-min .card-planner > #locations-under-steps { grid-row: 4; }
 
     /*
      * Desktop dock-left (stacked): planner ~15% wider than prior ~320–360px.
@@ -2606,6 +2665,10 @@
       grid-row: auto !important;
     }
     /* Stacked order: steps → Available tracts → weather */
+    html.layout-desktop.planner-dock-left .card-planner > .hunt-guide {
+      order: 0;
+      flex: 0 0 auto !important;
+    }
     html.layout-desktop.planner-dock-left .card-planner > .planner-row {
       order: 1;
       flex: 0 0 auto !important;
@@ -3191,11 +3254,11 @@
     /* When weather is hidden, steps + full-width tracts */
     html.layout-desktop.settings-hide-weather .card-planner {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr);
     }
     html.layout-desktop.settings-hide-weather .card-planner > .planner-row {
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 2;
       height: auto;
     }
     html.layout-desktop.settings-hide-weather .card-planner > .planner-right-col {
@@ -3203,7 +3266,7 @@
     }
     html.layout-desktop.settings-hide-weather .card-planner > #locations-under-steps {
       grid-column: 1;
-      grid-row: 2;
+      grid-row: 3;
     }
     html.layout-phone .planner-right-col {
       display: contents;
@@ -6916,7 +6979,7 @@
       pointer-events: none;
     }
 
-    /* Terrain: 3DEP hillshade is the map. Grayscale underlay only fills ocean / missed tiles. */
+    /* Terrain: 3DEP 1 m hillshade is the map. Grayscale underlay only fills ocean / missed tiles. */
     .leaflet-layer.basemap-lidar-under {
       filter: grayscale(1) contrast(1.05) brightness(0.92);
     }
@@ -8297,14 +8360,15 @@
      */
     .mbb-context {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 2px;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 5px;
       flex: 0 0 auto;
       width: auto;
-      min-width: 0;
-      max-width: min(42vw, 140px);
+      min-width: 9.5rem;
+      max-width: min(58vw, 280px);
       height: var(--mbb-h) !important;
       max-height: var(--mbb-h) !important;
       overflow: hidden;
@@ -8338,13 +8402,13 @@
         inset 0 2px 4px rgba(0, 0, 0, 0.35);
     }
     .mbb-date {
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 800;
       letter-spacing: 0.01em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: clip;
-      color: #e8efe4;
+      color: #fff8e8;
       font-variant-numeric: tabular-nums;
       line-height: 1.15;
       max-width: 100%;
@@ -8371,37 +8435,55 @@
       padding: 0;
       text-shadow: none;
     }
-    /* Current day — darker green (no fill) */
+    /* Current day — bright green on dark chip */
     .mbb-date.is-today {
-      color: #2f7a3a !important;
+      color: #b6f08a !important;
       background: transparent !important;
       padding: 0;
     }
-    /* Future day — darker red (no fill) */
+    /* Future day — bright coral (reads on dark green) */
     .mbb-date.is-future {
-      color: #b91c1c !important;
+      color: #ffb4a2 !important;
       background: transparent !important;
       padding: 0;
     }
-    /* Past day — muted (no fill) */
+    /* Past day — light gray-green */
     .mbb-date.is-past {
-      color: #8a9680 !important;
+      color: #e2ead8 !important;
       background: transparent !important;
       padding: 0;
+    }
+    .mbb-species {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      height: 18px;
+      max-width: 100%;
+      padding: 0 6px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 244, 208, 0.55);
+      background: rgba(0, 0, 0, 0.38);
+      color: #fff4d0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      white-space: nowrap;
     }
     .mbb-weapon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      height: 16px;
+      height: 18px;
       max-width: 100%;
-      padding: 0 5px;
+      padding: 0 6px;
       border-radius: 5px;
-      border: 1px solid rgba(229, 154, 24, 0.45);
-      background: rgba(229, 154, 24, 0.12);
-      color: var(--accent);
-      font-size: 9px;
+      border: 1px solid rgba(255, 210, 122, 0.7);
+      background: rgba(0, 0, 0, 0.38);
+      color: #ffd27a;
+      font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.02em;
       line-height: 1;
@@ -8625,19 +8707,24 @@
     /* Date/weapon block — compact 3D chip (abbrev date fits without ellipsis) */
     html.layout-phone .mbb-context {
       width: auto;
-      min-width: 0;
-      max-width: min(36vw, 7.2rem);
+      min-width: 6.6rem;
+      max-width: min(52vw, 12.5rem);
       height: var(--mbb-h) !important;
-      gap: 1px;
+      gap: 3px;
       padding: 1px 5px;
       flex: 0 0 auto !important;
       flex-shrink: 0 !important;
       overflow: hidden;
-      justify-content: center;
+      justify-content: flex-start;
       box-sizing: border-box;
     }
+    html.layout-phone .mbb-species {
+      height: 14px;
+      padding: 0 4px;
+      font-size: 9px;
+    }
     html.layout-phone .mbb-date {
-      font-size: 8.5px;
+      font-size: 10.5px;
       letter-spacing: 0;
       line-height: 1.05;
       font-weight: 800;
@@ -8646,9 +8733,9 @@
       padding: 0 3px;
     }
     html.layout-phone .mbb-weapon {
-      height: 12px;
-      padding: 0 3px;
-      font-size: 7.5px;
+      height: 14px;
+      padding: 0 4px;
+      font-size: 9px;
       border-radius: 4px;
       display: inline-flex !important;
     }
@@ -8742,11 +8829,12 @@
         column-gap: var(--mbb-gap) !important;
       }
       html.layout-phone .mbb-context {
-        max-width: 4.2rem;
+        max-width: 8.5rem;
         flex: 0 0 auto !important;
       }
-      html.layout-phone .mbb-date { font-size: 8.5px; }
-      html.layout-phone .mbb-weapon { height: 11px; font-size: 7px; padding: 0 2px; }
+      html.layout-phone .mbb-date { font-size: 10px; }
+      html.layout-phone .mbb-species { height: 13px; font-size: 8.5px; padding: 0 3px; }
+      html.layout-phone .mbb-weapon { height: 13px; font-size: 8.5px; padding: 0 3px; }
       html.layout-phone .mbb-left .map-draw-tools { padding-left: 0 !important; margin-left: 0 !important; }
       html.layout-phone .mbb-icon-btn svg,
       html.layout-phone .mbb-compass-btn svg,
@@ -8780,11 +8868,12 @@
         column-gap: var(--mbb-gap) !important;
       }
       html.layout-phone .mbb-context {
-        max-width: 3.6rem;
+        max-width: 7.6rem;
         flex: 0 0 auto !important;
       }
-      html.layout-phone .mbb-date { font-size: 8px; }
-      html.layout-phone .mbb-weapon { height: 11px; font-size: 7px; padding: 0 2px; }
+      html.layout-phone .mbb-date { font-size: 9.5px; }
+      html.layout-phone .mbb-species { height: 12px; font-size: 8px; padding: 0 3px; }
+      html.layout-phone .mbb-weapon { height: 12px; font-size: 8px; padding: 0 3px; }
       html.layout-phone .mbb-left .map-draw-tools { padding-left: 0 !important; margin-left: 0 !important; }
       html.layout-phone .mbb-icon-btn svg,
       html.layout-phone .mbb-compass-btn svg,
@@ -9178,7 +9267,8 @@
     }
     .settings-radio-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
     /* Display section visibility (html classes) */
-    html.settings-hide-planner .planner-row { display: none !important; }
+    html.settings-hide-planner .planner-row,
+    html.settings-hide-planner .hunt-guide { display: none !important; }
     html.settings-hide-weather #dashboard-container { display: none !important; }
     html.settings-hide-map .card-map { display: none !important; }
     html.settings-map-only .card-planner { display: none !important; }
@@ -9279,6 +9369,15 @@
     .map-draw-tools.tool-off-track #mdt-track,
     .map-draw-tools.tool-off-track #mdt-track-stop,
     .map-draw-tools.tool-off-track .map-track-live-hud { display: none !important; }
+    html[data-site="reg"] #mdt-track,
+    html[data-site="reg"] #mdt-track-stop,
+    html[data-site="reg"] #map-track-live-hud,
+    html[data-site="reg"] #set-tool-track-row,
+    html[data-site="reg"] #share-loc-btn,
+    html[data-site="reg"] #pes-photo-row,
+    html[data-site="reg"] #pes-add-photo-btn,
+    html[data-site="reg"] #pin-photo-source-modal,
+    html[data-site="reg"] #pin-photo-replace-modal { display: none !important; }
     /* Weather overlay — always above bottom toolbar (z 80); default lower-right */
     .map-weather-overlay {
       position: absolute;
@@ -9714,7 +9813,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    /* From: equal My Location / ZIP / Address; abbreviate Address only when tight */
+    /* From: equal My Location / ZIP / Address / Pin; abbreviate when tight */
     .location-filters-box .lf-seg-from {
       container-type: inline-size;
       container-name: distfrom;
@@ -9726,15 +9825,21 @@
     }
     #dist-origin-address .addr-short { display: none; }
     #dist-origin-address .addr-full { display: inline; }
-    @container distfrom (max-width: 268px) {
+    #dist-origin-gps .gps-short { display: none; }
+    #dist-origin-gps .gps-full { display: inline; }
+    @container distfrom (max-width: 340px) {
       #dist-origin-address .addr-full { display: none; }
       #dist-origin-address .addr-short { display: inline; }
+      #dist-origin-gps .gps-full { display: none; }
+      #dist-origin-gps .gps-short { display: inline; }
     }
     /* Fallback if container queries unsupported: narrow planner / phone */
     @supports not (container-type: inline-size) {
       @media (max-width: 1100px) {
         #dist-origin-address .addr-full { display: none; }
         #dist-origin-address .addr-short { display: inline; }
+        #dist-origin-gps .gps-full { display: none; }
+        #dist-origin-gps .gps-short { display: inline; }
       }
     }
     .location-filters-box #land-private {
@@ -9884,6 +9989,8 @@
       background: radial-gradient(circle, var(--green) 0 45%, transparent 48%);
     }
     .dist-addr-option .dao-text { flex: 1 1 auto; min-width: 0; }
+    .dist-origin-pin-pop .mdm-title { font-weight: 800; }
+    .dist-origin-pin-pop .mdm-sub { font-size: 12px; color: var(--muted); line-height: 1.35; margin-top: 4px; }
     .location-filters-box #dist-status {
       font-size: 10px;
       color: var(--muted);
@@ -11164,28 +11271,30 @@
     /* ===== First-run / plain-language layer (local V8.0.31) ===== */
     .hunt-guide {
       flex-shrink: 0;
-      background:
-        linear-gradient(180deg, rgba(32, 38, 26, 0.96) 0%, rgba(22, 26, 18, 0.98) 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 12px 9px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 0;
       box-sizing: border-box;
       z-index: 40;
     }
     .hunt-guide-inner {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      max-width: 1600px;
-      margin: 0 auto;
+      justify-content: flex-start;
+      gap: 8px;
+      max-width: none;
+      margin: 0;
+      width: 100%;
     }
     .hg-steps {
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       gap: 6px;
       min-width: 0;
-      flex: 1 1 auto;
-      flex-wrap: wrap;
+      flex: 0 1 auto;
+      flex-wrap: nowrap;
     }
     .hg-step {
       display: inline-flex;
@@ -11240,27 +11349,8 @@
       line-height: 1.3;
     }
     .hg-next span { color: var(--accent); }
-    .brand-howto-btn,
-    .hg-help-btn {
+    .hunt-guide .hg-help-btn {
       flex: 0 0 auto;
-      appearance: none;
-      border: 1px solid rgba(229, 154, 24, 0.6);
-      background: linear-gradient(180deg, #3a4a28 0%, #2a361e 100%);
-      color: #fff;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      padding: 7px 11px;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 6px rgba(0,0,0,0.35);
-    }
-    .brand-howto-btn:hover,
-    .hg-help-btn:hover {
-      border-color: var(--accent);
-      background: linear-gradient(180deg, #4a5e32 0%, #364626 100%);
     }
     .howto-modal { max-width: 520px; }
     .howto-modal h3 { margin: 0 0 6px; font-size: 22px; letter-spacing: 0.02em; }
@@ -11341,6 +11431,16 @@
     }
     html.layout-desktop .weapon-stack .filter-btn .wpn-sub { display: none; }
     html.layout-desktop .weapon-stack .filter-btn .wpn-main { font-size: 11px; }
+    .species-stack {
+      display: flex;
+      gap: 6px;
+      margin: 0 0 8px;
+    }
+    .species-stack[hidden] { display: none !important; }
+    .species-stack .filter-btn {
+      flex: 1;
+      min-height: 34px;
+    }
     .hunt-list-lead {
       margin: 4px 0 0;
       font-size: 12px;
@@ -11408,8 +11508,9 @@
     }
     #db-blank h3 { font-size: 16px; margin: 0 0 8px; color: var(--ink); }
     #db-blank p { margin: 0 auto; max-width: 320px; font-size: 13px; line-height: 1.45; }
-    html.layout-phone .hunt-guide { padding: 8px 10px 9px; }
-    html.layout-phone .hunt-guide-inner { flex-wrap: wrap; }
+    html.layout-phone .hunt-guide { padding: 0; }
+    html.layout-phone .hunt-guide-inner { flex-wrap: wrap; justify-content: flex-start; }
+    html.layout-phone .hg-steps { flex-wrap: wrap; justify-content: flex-start; }
     html.layout-phone .hg-copy { flex: 1 1 100%; order: -1; }
     html.layout-phone .hg-step-text { max-width: 140px; font-size: 11px; }
     html.layout-phone .hg-help-btn { font-size: 11px; padding: 6px 9px; }
@@ -11433,11 +11534,9 @@
     <div class="brand-logo-wrap">
       <div class="brand-title" id="brand-title-text">Reg <span>Slayer</span></div>
       <div class="brand-tagline" id="brand-tagline-text">Know before you go</div>
-      <span class="brand-version" aria-label="Version 8.2.14">V8.2.14</span>
+      <span class="brand-version" aria-label="Version 8.2.28">V8.2.28</span>
     </div>
     <div class="brand-header-actions">
-      <button type="button" class="brand-howto-btn" id="brand-state-btn" title="Choose hunting state">Alabama</button>
-      <button type="button" class="brand-howto-btn" id="brand-howto-btn" title="How to use REG SLAYER">How to use</button>
       <button type="button" class="brand-report-btn" id="brand-report-issue-btn" title="Report a problem with the app">Report an issue</button>
       <button type="button" class="brand-sister-link" id="brand-other-slay-btn" title="Open Hunt, Reg, or Plan Slayer">
         <span class="brand-sister-label">Other ways to slay</span>
@@ -11445,27 +11544,6 @@
       <button type="button" class="brand-report-btn" id="brand-user-btn" title="Account / settings" aria-label="Account">Account</button>
     </div>
   </header>
-  <!-- Always-on hunt plan strip: date → weapon → places (How to use lives in the banner) -->
-  <div class="hunt-guide" id="hunt-guide" role="status" aria-live="polite">
-    <div class="hunt-guide-inner">
-      <div class="hg-steps">
-        <div class="hg-step" id="hg-step-date">
-          <span class="hg-num">1</span>
-          <span class="hg-step-text" id="hg-date-text">Pick a day</span>
-        </div>
-        <span class="hg-arrow" aria-hidden="true">→</span>
-        <div class="hg-step" id="hg-step-wpn">
-          <span class="hg-num">2</span>
-          <span class="hg-step-text" id="hg-wpn-text">Pick a weapon</span>
-        </div>
-        <span class="hg-arrow" aria-hidden="true">→</span>
-        <div class="hg-step" id="hg-step-list">
-          <span class="hg-num">3</span>
-          <span class="hg-step-text" id="hg-list-text">See open places</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- One-state picker (lower 48). Only the chosen state's pack is loaded. -->
   <div id="state-pick-overlay" class="report-issue-overlay" aria-hidden="true">
@@ -11656,6 +11734,27 @@
   <div class="app-shell">
   <div class="container">
     <div class="card card-planner">
+      <div class="hunt-guide" id="hunt-guide" role="status" aria-live="polite">
+        <div class="hunt-guide-inner">
+          <div class="hg-steps">
+            <button type="button" class="hg-help-btn" id="brand-howto-btn" title="How to use REG SLAYER">How to use</button>
+            <div class="hg-step" id="hg-step-date">
+              <span class="hg-num">1</span>
+              <span class="hg-step-text" id="hg-date-text">Pick a day</span>
+            </div>
+            <span class="hg-arrow" aria-hidden="true">→</span>
+            <div class="hg-step" id="hg-step-wpn">
+              <span class="hg-num">2</span>
+              <span class="hg-step-text" id="hg-wpn-text">Pick a weapon</span>
+            </div>
+            <span class="hg-arrow" aria-hidden="true">→</span>
+            <div class="hg-step" id="hg-step-list">
+              <span class="hg-num">3</span>
+              <span class="hg-step-text" id="hg-list-text">See open places</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Square calendar (left fixed) + weapons stacked in freed space on the right -->
       <div class="planner-row" id="planner-row">
         <div class="planner-cal-col" id="planner-cal-col">
@@ -11743,6 +11842,14 @@
               </div>
               <button type="button" class="sec-minmax-btn" id="sec-min-step2" onclick="toggleSectionMin('step2')" title="Minimize weapon choice" aria-label="Minimize weapon choice" aria-expanded="true">−</button>
             </div>
+            <div class="btn-group species-stack" id="species-stack" hidden>
+              <button type="button" class="filter-btn active" id="spc-deer" onclick="setSpecies('deer')" title="Deer seasons for this state">
+                <span class="wpn-main">Deer</span>
+              </button>
+              <button type="button" class="filter-btn" id="spc-elk" onclick="setSpecies('elk')" title="Elk seasons for this state">
+                <span class="wpn-main">Elk</span>
+              </button>
+            </div>
             <div class="btn-group weapon-stack">
               <button class="filter-btn" id="wpn-either" onclick="setWeapon('Either')" title="Any legal weapon — rifle, bow, or muzzleloader">
                 <span class="wpn-main">Any</span>
@@ -11788,11 +11895,14 @@
               <div class="lf-row">
                 <span class="lf-label">Starting from</span>
                 <div class="lf-seg lf-seg-from" id="dist-origin-seg">
-                  <button type="button" class="filter-btn active" id="dist-origin-gps" onclick="setDistOriginMode('gps')">My Location</button>
+                  <button type="button" class="filter-btn active" id="dist-origin-gps" onclick="setDistOriginMode('gps')" title="Distance from your current location">
+                    <span class="gps-full">My Location</span><span class="gps-short">GPS</span>
+                  </button>
                   <button type="button" class="filter-btn" id="dist-origin-zip" onclick="setDistOriginMode('zip')">ZIP</button>
                   <button type="button" class="filter-btn" id="dist-origin-address" onclick="setDistOriginMode('address')" title="Distance from a street address">
                     <span class="addr-full">Address</span><span class="addr-short">Addr</span>
                   </button>
+                  <button type="button" class="filter-btn" id="dist-origin-pin" onclick="setDistOriginMode('pin')" title="Distance from a pin on the map">Pin</button>
                 </div>
               </div>
               <div class="lf-row">
@@ -11945,6 +12055,7 @@
       <div class="map-title-bar" id="map-title-bar" aria-live="polite">
         <div class="map-title-switcher">
           <button type="button" class="map-title-text" id="map-title-mobile" title="Switch map" aria-label="Switch map" aria-haspopup="listbox" aria-expanded="false" onclick="if(window.RegSlayerParty&&window.RegSlayerParty.openMapSwitcher){window.RegSlayerParty.openMapSwitcher(this);}">My Map</button>
+          <button type="button" class="brand-howto-btn" id="brand-state-btn" title="Choose hunting state">Alabama</button>
         </div>
         <button type="button" class="map-title-settings-btn" id="map-title-settings-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">⚙</button>
       </div>
@@ -12030,6 +12141,7 @@
             <div class="mbb-left">
               <button type="button" class="mbb-context" id="mbb-context" title="Change hunt date and weapon" aria-label="Change hunt date and weapon" onclick="openMapDateWeaponPicker()">
                 <span class="mbb-date is-empty" id="mbb-date">No date</span>
+                <span class="mbb-species" id="mbb-species">Deer</span>
                 <span class="mbb-weapon is-empty" id="mbb-weapon" aria-hidden="true"></span>
               </button>
               <div class="map-draw-tools" id="map-draw-tools">
@@ -12066,7 +12178,7 @@
               </div>
             </div>
 
-            <!-- Center cluster: Current Location only (live party-share is Hunt-only) -->
+            <!-- Center cluster: Current Location (+ share-location on Hunt only) -->
             <div class="mbb-center" id="mbb-center">
               <button type="button" class="mbb-icon-btn mbb-gps mbb-ctrl" id="gps-snap-btn" onclick="snapToGPS()" data-mbb-tip="My location" aria-label="Current Location">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -12074,6 +12186,13 @@
                   <path d="M12 2.5v3.2M12 18.3v3.2M2.5 12h3.2M18.3 12h3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                   <path d="M12 8.2c-1.55 0-2.8 1.2-2.8 2.7 0 2.05 2.8 5 2.8 5s2.8-2.95 2.8-5c0-1.5-1.25-2.7-2.8-2.7z" fill="currentColor"/>
                   <circle cx="12" cy="10.9" r="1" fill="#fff"/>
+                </svg>
+              </button>
+              <button type="button" class="mbb-icon-btn mbb-share-loc mbb-ctrl" id="share-loc-btn" data-mbb-tip="Share location" aria-label="Share location" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="3.2" fill="currentColor"/>
+                  <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.7"/>
+                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.35"/>
                 </svg>
               </button>
             </div>
@@ -12611,14 +12730,14 @@
           <span class="so-check" aria-hidden="true">✓</span>
           <span class="so-body">
             <span class="so-title">Distance: closest</span>
-            <span class="so-sub">Nearest to furthest from your chosen origin (GPS, ZIP, or address)</span>
+            <span class="so-sub">Nearest to furthest from your chosen origin (GPS, ZIP, address, or pin)</span>
           </span>
         </button>
         <button type="button" class="sort-option-btn" data-sort="dist-furthest" onclick="applyHuntListSort('dist-furthest')">
           <span class="so-check" aria-hidden="true">✓</span>
           <span class="so-body">
             <span class="so-title">Distance: furthest</span>
-            <span class="so-sub">Furthest to nearest from GPS, ZIP, or address</span>
+            <span class="so-sub">Furthest to nearest from GPS, ZIP, address, or pin</span>
           </span>
         </button>
         <button type="button" class="sort-option-btn" data-sort="peak-rut" onclick="applyHuntListSort('peak-rut')">
@@ -12805,7 +12924,7 @@
               <label class="settings-row-main" for="set-tool-draw"><input type="checkbox" id="set-tool-draw" onchange="onSettingsToolsChange()"><span class="sr-text">Draw shape</span></label>
               <button type="button" class="settings-info-btn" data-title="Draw shape" data-info="Draw custom hunt areas (polygons) on the map and save them to your map." aria-label="About Draw shape" onclick="return showSettingsInfo(this,event)">i</button>
             </div>
-            <div class="settings-row">
+            <div class="settings-row" id="set-tool-track-row">
               <label class="settings-row-main" for="set-tool-track"><input type="checkbox" id="set-tool-track" onchange="onSettingsToolsChange()"><span class="sr-text">GPS track</span></label>
               <button type="button" class="settings-info-btn" data-title="GPS track" data-info="Record your movement as a track while you walk. Battery-friendly GPS logging with live distance and time." aria-label="About GPS track" onclick="return showSettingsInfo(this,event)">i</button>
             </div>
@@ -13113,7 +13232,7 @@
 
   <script>
     // ========== STATE ==========
-    const APP_VERSION = '8.2.14';
+    const APP_VERSION = '8.2.28';
     /** Site brand: 'hunt' (huntslayer.com) or 'reg' (regslayer.com) — drives first-launch defaults only. */
     const SITE_ID = 'reg';
     // #91 Plan-style text brand by site
@@ -13132,6 +13251,7 @@
     /** One-shot site default upgrades for older saved prefs. */
     const SITE_DEFAULTS_MIG_KEY = 'reg_slayer_site_defaults_v701';
     const SITE_DEFAULTS_MIG_V702 = 'reg_slayer_site_defaults_v702';
+    const SITE_DEFAULTS_MIG_V703 = 'reg_slayer_site_defaults_v703';
 
     /** User preferences (tools, defaults, display) — persisted localStorage */
     function defaultAppSettings() {
@@ -13236,6 +13356,17 @@
           }
         } catch (eMig2) {}
 
+        // V8.2.26: Reg launches on wind dial (Hunt stays compass)
+        try {
+          if (localStorage.getItem(SITE_DEFAULTS_MIG_V703) !== '1') {
+            if (SITE_ID === 'reg') {
+              merged.defaults.dialLaunchMode = 'wind';
+            }
+            localStorage.setItem(SITE_DEFAULTS_MIG_V703, '1');
+            try { localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(merged)); } catch (eSave3) {}
+          }
+        } catch (eMig3) {}
+
         return merged;
       } catch (e) {
         return defaultAppSettings();
@@ -13272,6 +13403,7 @@
     }
 
     let selectedDate = null, selectedWeapon = null, selectedLand = 'Public', selectedLocationId = null;
+    let selectedSpecies = 'deer';
     let selectedSubsectionIndex = null, viewFilterMode = 'all', currentSelectedColor = '#e59a18';
     /** Available Hunts list order: 'alpha' | 'dist-closest' | 'dist-furthest' | 'peak-rut' */
     let huntListSortMode = 'dist-closest';
@@ -13319,16 +13451,22 @@
     let tempClickMarker = null, gpsMarker = null, clickLat = null, clickLng = null;
     // Distance filter (list only)
     let distRadiusMiles = 50;
-    let distOriginMode = 'gps'; // 'gps' | 'zip' | 'address'
+    let distOriginMode = 'gps'; // 'gps' | 'zip' | 'address' | 'pin'
     let distOriginLat = null, distOriginLng = null, distOriginLabel = '';
     let distZip = '';
-    let distOriginMarker = null; // map pin for address distance origin
+    let distOriginMarker = null; // map pin for address / pin distance origin
     let distAddressQuery = '';
     let distAddressCandidates = []; // [{ label, lat, lng }]
     let distAddressPickIndex = 0;
     let distAddressPhase = 'entry'; // 'entry' | 'suggest'
     /** Last successfully applied address origin (restored when re-selecting Address). */
     let lastAddressOrigin = null; // { lat, lng, label }
+    /** Last successfully applied pin origin (restored when re-selecting Pin). */
+    let lastPinOrigin = null; // { lat, lng, label, pinId, temp }
+    let distOriginPlacePinMode = false;
+    let distOriginTempActive = false;
+    let distOriginSavingFromTemp = false;
+    let distPinPickId = null;
     let isShowingCurrentData = false;
     let isHistorical = false;
     let windInitialized = false;
@@ -13433,7 +13571,13 @@
     window.isWyomingPack = isWyomingPack;
     function officialConfirmLabel() {
       var p = typeof activePack === 'function' ? activePack() : null;
-      if (p) return p.confirmLabel || p.agency || 'official regs';
+      if (p) {
+        if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk' &&
+            window.RS_ELK_SOURCES && window.RS_ELK_SOURCES[p.code]) {
+          return window.RS_ELK_SOURCES[p.code].agencyLabel || p.confirmLabel || p.agency || 'official regs';
+        }
+        return p.confirmLabel || p.agency || 'official regs';
+      }
       if (isAlabamaPack()) return 'Outdoor Alabama';
       var m = window.RS_STATE;
       return (m && (m.agency || m.name)) || 'the state wildlife agency';
@@ -13441,11 +13585,19 @@
     function officialStateSources() {
       var m = window.RS_STATE || {};
       var p = typeof activePack === 'function' ? activePack() : null;
+      var elk = (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk');
+      var elkSrc = (elk && p && window.RS_ELK_SOURCES && window.RS_ELK_SOURCES[p.code]) || null;
       if (p) {
+        var extra = p.mapUrl ? [{ label: (p.year || '') + ' ' + (p.unitLabel || 'hunt unit') + ' map', url: p.mapUrl }] : [];
+        if (elkSrc && elkSrc.extra && elkSrc.extra.length) extra = extra.concat(elkSrc.extra);
         return {
-          law: { label: p.lawLabel || ((p.agency || m.name) + ' deer regulations'), url: p.lawUrl || m.lawUrl },
-          agency: { label: p.agencyLabel || ((p.agency || m.agency) + ' — hunting'), url: p.agencyUrl || m.agencyUrl },
-          extra: p.mapUrl ? [{ label: (p.year || '') + ' ' + (p.unitLabel || 'hunt unit') + ' map', url: p.mapUrl }] : []
+          law: elkSrc
+            ? { label: elkSrc.lawLabel, url: elkSrc.lawUrl }
+            : { label: p.lawLabel || ((p.agency || m.name) + ' deer regulations'), url: p.lawUrl || m.lawUrl },
+          agency: elkSrc
+            ? { label: elkSrc.agencyLabel, url: elkSrc.agencyUrl }
+            : { label: p.agencyLabel || ((p.agency || m.agency) + ' — hunting'), url: p.agencyUrl || m.agencyUrl },
+          extra: extra
         };
       }
       if (isAlabamaPack()) {
@@ -13907,6 +14059,8 @@
 
     window.rsOnStateApplied = function (pack) {
       if (!pack) return;
+      selectedSpecies = 'deer';
+      try { if (typeof updateSpeciesUi === 'function') updateSpeciesUi(); } catch (eSp) {}
       var livePack = (typeof activePack === 'function') ? activePack() : null;
       if (pack.code === 'AL') {
         ACTIVE_PUBLIC_LAYERS = ADCNR_LAYERS;
@@ -16604,6 +16758,7 @@
     }
 
     function isDateInPeakRut(zone, dateObj) {
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') return false;
       var d = dateObj instanceof Date && !isNaN(dateObj.getTime()) ? dateObj : selectedDate;
       if (!d) return false;
       var w = peakRutWindowForZone(zone, d);
@@ -18018,6 +18173,7 @@
           }
           if (e && e.originalEvent) L.DomEvent.stopPropagation(e.originalEvent);
           var clickLatLng = (e && e.latlng) ? e.latlng : L.latLng(f.lat, f.lng);
+          if (typeof tryConsumeDistOriginMapClick === 'function' && tryConsumeDistOriginMapClick(clickLatLng)) return;
           if (standPlaceMode) {
             placeStandAt(clickLatLng.lat, clickLatLng.lng);
             return;
@@ -19278,7 +19434,8 @@
         id: 'dist_origin',
         name: label,
         type: distOriginMode === 'gps' ? 'My Location'
-          : (distOriginMode === 'zip' ? 'ZIP' : 'Address'),
+          : (distOriginMode === 'zip' ? 'ZIP'
+            : (distOriginMode === 'pin' ? 'Pin' : 'Address')),
         zone: (detected && detected.zone) || 'A',
         lat: lat,
         lng: lng,
@@ -19376,18 +19533,34 @@
       return null;
     }
 
-    function setDistOriginMode(mode) {
-      if (mode !== 'zip' && mode !== 'address' && mode !== 'gps') mode = 'gps';
-      var prev = distOriginMode;
-      distOriginMode = mode;
+    function syncDistOriginButtons(mode) {
+      mode = mode || distOriginMode;
       var gpsBtn = document.getElementById('dist-origin-gps');
       var zipBtn = document.getElementById('dist-origin-zip');
       var addrBtn = document.getElementById('dist-origin-address');
+      var pinBtn = document.getElementById('dist-origin-pin');
       if (gpsBtn) gpsBtn.classList.toggle('active', mode === 'gps');
       if (zipBtn) zipBtn.classList.toggle('active', mode === 'zip');
       if (addrBtn) addrBtn.classList.toggle('active', mode === 'address');
+      if (pinBtn) pinBtn.classList.toggle('active', mode === 'pin');
       var zipRow = document.getElementById('dist-zip-row');
       if (zipRow) zipRow.classList.toggle('active', mode === 'zip');
+    }
+
+    function setDistOriginMode(mode) {
+      if (mode !== 'zip' && mode !== 'address' && mode !== 'pin' && mode !== 'gps') mode = 'gps';
+      var prev = distOriginMode;
+      if (mode !== 'pin') {
+        if (distOriginTempActive) {
+          distOriginTempActive = false;
+          lastPinOrigin = null;
+          distPinPickId = null;
+        }
+        distOriginPlacePinMode = false;
+        distOriginSavingFromTemp = false;
+      }
+      distOriginMode = mode;
+      syncDistOriginButtons(mode);
 
       if (mode === 'gps') {
         clearDistOriginMarker();
@@ -19430,6 +19603,32 @@
         }
         openDistAddressModal({ reopen: true });
         updateDistStatus();
+      } else if (mode === 'pin') {
+        distOriginPlacePinMode = true;
+        if (prev !== 'pin' && lastPinOrigin && lastPinOrigin.lat != null && !lastPinOrigin.temp) {
+          distOriginTempActive = false;
+          distOriginLat = lastPinOrigin.lat;
+          distOriginLng = lastPinOrigin.lng;
+          distOriginLabel = lastPinOrigin.label || 'Pin';
+          distPinPickId = lastPinOrigin.pinId || distPinPickId;
+          placeDistOriginMarker(distOriginLat, distOriginLng, distOriginLabel);
+          if (selectedWeapon) scheduleDistOriginFollowup({ weather: true });
+        } else if (prev !== 'pin') {
+          distOriginLat = null;
+          distOriginLng = null;
+          distOriginLabel = '';
+          distOriginTempActive = false;
+          clearDistOriginMarker();
+        }
+        updateDistStatus();
+        try {
+          if (typeof showAppCopyToast === 'function') {
+            showAppCopyToast(
+              '<span class="act">Pin origin</span><br>' +
+              'Tap the map to drop a pin. After that, the map works as usual.'
+            );
+          }
+        } catch (eTh) {}
       }
     }
     window.setDistOriginMode = setDistOriginMode;
@@ -19453,8 +19652,10 @@
           el.textContent = 'Type a ZIP code, then tap Apply';
         } else if (distOriginMode === 'address') {
           el.textContent = 'Type a street address to measure from';
+        } else if (distOriginMode === 'pin') {
+          el.textContent = 'Tap a pin on the map, or tap the map to drop one';
         } else {
-          el.textContent = 'Finding your location… or use ZIP or Address';
+          el.textContent = 'Finding your location… or use ZIP, Address, or Pin';
         }
         return;
       }
@@ -19484,6 +19685,9 @@
     }
 
     function clearDistOriginMarker() {
+      try {
+        if (distOriginMarker && distOriginMarker.closePopup) distOriginMarker.closePopup();
+      } catch (eC) {}
       if (distOriginMarker && map) {
         try { map.removeLayer(distOriginMarker); } catch (e) {}
       }
@@ -19504,27 +19708,91 @@
       });
     }
 
+    var _distOriginFollowupTimer = null;
+    function scheduleDistOriginFollowup(opts) {
+      opts = opts || {};
+      if (_distOriginFollowupTimer) {
+        clearTimeout(_distOriginFollowupTimer);
+        _distOriginFollowupTimer = null;
+      }
+      var run = function () {
+        _distOriginFollowupTimer = null;
+        try {
+          if (typeof updateAvailableList === 'function') updateAvailableList();
+        } catch (eL) {}
+        if (opts.weather !== false && typeof loadWeatherForDistanceOrigin === 'function') {
+          try { loadWeatherForDistanceOrigin(); } catch (eW) {}
+        }
+      };
+      // Let the pin paint first; hunt-list rebuild is heavy
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(function () {
+          _distOriginFollowupTimer = setTimeout(run, 0);
+        });
+      } else {
+        _distOriginFollowupTimer = setTimeout(run, 0);
+      }
+    }
+
     function placeDistOriginMarker(lat, lng, label) {
       if (lat == null || lng == null || typeof L === 'undefined') return;
-      ensureMap().then(function() {
-        if (!map) return;
-        clearDistOriginMarker();
-        distOriginMarker = L.marker([lat, lng], {
-          icon: buildDistOriginIcon(),
-          keyboard: true,
-          title: label || 'Distance origin',
-          zIndexOffset: 650
-        }).addTo(map);
-        try {
-          distOriginMarker.bindTooltip(label || 'Distance origin', {
-            permanent: false,
-            direction: 'top',
-            offset: [0, -18],
-            opacity: 0.95
-          });
-        } catch (eT) {}
-        // Do not auto-pan for distance-origin pins (only My Location / list hunts snap)
+      if (map) {
+        placeDistOriginMarkerNow(lat, lng, label);
+        return;
+      }
+      ensureMap().then(function () {
+        placeDistOriginMarkerNow(lat, lng, label);
       });
+    }
+
+    function bindDistOriginMarkerChrome(marker, label) {
+      if (!marker) return;
+      try {
+        marker.bindTooltip(label || 'Distance origin', {
+          permanent: false,
+          direction: 'top',
+          offset: [0, -18],
+          opacity: 0.95
+        });
+      } catch (eT) {}
+      if (distOriginMode !== 'pin') return;
+      try {
+        marker.bindPopup(distOriginMarkerPopupHtml(), {
+          className: 'saved-item-popup map-dot-popup',
+          closeButton: true,
+          autoPan: false,
+          maxWidth: 260,
+          closeOnClick: false
+        });
+        marker.on('popupopen', function () {
+          try {
+            marker.setPopupContent(distOriginMarkerPopupHtml());
+          } catch (ePc) {}
+          var el = marker.getPopup() && marker.getPopup().getElement();
+          if (el) {
+            L.DomEvent.disableClickPropagation(el);
+            L.DomEvent.disableScrollPropagation(el);
+          }
+        });
+      } catch (eP) {}
+    }
+
+    function placeDistOriginMarkerNow(lat, lng, label) {
+      if (!map) return;
+      try { map.closePopup(); } catch (eCp) {}
+      clearDistOriginMarker();
+      distOriginMarker = L.marker([lat, lng], {
+        icon: buildDistOriginIcon(),
+        keyboard: true,
+        title: label || 'Distance origin',
+        zIndexOffset: 650
+      }).addTo(map);
+      // Bind popup after this click finishes — same tap would open Save/Remove for a frame
+      var marker = distOriginMarker;
+      setTimeout(function () {
+        if (distOriginMarker !== marker) return;
+        bindDistOriginMarkerChrome(marker, label);
+      }, 0);
     }
 
     function setDistAddressStatus(msg, kind) {
@@ -19615,6 +19883,130 @@
       updateDistStatus();
     }
 
+    function pinLabelForDist(pin) {
+      if (!pin) return 'Pin';
+      var n = String(pin.name || 'Pin').replace(/\s*\(Pin - .*\)\s*$/, '').trim();
+      return n || 'Pin';
+    }
+
+    function isDistOriginPickMode() {
+      return distOriginMode === 'pin' && !!distOriginPlacePinMode;
+    }
+
+    /** True if this map tap was used to drop the Step 3 chooser pin. */
+    function tryConsumeDistOriginMapClick(latlng) {
+      if (!latlng || latlng.lat == null || latlng.lng == null) return false;
+      if (!isFinite(Number(latlng.lat)) || !isFinite(Number(latlng.lng))) return false;
+      try {
+        if (window.RegSlayerCalendarEvents &&
+            window.RegSlayerCalendarEvents.getPendingLocationPick &&
+            window.RegSlayerCalendarEvents.getPendingLocationPick()) {
+          return false;
+        }
+      } catch (eEv) {}
+      if (!isDistOriginPickMode()) return false;
+      try { if (map) map.closePopup(); } catch (eCp) {}
+      setTimeout(function () {
+        try { if (map) map.closePopup(); } catch (eCp2) {}
+      }, 0);
+      placeDistOriginTempAt(latlng.lat, latlng.lng);
+      return true;
+    }
+
+    function distOriginMarkerPopupHtml() {
+      var isTemp = !!distOriginTempActive;
+      var name = distOriginLabel || 'Pin';
+      var html = '<div class="map-dot-menu dist-origin-pin-pop">' +
+        '<div class="mdm-title">' + (isTemp ? 'Distance pin' : escHtml(name)) + '</div>' +
+        '<div class="mdm-sub">' + (isTemp
+          ? 'The map works as usual now. Save to name it and pick an icon, or remove it.'
+          : 'Measuring hunt distance from this pin.') + '</div>' +
+        '<div class="mdm-footer-row" style="margin-top:8px;">';
+      if (isTemp) {
+        html += '<button type="button" class="mdm-edit-btn" style="flex:1;" onclick="event.preventDefault();event.stopPropagation();window.saveDistOriginTempPin();return false;">Save</button>';
+      }
+      html += '<button type="button" class="mdm-edit-btn" style="flex:1;background:#5a2a2a;color:#f0d0d0;" onclick="event.preventDefault();event.stopPropagation();window.removeDistOriginTempPin();return false;">Remove</button>' +
+        '</div></div>';
+      return html;
+    }
+
+    function applyDistPinOrigin(pin) {
+      if (!pin || pin.lat == null || pin.lng == null) return;
+      var lat = Number(pin.lat);
+      var lng = Number(pin.lng);
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      distOriginTempActive = false;
+      distOriginPlacePinMode = false;
+      distOriginSavingFromTemp = false;
+      distOriginMode = 'pin';
+      distOriginLat = lat;
+      distOriginLng = lng;
+      distOriginLabel = pinLabelForDist(pin);
+      distPinPickId = pin.id || null;
+      lastPinOrigin = { lat: lat, lng: lng, label: distOriginLabel, pinId: pin.id || null, temp: false };
+      clickLat = lat;
+      clickLng = lng;
+      syncDistOriginButtons('pin');
+      placeDistOriginMarker(lat, lng, distOriginLabel);
+      updateDistStatus();
+      scheduleDistOriginFollowup({ weather: true });
+    }
+
+    function placeDistOriginTempAt(lat, lng) {
+      lat = Number(lat);
+      lng = Number(lng);
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      distOriginTempActive = true;
+      distOriginPlacePinMode = false;
+      distOriginMode = 'pin';
+      distOriginLat = lat;
+      distOriginLng = lng;
+      distOriginLabel = 'Map pin';
+      distPinPickId = null;
+      lastPinOrigin = { lat: lat, lng: lng, label: distOriginLabel, pinId: null, temp: true };
+      clickLat = lat;
+      clickLng = lng;
+      syncDistOriginButtons('pin');
+      placeDistOriginMarker(lat, lng, distOriginLabel);
+      updateDistStatus();
+      scheduleDistOriginFollowup({ weather: true });
+    }
+
+    function saveDistOriginTempPin() {
+      if (distOriginLat == null || distOriginLng == null) return;
+      clickLat = distOriginLat;
+      clickLng = distOriginLng;
+      try {
+        if (distOriginMarker && distOriginMarker.closePopup) distOriginMarker.closePopup();
+      } catch (eC) {}
+      distOriginPlacePinMode = false;
+      distOriginSavingFromTemp = true;
+      if (typeof openPinEditorSheet === 'function') openPinEditorSheet({ mode: 'create' });
+    }
+
+    function removeDistOriginTempPin() {
+      distOriginTempActive = false;
+      distOriginSavingFromTemp = false;
+      lastPinOrigin = null;
+      distPinPickId = null;
+      distOriginLat = null;
+      distOriginLng = null;
+      distOriginLabel = '';
+      distOriginPlacePinMode = true;
+      distOriginMode = 'pin';
+      syncDistOriginButtons('pin');
+      clearDistOriginMarker();
+      updateDistStatus();
+      scheduleDistOriginFollowup({ weather: false });
+    }
+
+    window.applyDistPinOrigin = applyDistPinOrigin;
+    window.placeDistOriginTempAt = placeDistOriginTempAt;
+    window.saveDistOriginTempPin = saveDistOriginTempPin;
+    window.removeDistOriginTempPin = removeDistOriginTempPin;
+    window.isDistOriginPickMode = isDistOriginPickMode;
+    window.tryConsumeDistOriginMapClick = tryConsumeDistOriginMapClick;
+
     function applyDistAddressMatch(match) {
       if (!match || match.lat == null || match.lng == null) return;
       distOriginLat = match.lat;
@@ -19623,14 +20015,9 @@
       distAddressQuery = distOriginLabel;
       lastAddressOrigin = { lat: distOriginLat, lng: distOriginLng, label: distOriginLabel };
       distOriginMode = 'address';
-      var gpsBtn = document.getElementById('dist-origin-gps');
-      var zipBtn = document.getElementById('dist-origin-zip');
-      var addrBtn = document.getElementById('dist-origin-address');
-      if (gpsBtn) gpsBtn.classList.toggle('active', false);
-      if (zipBtn) zipBtn.classList.toggle('active', false);
-      if (addrBtn) addrBtn.classList.toggle('active', true);
-      var zipRow = document.getElementById('dist-zip-row');
-      if (zipRow) zipRow.classList.remove('active');
+      distOriginPlacePinMode = false;
+      distOriginTempActive = false;
+      syncDistOriginButtons('address');
       placeDistOriginMarker(distOriginLat, distOriginLng, distOriginLabel);
       updateDistStatus();
       updateAvailableList();
@@ -20790,6 +21177,7 @@
     function openListedHuntMapDot(loc) {
       if (!map || !loc || loc.lat == null || loc.lng == null || typeof L === 'undefined') return;
       var latlng = L.latLng(loc.lat, loc.lng);
+      if (typeof tryConsumeDistOriginMapClick === 'function' && tryConsumeDistOriginMapClick(latlng)) return;
       // Place orange map-dot + load weather/wind (same pipeline as a free map click)
       placeOrMoveMapDot(latlng, { skipWeather: false, openMenu: false });
       // Rebuild public-land context so Rules & regs + status match unit click
@@ -21320,6 +21708,7 @@
                 return;
               }
               var clickLatLng = (e && e.latlng) ? e.latlng : L.latLng(c.lat, c.lng);
+              if (typeof tryConsumeDistOriginMapClick === 'function' && tryConsumeDistOriginMapClick(clickLatLng)) return;
               if (standPlaceMode) {
                 placeStandAt(clickLatLng.lat, clickLatLng.lng);
                 return;
@@ -22457,6 +22846,7 @@
             }
             if (e && e.originalEvent) L.DomEvent.stopPropagation(e.originalEvent);
             if (e && e.latlng) {
+              if (typeof tryConsumeDistOriginMapClick === 'function' && tryConsumeDistOriginMapClick(e.latlng)) return;
               lastClickPublicLand = null;
               placeOrMoveMapDot(e.latlng, { skipWeather: false });
             }
@@ -22543,9 +22933,57 @@
     var wyHuntAreaData = null;
     var wyHuntAreaLoading = null;
 
+    function huntGisOpts(pack) {
+      pack = pack || (typeof activePack === 'function' ? activePack() : null) || {};
+      var elk = (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk' && pack.elkHuntUnitGis);
+      return {
+        url: elk ? pack.elkHuntUnitGis : (pack.huntUnitGis || pack.huntAreaGis),
+        where: (elk && pack.elkHuntUnitWhere) || pack.huntUnitWhere || '1=1',
+        unitField: (elk && pack.elkUnitField) || pack.unitField || 'HUNTAREA',
+        unitNameField: (elk && pack.elkUnitNameField) || pack.unitNameField || 'HUNTNAME',
+        regionField: (elk && pack.elkRegionField) || pack.regionField || 'Region',
+        outFields: (elk && pack.elkOutFields) || pack.outFields,
+        tag: elk ? 'elk' : 'deer'
+      };
+    }
+    function huntOverlayFoldLabel(pack) {
+      pack = pack || (typeof activePack === 'function' ? activePack() : null) || {};
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') {
+        if (pack.overlayFoldLabelElk) return pack.overlayFoldLabelElk;
+        if (pack.overlayFoldLabel) return String(pack.overlayFoldLabel).replace(/Deer/g, 'Elk').replace(/deer/g, 'elk');
+        return 'Elk hunt areas';
+      }
+      return pack.overlayFoldLabel || 'Deer hunt areas';
+    }
+    function huntUnitsToDraw(pack) {
+      pack = pack || (typeof activePack === 'function' ? activePack() : null);
+      var feats = (huntUnitData && huntUnitData.features) || [];
+      if (!pack) return feats;
+      var sp = (typeof currentHuntSpecies === 'function') ? currentHuntSpecies() : 'deer';
+      if (sp !== 'elk') return feats;
+      var closed = pack.elkClosedAreas || [];
+      function isClosed(a) {
+        if (a == null || a === '') return false;
+        return closed.indexOf(a) !== -1 || closed.indexOf(Number(a)) !== -1 || closed.indexOf(String(a)) !== -1;
+      }
+      if (pack.elkHuntUnitGis) {
+        return feats.filter(function (f) { return f && !isClosed(f.area); });
+      }
+      if (typeof pack.unitHasSpeciesSeason === 'function') {
+        return feats.filter(function (f) {
+          if (!f) return false;
+          if (isClosed(f.area)) return false;
+          return pack.unitHasSpeciesSeason(f.area, 'elk');
+        });
+      }
+      return feats;
+    }
+    window.huntUnitsToDraw = huntUnitsToDraw;
+
     function detectPackHuntUnit(lat, lng) {
-      if (!huntUnitData || !huntUnitData.features) return '';
-      var feats = huntUnitData.features;
+      var pack = typeof activePack === 'function' ? activePack() : null;
+      var feats = huntUnitsToDraw(pack);
+      if (!feats || !feats.length) return '';
       for (var i = 0; i < feats.length; i++) {
         var f = feats[i];
         if (!f || !f.rings || !f.rings.length) continue;
@@ -22564,8 +23002,9 @@
     function detectWyHuntArea(lat, lng) { return detectPackHuntUnit(lat, lng); }
     window.detectWyHuntArea = detectWyHuntArea;
 
-    function normalizePackHuntFeature(raw, pack) {
+    function normalizePackHuntFeature(raw, pack, gis) {
       pack = pack || (typeof activePack === 'function' ? activePack() : null) || {};
+      gis = gis || huntGisOpts(pack);
       var attrs = (raw && raw.attributes) || {};
       var geom = (raw && raw.geometry) || null;
       var rings = [];
@@ -22585,9 +23024,9 @@
           if (ring.length >= 3) rings.push(ring);
         }
       }
-      var uf = pack.unitField || 'HUNTAREA';
-      var nf = pack.unitNameField || 'HUNTNAME';
-      var rf = pack.regionField || 'Region';
+      var uf = gis.unitField || pack.unitField || 'HUNTAREA';
+      var nf = gis.unitNameField || pack.unitNameField || 'HUNTNAME';
+      var rf = gis.regionField || pack.regionField || 'Region';
       var rawId = attrs[uf];
       var n = rawId;
       if (rawId != null && rawId !== '' && !isNaN(Number(rawId))) n = Number(rawId);
@@ -22605,14 +23044,19 @@
     }
 
     function packHuntUnitCacheKey(pack) {
-      return String((pack && pack.code) || 'xx').toLowerCase() + '_hunt_units_v1';
+      var gis = huntGisOpts(pack);
+      return String((pack && pack.code) || 'xx').toLowerCase() + '_' + gis.tag + '_hunt_units_v1';
     }
 
     function loadPackHuntUnits(forceRefresh) {
       var pack = typeof activePack === 'function' ? activePack() : null;
-      if (!pack || !(pack.huntUnitGis || pack.huntAreaGis)) return Promise.resolve(null);
+      if (!pack || !(pack.huntUnitGis || pack.huntAreaGis || pack.elkHuntUnitGis)) return Promise.resolve(null);
+      var gis = huntGisOpts(pack);
       var code = pack.code;
-      if (!forceRefresh && huntUnitData && huntUnitData.features && huntUnitData.features.length && huntUnitCacheCode === code) {
+      var tag = gis.tag;
+      var cacheId = code + ':' + tag;
+      if (!gis.url) return Promise.resolve(null);
+      if (!forceRefresh && huntUnitData && huntUnitData.features && huntUnitData.features.length && huntUnitCacheCode === cacheId) {
         return Promise.resolve(huntUnitData);
       }
       if (!forceRefresh) {
@@ -22624,17 +23068,17 @@
             if (cached && cached.features && cached.features.length >= minN &&
                 (Date.now() - cached.timestamp) < HUNT_UNIT_TTL_MS) {
               huntUnitData = cached;
-              huntUnitCacheCode = code;
+              huntUnitCacheCode = cacheId;
               return Promise.resolve(cached);
             }
           }
         } catch (eC) {}
       }
-      if (huntUnitLoading && !forceRefresh && huntUnitCacheCode === code) return huntUnitLoading;
-      var url = pack.huntUnitGis || pack.huntAreaGis;
-      var fields = pack.outFields || (pack.unitField || 'HUNTAREA') + ',' + (pack.unitNameField || 'HUNTNAME');
+      if (huntUnitLoading && !forceRefresh && huntUnitCacheCode === cacheId) return huntUnitLoading;
+      var url = gis.url;
+      var fields = gis.outFields || (gis.unitField || 'HUNTAREA') + ',' + (gis.unitNameField || 'HUNTNAME');
       var params = [
-        'where=' + encodeURIComponent(pack.huntUnitWhere || '1=1'),
+        'where=' + encodeURIComponent(gis.where || '1=1'),
         'outFields=' + encodeURIComponent(fields),
         'returnGeometry=true',
         'outSR=4326',
@@ -22648,7 +23092,7 @@
         params.push('inSR=4326');
         params.push('spatialRel=esriSpatialRelIntersects');
       }
-      huntUnitCacheCode = code;
+      huntUnitCacheCode = cacheId;
       function fetchPage(offset, acc) {
         var p = params.slice();
         p.push('resultOffset=' + (offset || 0));
@@ -22657,7 +23101,7 @@
           return res.json();
         }).then(function (data) {
           var chunk = (data.features || []).map(function (raw) {
-            return normalizePackHuntFeature(raw, pack);
+            return normalizePackHuntFeature(raw, pack, gis);
           }).filter(function (f) {
             return f.area != null && f.area !== '' && f.rings && f.rings.length;
           });
@@ -22703,7 +23147,7 @@
         loadPackHuntUnits(false).then(function () { drawPackHuntUnits(); });
         return;
       }
-      huntUnitData.features.forEach(function (f) {
+      huntUnitsToDraw(pack).forEach(function (f) {
         if (!f || !f.rings || !f.rings.length) return;
         if (f.region && deerZoneVisible[f.region] === false) return;
         if (f.region && deerZoneVisible[f.region] == null && !anyDeerZoneVisible()) return;
@@ -22743,6 +23187,7 @@
           }
           if (e && e.originalEvent) L.DomEvent.stopPropagation(e.originalEvent);
           if (e && e.latlng) {
+            if (typeof tryConsumeDistOriginMapClick === 'function' && tryConsumeDistOriginMapClick(e.latlng)) return;
             lastClickPublicLand = null;
             placeOrMoveMapDot(e.latlng, { skipWeather: false });
           }
@@ -22765,7 +23210,7 @@
         (typeof activePack === 'function' ? activePack() : null);
       if (live && live.regionOrder && live.regionOrder.length) {
         wrap.classList.add('wy-regions');
-        if (foldBtn) foldBtn.childNodes[0].textContent = live.overlayFoldLabel || 'Deer hunt areas';
+        if (foldBtn) foldBtn.childNodes[0].textContent = huntOverlayFoldLabel(live);
         deerZoneVisible = {};
         live.regionOrder.forEach(function (letter) {
           deerZoneVisible[letter] = false;
@@ -22926,8 +23371,9 @@
         if (!map) initMap();
         mapReady = true;
         if (ph) ph.remove();
-        // Re-place address distance-origin pin after first map mount
-        if (distOriginMode === 'address' && distOriginLat != null && distOriginLng != null && !distOriginMarker) {
+        // Re-place address / pin distance-origin marker after first map mount
+        if ((distOriginMode === 'address' || distOriginMode === 'pin') &&
+            distOriginLat != null && distOriginLng != null && !distOriginMarker) {
           try { placeDistOriginMarker(distOriginLat, distOriginLng, distOriginLabel); } catch (ePin) {}
         }
         // iOS / phone: reflow to full width after Leaflet mounts (tiles often start narrow)
@@ -23442,7 +23888,7 @@
               ch.options.maxZoom = mz;
               var cn = String(ch.options.className || '');
               if (cn.indexOf('basemap-lidar-tiles') >= 0) {
-                ch.options.maxNativeZoom = 13;
+                ch.options.maxNativeZoom = 18;
                 ch.options.opacity = 1;
                 try { if (ch.setOpacity) ch.setOpacity(1); } catch (eOp) {}
               } else if (cn.indexOf('basemap-lidar-under') >= 0) {
@@ -23468,7 +23914,7 @@
             if (typeof showAppCopyToast === 'function') {
               showAppCopyToast(
                 '<span class="act">Terrain on</span><br>' +
-                'USGS 3DEP hillshade — zoom in freely; tiles overscale instead of blanking.'
+                'USGS 3DEP 1 m LiDAR hillshade — sharp into stand-level zoom.'
               );
             }
           } catch (eTh) {}
@@ -23791,6 +24237,7 @@
     }
     function cancelPinEditorSheet() {
       // Cancel: discard without placing
+      distOriginSavingFromTemp = false;
       pinEditorDirty = false;
       selectedPinIconId = null;
       editingPinId = null;
@@ -24675,6 +25122,7 @@
     }
 
     function onPinAddPhotoClick(ev) {
+      if (typeof SITE_ID !== 'undefined' && SITE_ID === 'reg') return;
       if (ev) {
         try { ev.preventDefault(); ev.stopPropagation(); } catch (e0) {}
       }
@@ -26627,6 +27075,40 @@
     }
     window.wireMapToolsMenu = wireMapToolsMenu;
 
+    /**
+     * USGS 3DEP ImageServer hillshade (~1 m LiDAR DEM, US public domain).
+     * Cached USGSShadedReliefOnly tiles 404 past z13; this renders
+     * Hillshade Gray-Stretch per tile via exportImage (native through z18).
+     */
+    var USGS_3DEP_EXPORT = 'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage';
+    var USGS_3DEP_HILL_RULE = '{"rasterFunction":"Hillshade Gray-Stretch"}';
+    function usgs3depHillshadeTileUrl(x, y, z, tileSize) {
+      tileSize = tileSize || 256;
+      var origin = 20037508.342789244;
+      var n = Math.pow(2, z);
+      var tileM = (origin * 2) / n;
+      var xmin = x * tileM - origin;
+      var ymax = origin - y * tileM;
+      var bbox = xmin + ',' + (ymax - tileM) + ',' + (xmin + tileM) + ',' + ymax;
+      return USGS_3DEP_EXPORT
+        + '?bbox=' + bbox
+        + '&bboxSR=3857&imageSR=3857'
+        + '&size=' + tileSize + ',' + tileSize
+        + '&format=jpgpng&interpolation=RSP_BilinearInterpolation'
+        + '&renderingRule=' + encodeURIComponent(USGS_3DEP_HILL_RULE)
+        + '&f=image';
+    }
+    function createUsgs3depHillshadeLayer(opts) {
+      var Usgs3depHill = L.TileLayer.extend({
+        getTileUrl: function (coords) {
+          var ts = this.getTileSize();
+          return usgs3depHillshadeTileUrl(coords.x, coords.y, coords.z, ts.x);
+        }
+      });
+      return new Usgs3depHill('', opts);
+    }
+    window.usgs3depHillshadeTileUrl = usgs3depHillshadeTileUrl;
+
     function initMap() {
       if (typeof L === 'undefined' || map) return;
       // Shared tile opts: limit work on mobile (no retina 4× tile spam)
@@ -26654,7 +27136,6 @@
       // USGS topo default — native ~16; overscale to MAP_MAX_ZOOM
       var USGS_TOPO = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}';
       var USGS_IMAGERY = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}';
-      var USGS_HILL = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}';
       var USGS_HYDRO = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSHydroCached/MapServer/tile/{z}/{y}/{x}';
       var topo = L.tileLayer(USGS_TOPO, Object.assign({
         maxZoom: MAP_MAX_ZOOM,
@@ -26692,19 +27173,19 @@
       var satSummer = satNewest;
 
       /*
-       * Terrain: USGS 3DEP shaded relief is the map (opaque). Imagery underlay
-       * is grayscale fallback for ocean / missed tiles only — not a photo basemap.
-       * USGS Shaded Relief cache ends at z13 (z14+ 404); overscale past that.
+       * Terrain: USGS 3DEP ImageServer Hillshade Gray-Stretch (~1 m LiDAR).
+       * Imagery underlay is grayscale fallback for ocean / missed tiles only.
+       * Native through z18 (1 m); overscale past that. Public domain.
        */
       var LIDAR_MAX_ZOOM = MAP_MAX_ZOOM;
-      var LIDAR_HILL_NATIVE = 13;
+      var LIDAR_HILL_NATIVE = 18;
       var LIDAR_IMG_NATIVE = 16;
       window.__REG_SLAYER_MAP_MAX_ZOOM__ = MAP_MAX_ZOOM;
       var lidarCommon = Object.assign({}, tilePerf, {
         maxZoom: LIDAR_MAX_ZOOM,
         minZoom: 0,
-        keepBuffer: phoneTiles ? 6 : 12,
-        updateWhenIdle: false,
+        keepBuffer: phoneTiles ? 2 : 4,
+        updateWhenIdle: true,
         updateWhenZooming: false,
         crossOrigin: false,
         errorTileUrl: ''
@@ -26718,13 +27199,12 @@
           attribution: 'USGS 3DEP hillshade'
         })
       );
-      var lidarHill = L.tileLayer(
-        USGS_HILL,
+      var lidarHill = createUsgs3depHillshadeLayer(
         Object.assign({}, lidarCommon, {
           maxNativeZoom: LIDAR_HILL_NATIVE,
           opacity: 1,
           className: 'basemap-lidar-tiles',
-          attribution: 'USGS 3DEP shaded relief'
+          attribution: 'USGS 3DEP 1m hillshade'
         })
       );
       try { wireSatTileRetry(lidarUnder); } catch (eLr1) {}
@@ -26890,6 +27370,13 @@
             return;
           }
         } catch (ePick) {}
+        // Step 3 Pin origin: tap empty map to drop a temp distance pin
+        if (typeof isDistOriginPickMode === 'function' && isDistOriginPickMode()) {
+          if (typeof placeDistOriginTempAt === 'function') {
+            placeDistOriginTempAt(e.latlng.lat, e.latlng.lng);
+          }
+          return;
+        }
         // Free map click: if it lands in a public overlay, treat as that public land
         lastClickPublicLand = null;
         if (e && e.latlng && typeof findDrawnPublicLandAt === 'function') {
@@ -27368,6 +27855,9 @@
       if (!map || typeof L === 'undefined') return;
       if (typeof dismissMapFirstHint === 'function') dismissMapFirstHint();
       opts = opts || {};
+      if (typeof tryConsumeDistOriginMapClick === 'function' && tryConsumeDistOriginMapClick(latlng)) {
+        return;
+      }
       var skipWeather = !!opts.skipWeather;
       var openMenu = !!opts.openMenu;
       // Freeze map on-screen before any weather/list DOM work (mobile)
@@ -32963,6 +33453,13 @@ function togglePinIconPicker() {
       try { closeDetectionToast(); } catch (eT) {}
       clearMapDot();
       lastVisibleMarkerKey = '';
+      try {
+        if (!isEdit && typeof applyDistPinOrigin === 'function' &&
+            (distOriginSavingFromTemp || (lastPinOrigin && lastPinOrigin.temp))) {
+          applyDistPinOrigin(newLoc);
+          distOriginSavingFromTemp = false;
+        }
+      } catch (ePinOrig) {}
       updateAvailableList();
       drawPinsOnMap();
       if (typeof refreshPinTypeToggles === 'function') refreshPinTypeToggles();
@@ -33478,9 +33975,25 @@ function togglePinIconPicker() {
             return false;
           }
         }
+        function tryDistOriginFromPin(e) {
+          try {
+            if (typeof isDistOriginPickMode !== 'function' || !isDistOriginPickMode()) return false;
+            // Already using this saved pin as origin — leave the normal pin popup
+            if (!distOriginTempActive && distPinPickId != null && String(distPinPickId) === String(loc.id)) {
+              return false;
+            }
+            try { if (e) L.DomEvent.stop(e); } catch (eS1) {}
+            try { if (m.closePopup) m.closePopup(); } catch (eCp2) {}
+            if (typeof applyDistPinOrigin === 'function') applyDistPinOrigin(loc);
+            return true;
+          } catch (eDistPin) {
+            return false;
+          }
+        }
         if (loc.hidden && !loc._tempReveal) {
           m.on('click', function(e) {
             if (tryEventLocationFromPin(e)) return;
+            if (tryDistOriginFromPin(e)) return;
             try { L.DomEvent.stop(e); } catch (eS) {}
             loc._tempReveal = true;
             window._rsRevealPinId = String(loc.id);
@@ -33491,6 +34004,10 @@ function togglePinIconPicker() {
           m.on('click', function(e) {
             if (tryEventLocationFromPin(e)) {
               try { m.closePopup(); } catch (eC2) {}
+              return;
+            }
+            if (tryDistOriginFromPin(e)) {
+              try { m.closePopup(); } catch (eC3) {}
             }
           });
           m.on('popupopen', function() {
@@ -35707,9 +36224,90 @@ function togglePinIconPicker() {
     }
     window.unlockOpenTractsStep = unlockOpenTractsStep;
 
+    function currentHuntSpecies() {
+      return selectedSpecies === 'elk' ? 'elk' : 'deer';
+    }
+    window.currentHuntSpecies = currentHuntSpecies;
+    function packHasElkSeason(pack) {
+      pack = pack || ((typeof activePack === 'function') ? activePack() : null);
+      if (!pack) return false;
+      if (pack.elkHuntUnitGis) return true;
+      if (!pack.seasons || !pack.seasons.length) return false;
+      for (var i = 0; i < pack.seasons.length; i++) {
+        if (pack.seasons[i] && pack.seasons[i].species === 'elk') return true;
+      }
+      return false;
+    }
+    window.packHasElkSeason = packHasElkSeason;
+    function updateSpeciesUi() {
+      var stack = document.getElementById('species-stack');
+      var hasElk = packHasElkSeason();
+      if (stack) {
+        if (hasElk) stack.removeAttribute('hidden');
+        else stack.setAttribute('hidden', '');
+      }
+      if (!hasElk && selectedSpecies !== 'deer') selectedSpecies = 'deer';
+      var dBtn = document.getElementById('spc-deer');
+      var eBtn = document.getElementById('spc-elk');
+      if (dBtn) dBtn.classList.toggle('active', currentHuntSpecies() === 'deer');
+      if (eBtn) eBtn.classList.toggle('active', currentHuntSpecies() === 'elk');
+      try {
+        var hint = document.querySelector('#step-2-section .step-hint');
+        if (hint) {
+          hint.textContent = hasElk
+            ? ((currentHuntSpecies() === 'elk' ? 'Elk' : 'Deer') + ' — this changes which places are open')
+            : 'This changes which places are open';
+        }
+      } catch (eH) {}
+    }
+    window.updateSpeciesUi = updateSpeciesUi;
+    function setSpecies(sp, opts) {
+      opts = opts || {};
+      if (sp !== 'elk') sp = 'deer';
+      if (sp === 'elk' && !packHasElkSeason()) sp = 'deer';
+      selectedSpecies = sp;
+      updateSpeciesUi();
+      if (opts.silent) return;
+      selectedLocationId = null; selectedSubsectionIndex = null;
+      selectedHuntLocRef = null;
+      lastVisibleMarkerKey = '';
+      try {
+        if (typeof clearSelectedHuntOutline === 'function') clearSelectedHuntOutline();
+      } catch (eCl) {}
+      if (typeof updateBottomBarContext === 'function') updateBottomBarContext();
+      if (typeof updateHuntGuide === 'function') updateHuntGuide();
+      ensureMap().then(function() {
+        var pack = typeof activePack === 'function' ? activePack() : null;
+        function afterUnits() {
+          try { if (typeof rebuildStateZoneToggles === 'function') rebuildStateZoneToggles(pack); } catch (eT) {}
+          try { if (typeof drawPackHuntUnits === 'function') drawPackHuntUnits(); } catch (eD) {}
+          updateAvailableList();
+          if (typeof refreshDefaultLocationWeather === 'function') {
+            refreshDefaultLocationWeather({ skipScroll: true });
+          }
+          try {
+            if (typeof setMapDotMenuContent === 'function' && clickLat != null) {
+              setMapDotMenuContent({ fromGps: mapDotMenuSource === 'gps' });
+            }
+          } catch (eDot) {}
+        }
+        if (pack && pack.elkHuntUnitGis) {
+          huntUnitData = null;
+          huntUnitLoading = null;
+          huntUnitCacheCode = '';
+          if (typeof loadPackHuntUnits === 'function') {
+            loadPackHuntUnits(true).then(afterUnits);
+            return;
+          }
+        }
+        afterUnits();
+      });
+    }
+    window.setSpecies = setSpecies;
+
     function setWeapon(w) {
       selectedWeapon = w;
-      document.querySelectorAll('#step-2-section .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('#step-2-section .weapon-stack .filter-btn').forEach(function(b) { b.classList.remove('active'); });
       var btn = document.getElementById('wpn-' + w.toLowerCase());
       if (btn) btn.classList.add('active');
       unlockOpenTractsStep();
@@ -36232,7 +36830,8 @@ function togglePinIconPicker() {
         if (!dialHudVisible) {
           ensureDialHudShown();
           try {
-            var launchMode = (appSettings && appSettings.defaults && appSettings.defaults.dialLaunchMode) || 'wind';
+            var launchMode = (appSettings && appSettings.defaults && appSettings.defaults.dialLaunchMode)
+              || ((typeof SITE_ID !== 'undefined' && SITE_ID === 'hunt') ? 'compass' : 'wind');
             if (typeof setHeadingMode === 'function') {
               setHeadingMode(launchMode === 'compass' ? 'compass' : 'wind', { fromUser: true });
             }
@@ -36637,8 +37236,7 @@ function togglePinIconPicker() {
         } else if (appSettings && appSettings.defaults && appSettings.defaults.dialLaunchMode === 'wind') {
           launchMode = 'wind';
         } else {
-          var phone0 = (typeof isPhoneLayout === 'function') ? isPhoneLayout() : false;
-          launchMode = phone0 ? 'compass' : 'wind';
+          launchMode = (typeof SITE_ID !== 'undefined' && SITE_ID === 'hunt') ? 'compass' : 'wind';
         }
       } catch (eLm) {}
       setHeadingMode(launchMode, { fromUser: false });
@@ -36724,6 +37322,7 @@ function togglePinIconPicker() {
     }
 
     function matchRulesForLocId(rid, date, weapon, land, ds) {
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') return [];
       return rules.filter(function(r) {
         if (r.locId != rid) return false;
         if (ds < r.start || ds > r.end) return false;
@@ -36742,6 +37341,7 @@ function togglePinIconPicker() {
     }
 
     function profileSeasonsOpen(profile, date, weapon, land, ds, loc) {
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') return [];
       if (!profile || !profile.seasons) return [];
       // Block weapons not in allow list (e.g. Gun on Swan Creek) — Youth bypasses via showYouthHunts
       if (weapon !== 'Either' && weapon !== 'Youth' && profile.allow && profile.allow.indexOf(weapon) === -1) {
@@ -36831,6 +37431,10 @@ function togglePinIconPicker() {
       }
       if (loc.noSunday && date.getDay() === 0) return [];
       if (!isInAlabama(loc.lat, loc.lng)) return [];
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk' &&
+          typeof packHasElkSeason === 'function' && !packHasElkSeason()) {
+        return [];
+      }
 
       var apR = typeof activePack === 'function' ? activePack() : null;
       if (apR && typeof apR.matchRules === 'function') {
@@ -36965,6 +37569,7 @@ function togglePinIconPicker() {
      */
     function queryOpenMultiZoneWmaSeasons(date, weapon, land, ds) {
       var out = [];
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') return out;
       if (!wmaZoneFeatures || !wmaZoneFeatures.length) return out;
       // Group by unit
       var byUnit = {};
@@ -37080,6 +37685,10 @@ function togglePinIconPicker() {
 
     function queryOpenSeasons(date, weapon, land) {
       if (!date || !weapon) return [];
+      if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk' &&
+          typeof packHasElkSeason === 'function' && !packHasElkSeason()) {
+        return [];
+      }
       const ds = date.toISOString().split('T')[0];
       const results = [];
       // Ensure zone geometry is loaded before building the list
@@ -39407,6 +40016,7 @@ function togglePinIconPicker() {
       appSettings.tools.measure = g('set-tool-measure');
       appSettings.tools.draw = g('set-tool-draw');
       appSettings.tools.track = g('set-tool-track');
+      if (typeof SITE_ID !== 'undefined' && SITE_ID === 'reg') appSettings.tools.track = false;
       appSettings.tools.gps = g('set-tool-gps');
       appSettings.tools.compass = g('set-show-compass');
       appSettings.tools.enableCompassMode = g('set-enable-compass-mode');
@@ -39545,6 +40155,7 @@ function togglePinIconPicker() {
       var tools = document.getElementById('map-draw-tools');
       if (!tools) return;
       var t = appSettings.tools;
+      if (typeof SITE_ID !== 'undefined' && SITE_ID === 'reg') t.track = false;
       tools.classList.toggle('tool-off-measure', !t.measure);
       tools.classList.toggle('tool-off-draw', !t.draw);
       tools.classList.toggle('tool-off-track', !t.track);
@@ -39620,12 +40231,12 @@ function togglePinIconPicker() {
     function fitMbbDateText(dateEl) {
       if (!dateEl) return;
       var ctx = dateEl.parentElement || document.getElementById('mbb-context');
-      var maxPx = 11;
-      var minPx = 5.5;
+      var maxPx = 13;
+      var minPx = 10;
       try {
         if (document.documentElement.classList.contains('layout-phone')) {
-          maxPx = 10;
-          minPx = 5;
+          maxPx = 11;
+          minPx = 9;
         }
       } catch (e0) {}
       dateEl.style.fontSize = maxPx + 'px';
@@ -39674,6 +40285,14 @@ function togglePinIconPicker() {
           dateEl.style.letterSpacing = '';
         }
       }
+      var spEl = document.getElementById('mbb-species');
+      if (spEl) {
+        var spName = 'Deer';
+        try {
+          if (typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') spName = 'Elk';
+        } catch (eSp) {}
+        spEl.textContent = spName;
+      }
       if (wpnEl) {
         var wLabel = weaponBarLabel(selectedWeapon);
         if (wLabel) {
@@ -39692,10 +40311,13 @@ function togglePinIconPicker() {
       if (ctx) {
         var parts = [];
         if (selectedDate) parts.push(formatMbbLongDate(selectedDate));
+        try {
+          parts.push((typeof currentHuntSpecies === 'function' && currentHuntSpecies() === 'elk') ? 'Elk' : 'Deer');
+        } catch (eSpT) { parts.push('Deer'); }
         if (selectedWeapon) parts.push(displayWeaponName(selectedWeapon));
         ctx.title = parts.length
-          ? ('Change hunt date & weapon · ' + parts.join(' · '))
-          : 'Change hunt date and weapon';
+          ? ('Change hunt date, animal & weapon · ' + parts.join(' · '))
+          : 'Change hunt date, animal and weapon';
       }
       // Compact abbrev rarely needs shrink; still fit if phone is very tight
       if (dateEl && selectedDate) {

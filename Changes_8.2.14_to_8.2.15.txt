@@ -1,0 +1,12 @@
+REG SLAYER 8.2.14 → 8.2.15
+
+- Deer / Elk switch in step 2. Always defaults to deer. Elk is shown only for states with transcribed 2026 general elk seasons.
+- Elk data (official sources only; controlled/limited-entry omitted or noted):
+  - Idaho: IDFG 2026 Big Game brochure pp. 36–49 general A/B zone tags.
+  - Colorado: CPW 2026 Big Game brochure mountain windows (same PDF as deer). Plains elk not encoded.
+  - Utah: DWR 2026 Field Regulations Guidebook p.8 — conservative overlap of spike + any-bull windows.
+  - Montana: FWP 2026 seasons page (Deer & Elk share summary dates). Shoulder seasons omitted.
+- Wyoming elk hunt areas are a different GIS than deer hunt areas — Elk is not offered until that map is wired.
+- Other states: no Elk button (no verified 2026 general-season table in the pack yet).
+- Switching species rebuilds Available Hunts and map can/can’t using elk rows instead of deer.
+- Shell `reg-slayer-shell-v184` (includes `states/elk-2026.js`).

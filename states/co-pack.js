@@ -226,7 +226,14 @@
     { areas: plains, type: 'Archery', arch: ['2026-12-15', '2026-12-31'], muzzle: null, gun: null, quota: '', land: 'Either', target: 'Deer — plains archery', limit: 'Plains archery Dec 15–31. ' + NOTE, closed: false },
     { areas: plains, type: 'Muzzle', arch: null, muzzle: ['2026-10-10', '2026-10-18'], gun: null, quota: '', land: 'Either', target: 'Deer — plains muzzleloader', limit: 'Plains muzzleloader Oct 10–18. ' + NOTE, closed: false },
     { areas: plains, type: 'Rifle', arch: null, muzzle: null, gun: ['2026-10-24', '2026-11-03'], quota: '', land: 'Either', target: 'Deer — plains rifle', limit: 'Plains rifle Oct 24–Nov 3. ' + NOTE, closed: false },
-    { areas: plains, type: 'RifleLate', arch: null, muzzle: null, gun: ['2026-12-01', '2026-12-14'], quota: '', land: 'Either', target: 'Deer — plains late rifle', limit: 'Plains late rifle Dec 1–14 on listed hunt codes. ' + NOTE, closed: false }
+    { areas: plains, type: 'RifleLate', arch: null, muzzle: null, gun: ['2026-12-01', '2026-12-14'], quota: '', land: 'Either', target: 'Deer — plains late rifle', limit: 'Plains late rifle Dec 1–14 on listed hunt codes. ' + NOTE, closed: false },
+    /* Elk — same official 2026 brochure mountain windows. Plains elk not encoded (limited). */
+    { species: 'elk', areas: mountain, type: 'Archery', arch: ['2026-09-02', '2026-09-30'], muzzle: null, gun: null, quota: '', land: 'Either', target: 'Elk — limited hunt code', limit: 'Mountain archery elk Sept 2–30 unless the hunt-code table says otherwise. Most licenses limited. Confirm CPW 2026 Big Game Brochure.', closed: false },
+    { species: 'elk', areas: mountain, type: 'Muzzle', arch: null, muzzle: ['2026-09-12', '2026-09-20'], gun: null, quota: '', land: 'Either', target: 'Elk — limited hunt code', limit: 'Mountain muzzleloader elk Sept 12–20. Most licenses limited. Confirm CPW 2026 Big Game Brochure.', closed: false },
+    { species: 'elk', areas: mountain, type: 'Rifle1', arch: null, muzzle: null, gun: ['2026-10-14', '2026-10-18'], quota: '', land: 'Either', target: 'Elk — first rifle (mostly limited)', limit: 'First rifle elk Oct 14–18. Draw-only in most GMUs. Confirm CPW 2026 Big Game Brochure.', closed: false },
+    { species: 'elk', areas: mountain, type: 'Rifle2', arch: null, muzzle: null, gun: ['2026-10-24', '2026-11-01'], quota: '', land: 'Either', target: 'Elk — second rifle', limit: 'Second rifle elk Oct 24–Nov 1. Some OTC bull licenses; Gunnison 54/55/551 rifle is limited. Confirm CPW 2026 Big Game Brochure.', closed: false },
+    { species: 'elk', areas: mountain, type: 'Rifle3', arch: null, muzzle: null, gun: ['2026-11-07', '2026-11-15'], quota: '', land: 'Either', target: 'Elk — third rifle', limit: 'Third rifle elk Nov 7–15. Some OTC bull licenses. Confirm CPW 2026 Big Game Brochure.', closed: false },
+    { species: 'elk', areas: mountain, type: 'Rifle4', arch: null, muzzle: null, gun: ['2026-11-18', '2026-11-22'], quota: '', land: 'Either', target: 'Elk — fourth rifle', limit: 'Fourth rifle elk Nov 18–22. Confirm hunt code. Confirm CPW 2026 Big Game Brochure.', closed: false }
   ];
 
   function colorForArea(n) {
@@ -256,6 +263,19 @@
     }
     return out;
   }
+  function unitHasSpeciesSeason(id, species) {
+    species = species || 'deer';
+    var n = Number(id);
+    var rows = [];
+    for (var i = 0; i < seasons.length; i++) {
+      var r = seasons[i];
+      var sp = (r.species === 'elk') ? 'elk' : 'deer';
+      if (sp !== species || r.closed) continue;
+      if (r.areas === 'ALL' || r.areas == null) return true;
+      if (r.areas && r.areas.indexOf(n) !== -1) rows.push(r);
+    }
+    return rows.length > 0;
+  }
   function inWin(ds, win) {
     return !!(win && win[0] && win[1] && ds >= win[0] && ds <= win[1]);
   }
@@ -269,13 +289,16 @@
     if (rowLand === 'OffNF') return locSource !== 'usfs';
     return true;
   }
-  function matchRules(areaNum, dateStr, weapon, land, locSource) {
+  function matchRules(areaNum, dateStr, weapon, land, locSource, species) {
+    species = species || ((typeof window.currentHuntSpecies === 'function') ? window.currentHuntSpecies() : 'deer');
     var rows = rowsForArea(areaNum);
     var out = [];
     var meta = areaMeta(areaNum);
     var label = meta ? ('GMU ' + meta.n + ' — ' + meta.name) : ('GMU ' + areaNum);
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
+      var rowSp = (r.species === 'elk') ? 'elk' : 'deer';
+      if (rowSp !== species) continue;
       if (r.closed) continue;
       if (!landOk(r.land, land, locSource)) continue;
       var hit = null;
@@ -421,6 +444,7 @@
     outFields: 'GMUID,COUNTY,DEERDAU',
     unitLabel: 'GMU',
     overlayFoldLabel: 'Deer GMUs',
+    overlayFoldLabelElk: 'Elk GMUs',
     confirmLabel: 'CPW 2026 Big Game Brochure',
     lawLabel: 'CPW 2026 Big Game Brochure — deer',
     agencyLabel: 'Colorado Parks & Wildlife — hunting deer',
@@ -443,6 +467,7 @@
     areaMeta: areaMeta,
     regionForUnit: regionForUnit,
     rowsForArea: rowsForArea,
+    unitHasSpeciesSeason: unitHasSpeciesSeason,
     matchRules: matchRules,
     anyOpen: anyOpen,
     layers: layers,

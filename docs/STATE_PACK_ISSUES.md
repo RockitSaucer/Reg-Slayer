@@ -10,6 +10,24 @@ Work folder: `_push_reg_slayer/` only (not production-pushed). Date: 2026-08-19.
 
 **Accuracy rule:** if the official 2026 PDF/page was not opened and quoted, the pack is not `full`. Huntwise/OnX/GOHUNT were not used as date sources. When a split was missing, the pack uses the **overlap / shorter window** so closed land never shows open.
 
+### Elk (V8.2.17)
+Elk is a species switch, not a second product. Default is always **deer**. The Elk button appears only when the pack has transcribed 2026 **general** elk rows (`states/elk-2026.js` + Colorado mountain windows in `co-pack.js`). Rules & regs on Elk uses `RS_ELK_SOURCES` admin-code / commission-order URLs (Alabama pattern: law + agency digest).
+
+| State | Elk in app? | Source | Legislation in Rules & regs | Not encoded |
+|-------|-------------|--------|-----------------------------|-------------|
+| ID | Yes | IDFG 2026 brochure pp. 36–49 general A/B tags | IDAPA 13.01.08 | Controlled hunts; Owyhee zone (controlled only); some private-ag hunts marked Private |
+| CO | Yes | Same CPW 2026 brochure as deer | 2 CCR 406-2 | Plains elk; hunt-code limited vs OTC per GMU |
+| UT | Yes | DWR 2026 guidebook p.8 | Utah Admin. Code R657-5 | Any-bull-only extra days; Paunsaugunt archery exception; extended archery |
+| MT | Yes | FWP 2026 seasons page (Deer & Elk) | ARM Title 12 | Shoulder seasons; per-HD bull vs cow |
+| OR | Yes | eRegulations elk seasons Mar 31, 2026 | OAR 635-065 | Controlled 200-series; unit 48/51 rifle portions; most damage-tag portions |
+| WA | Yes | WAC 220-415-050 + eRegulations May 1, 2026 | WAC 220-415-050 | Permit-only GMUs; master-hunter-only; elk-area polygons (not GMUs) |
+| NV | Yes | eRegulations elk hunting May 27, 2026 (NAC 502.361) | NAC 502.361 | Spike, antlerless, depredation (draw, separate tags). All elk is draw. |
+| KY | Yes | 301 KAR 2:132 §9 date formulas on the 16-county zone | 301 KAR 2:132 | Out-of-zone (follows deer seasons); unit assignment inside the zone |
+| WY | Yes | Chapter 7 + WGFD ElkHuntAreas GIS (not deer hunt areas). Closed 72/79 hidden. | Chapter 7 PDF | Full Chapter 7 type table not fully transcribed; overlay shows elk hunt areas. Dates encoded for listed general/type-1 areas. |
+| PA | No | PGC 2026-27 seasons page has elk dates | 58 Pa. Code § 139.4 stored | Elk hunt zones 301–309 ≠ WMU overlay (need elk-zone GIS) |
+| AZ / NM / CA | No | Draw / limited-entry | Commission Order 26 / 19.31.8 NMAC / 14 CCR § 364 stored | No 2026 general OTC table transcribed |
+| AL + other packs | No | — | — | No verified 2026 general-season table in the pack |
+
 ---
 
 ## Already full before this sitting

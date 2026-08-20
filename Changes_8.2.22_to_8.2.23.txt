@@ -1,0 +1,5 @@
+REG SLAYER 8.2.22 → 8.2.23
+
+- Step 3 Pin: first map tap now drops the chooser on WMA / zone / public-land overlays too (those clicks were swallowing the pin).
+- Pin button always arms the next tap so the first click is consistent.
+- Shell `reg-slayer-shell-v192`. Not pushed.

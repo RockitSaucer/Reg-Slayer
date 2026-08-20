@@ -1,0 +1,6 @@
+REG SLAYER 8.2.27 → 8.2.28
+
+- Shared app with Hunt: states, elk, pin-origin, 3DEP terrain, layouts.
+- Field-only tools stay Hunt: GPS track, live share-location / other members.
+- Pin “Add photo” removed on Reg.
+- Shell `reg-slayer-shell-v197`.

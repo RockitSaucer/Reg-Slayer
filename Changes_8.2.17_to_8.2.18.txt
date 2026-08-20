@@ -1,0 +1,6 @@
+REG SLAYER 8.2.17 → 8.2.18
+
+- Step 3 Starting from: added Pin next to My Location / ZIP / Address.
+- Pin opens an in-app picker of saved pins. Tap a pin to measure distance from it.
+- New pin: tap the map (or use the current map dot), save in the pin editor, then that pin becomes the distance origin.
+- Shell `reg-slayer-shell-v187`. Not pushed.

@@ -1,0 +1,6 @@
+REG SLAYER 8.2.25 → 8.2.26
+
+- State button is highlighted. How to use + 1-2-3 sit under the header buttons.
+- Default map dial is Wind (existing Reg installs migrate once). Hunt stays Compass.
+- Date / animal / weapon chip: larger type and brighter colors on the dark green button.
+- Shell `reg-slayer-shell-v195`. Not pushed.

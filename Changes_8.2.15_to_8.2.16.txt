@@ -1,0 +1,11 @@
+REG SLAYER 8.2.15 → 8.2.16
+
+- Pulled remaining 2026 elk general seasons from official tables / admin code (not Huntwise/OnX). Elk button still only where rows exist; always defaults to deer.
+- New elk rows (`states/elk-2026.js`):
+  - Oregon: ODFW eRegulations Elk Seasons (updated Mar 31, 2026) — West Cascade / Coast 1st & 2nd / East RM 2nd general rifle + general archery by unit. Controlled 200-series omitted. Unit 48/51 rifle portions omitted. Damage tag only on whole units 15, 23, 40, 43, 44 (Private).
+  - Washington: WAC 220-415-050 (legislation) + eRegulations May 1, 2026 — modern firearm, early/late archery, early/late muzzleloader by GMU list. Permit-only and closed GMUs omitted. Master-hunter-only omitted.
+  - Nevada: eRegulations Elk Hunting May 27, 2026 (NAC 502.361) — draw-only antlered hunts by unit group. Spike, antlerless, depredation omitted.
+  - Kentucky: 301 KAR 2:132 §9 date formulas on the 16-county restoration zone only. Quota hunt. Out-of-zone (deer-season elk) not encoded statewide.
+- Rules & regs: when Elk is selected, Legislation is the admin code / commission order (Alabama pattern) and Source is the agency elk digest. `RS_ELK_SOURCES` covers ID, CO, UT, MT, OR, WA, NV, KY (live) plus PA, AZ, NM, WY, CA (law URLs stored; no season rows yet).
+- Not encoded (same strictness as deer): WY (elk hunt-area GIS ≠ 2026 deer areas), PA (elk zones 301–309 ≠ WMU overlay), AZ/NM/CA (draw / limited-entry, no 2026 general OTC table transcribed).
+- Shell `reg-slayer-shell-v185`. Not pushed.

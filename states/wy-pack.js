@@ -477,6 +477,13 @@
     { areas:[171], type:'3', arch:['2026-09-01','2026-09-30'], gun:['2026-10-01','2026-12-31'], quota:'150', land:'Either', target:'Any white-tailed deer', limit:'Any white-tailed deer', muzzleOnly:false, closed:false },
     { areas:[171], type:'6', arch:['2026-09-01','2026-09-30'], gun:['2026-10-01','2026-12-31'], quota:'350', land:'Either', target:'Doe or fawn', limit:'Doe or fawn', muzzleOnly:false, closed:false },
   ];
+  (function mergeElk() {
+    var extra = (window.RS_ELK_SEASONS && window.RS_ELK_SEASONS.WY) || [];
+    extra.forEach(function (r) {
+      if (!r) return;
+      seasons.push(Object.assign({}, r, { species: 'elk' }));
+    });
+  })();
 
   function colorForArea(n) {
     var i = Number(n) || 0;
@@ -495,6 +502,18 @@
       if (seasons[i].areas.indexOf(n) !== -1) out.push(seasons[i]);
     }
     return out;
+  }
+  function unitHasSpeciesSeason(id, species) {
+    species = species || 'deer';
+    var n = Number(id);
+    for (var i = 0; i < seasons.length; i++) {
+      var r = seasons[i];
+      var sp = (r.species === 'elk') ? 'elk' : 'deer';
+      if (sp !== species || r.closed) continue;
+      if (r.areas === 'ALL' || r.areas == null) return true;
+      if (r.areas && r.areas.indexOf(n) !== -1) return true;
+    }
+    return false;
   }
   function weaponUsesArchery(weapon) {
     return weapon === 'Archery' || weapon === 'Either';
@@ -515,13 +534,16 @@
   function inWin(ds, win) {
     return !!(win && win[0] && win[1] && ds >= win[0] && ds <= win[1]);
   }
-  function matchRules(areaNum, dateStr, weapon, land, locSource) {
+  function matchRules(areaNum, dateStr, weapon, land, locSource, species) {
+    species = species || ((typeof window.currentHuntSpecies === 'function') ? window.currentHuntSpecies() : 'deer');
     var rows = rowsForArea(areaNum);
     var out = [];
     var meta = areaMeta(areaNum);
     var label = meta ? ('Hunt Area ' + meta.n + ' — ' + meta.name) : ('Hunt Area ' + areaNum);
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
+      var rowSp = (r.species === 'elk') ? 'elk' : 'deer';
+      if (rowSp !== species) continue;
       if (r.closed) continue;
       if (!landOk(r.land, land, locSource)) continue;
       var hit = null;
@@ -660,6 +682,11 @@
     regsUrl: 'https://wgfd.wyo.gov/regulations',
     huntUnitGis: GIS + '/2026_Deer_Hunt_Areas/FeatureServer/0/query',
     huntAreaGis: GIS + '/2026_Deer_Hunt_Areas/FeatureServer/0/query',
+    elkHuntUnitGis: GIS + '/ElkHuntAreas/FeatureServer/0/query',
+    elkOutFields: 'HUNTAREA,HUNTNAME,HERDNAME,Region,SqMiles',
+    elkClosedAreas: [72, 79],
+    overlayFoldLabel: 'Deer hunt areas',
+    overlayFoldLabelElk: 'Elk hunt areas',
     unitField: 'HUNTAREA',
     unitNameField: 'HUNTNAME',
     regionField: 'Region',
@@ -685,6 +712,7 @@
     colorForArea: colorForArea,
     areaMeta: areaMeta,
     rowsForArea: rowsForArea,
+    unitHasSpeciesSeason: unitHasSpeciesSeason,
     matchRules: matchRules,
     anyOpen: anyOpen,
     layers: layers,

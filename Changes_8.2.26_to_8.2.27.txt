@@ -1,0 +1,5 @@
+REG SLAYER 8.2.26 → 8.2.27
+
+- State button sits to the right of the map-name chip, top-left above the map.
+- How to use + 1-2-3 steps sit at the top of the planner, above calendar/weather.
+- Shell `reg-slayer-shell-v196`. Not pushed.

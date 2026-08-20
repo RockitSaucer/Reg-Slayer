@@ -1,0 +1,4 @@
+REG SLAYER 8.2.21 → 8.2.22
+
+- Step 3 Pin chooser: drop/remove the purple pin immediately. Hunt-list rebuild and weather wait until after the pin paints (was causing lag).
+- Shell `reg-slayer-shell-v191`. Not pushed.

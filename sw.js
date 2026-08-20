@@ -2,7 +2,7 @@
  * Caches app shell for return visits with no signal.
  * Map tiles: cache-first when already stored; network otherwise (then cache).
  */
-const SHELL_CACHE = 'reg-slayer-shell-v183';
+const SHELL_CACHE = 'reg-slayer-shell-v197';
 const TILE_CACHE = 'reg-slayer-tiles-v2';
 const DATA_CACHE = 'reg-slayer-data-v1';
 /** Soft cap on cached map tiles (~18KB avg → ~45MB). Oldest entries dropped first. */
@@ -36,6 +36,7 @@ const SHELL_ASSETS = [
   './states/catalog.js',
   './states/us-rings.js',
   './states/pack-host.js',
+  './states/elk-2026.js',
   './states/pack-lib.js',
   './states/wy-pack.js',
   './states/co-pack.js',
@@ -160,6 +161,7 @@ function isTileUrl(url) {
     // Radar frames: network-only (do not fill disk with ephemeral frames)
     if (h.includes('tilecache.rainviewer.com')) return false;
     if (h.includes('basemap.nationalmap.gov')) return true;
+    if (h.includes('elevation.nationalmap.gov')) return true;
     if (h.includes('basemaps.cartocdn.com')) return true;
     if (h.includes('arcgisonline.com') && u.pathname.includes('/tile/')) return true;
     if (h.includes('wayback.maptiles.arcgis.com') && u.pathname.includes('/tile/')) return true;

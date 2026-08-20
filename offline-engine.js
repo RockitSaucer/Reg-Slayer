@@ -102,9 +102,7 @@
     },
     lidar: {
       label: 'Terrain (USGS 3DEP)',
-      urls: [
-        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}'
-      ]
+      urls: []
     }
   };
 
@@ -177,6 +175,25 @@
     return listTileUrlsForBbox(south, north, west, east, basemapKey, zMin, zMax, listOpts, patterns);
   }
 
+  function lidarTileUrl(x, y, z) {
+    if (typeof global.usgs3depHillshadeTileUrl === 'function') {
+      return global.usgs3depHillshadeTileUrl(x, y, z, 256);
+    }
+    var origin = 20037508.342789244;
+    var n = Math.pow(2, z);
+    var tileM = (origin * 2) / n;
+    var xmin = x * tileM - origin;
+    var ymax = origin - y * tileM;
+    var bbox = xmin + ',' + (ymax - tileM) + ',' + (xmin + tileM) + ',' + ymax;
+    return 'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage'
+      + '?bbox=' + bbox
+      + '&bboxSR=3857&imageSR=3857'
+      + '&size=256,256'
+      + '&format=jpgpng&interpolation=RSP_BilinearInterpolation'
+      + '&renderingRule=' + encodeURIComponent('{"rasterFunction":"Hillshade Gray-Stretch"}')
+      + '&f=image';
+  }
+
   function listTileUrlsForBbox(south, north, west, east, basemapKey, zMin, zMax, listOpts, patternsOpt) {
     basemapKey = basemapKey || 'topo';
     zMin = zMin != null ? zMin : ZOOM_MIN;
@@ -212,16 +229,24 @@
       }
       for (var x = x0; x <= x1; x++) {
         for (var y = y0; y <= y1; y++) {
-          patterns.forEach(function (pattern) {
-            var u = pattern
-              .replace('{z}', String(z))
-              .replace('{x}', String(x))
-              .replace('{y}', String(y));
-            if (!seen[u]) {
-              seen[u] = 1;
-              urls.push(u);
+          if (basemapKey === 'lidar') {
+            var lu = lidarTileUrl(x, y, z);
+            if (!seen[lu]) {
+              seen[lu] = 1;
+              urls.push(lu);
             }
-          });
+          } else {
+            patterns.forEach(function (pattern) {
+              var u = pattern
+                .replace('{z}', String(z))
+                .replace('{x}', String(x))
+                .replace('{y}', String(y));
+              if (!seen[u]) {
+                seen[u] = 1;
+                urls.push(u);
+              }
+            });
+          }
         }
       }
     }

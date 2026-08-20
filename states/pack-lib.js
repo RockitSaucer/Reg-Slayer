@@ -253,7 +253,12 @@
   function build(spec) {
     if (!spec || !spec.code) throw new Error('pack spec missing code');
     var areas = spec.areas || {};
-    var seasons = spec.seasons || [];
+    var seasons = (spec.seasons || []).slice();
+    var extraElk = (window.RS_ELK_SEASONS && window.RS_ELK_SEASONS[spec.code]) || [];
+    extraElk.forEach(function (r) {
+      if (!r) return;
+      seasons.push(Object.assign({}, r, { species: 'elk' }));
+    });
     var unitLabel = spec.unitLabel || 'Hunt unit';
     var primitiveUsesGun = !!spec.primitiveUsesGun;
     var regionColors = spec.regionColors || { U: '#5b8def' };
@@ -279,12 +284,24 @@
     function rowIsStatewide(r) {
       return !r || r.areas === 'ALL' || r.areas == null;
     }
-    function rowsForArea(id) {
+    function rowSpecies(r) {
+      return (r && r.species === 'elk') ? 'elk' : 'deer';
+    }
+    function currentSpecies() {
+      try {
+        if (typeof window.currentHuntSpecies === 'function') return window.currentHuntSpecies();
+        if (window.selectedSpecies === 'elk') return 'elk';
+      } catch (eS) {}
+      return 'deer';
+    }
+    function rowsForArea(id, species) {
+      species = species || currentSpecies();
       var nid = normId(id);
       var k = areaKey(areas, nid);
       if (k == null) k = areaKey(areas, id);
       var out = [];
       for (var i = 0; i < seasons.length; i++) {
+        if (rowSpecies(seasons[i]) !== species) continue;
         if (rowIsStatewide(seasons[i]) || rowHasArea(seasons[i], nid, k) || rowHasArea(seasons[i], id, k)) {
           out.push(seasons[i]);
         }
@@ -292,16 +309,26 @@
       return out;
     }
     function calendarIsStatewide() {
-      if (!seasons.length) return false;
-      return seasons.every(function (r) {
+      var species = currentSpecies();
+      var rows = seasons.filter(function (r) { return rowSpecies(r) === species; });
+      if (!rows.length) return false;
+      return rows.every(function (r) {
         if (rowIsStatewide(r)) return true;
         return !!(r.areas && r.areas.length && Object.keys(areas).length &&
           r.areas.length >= Math.max(3, Object.keys(areas).length * 0.85));
       });
     }
-    function matchRules(areaNum, dateStr, weapon, land, locSource) {
+    function unitHasSpeciesSeason(id, species) {
+      species = species || currentSpecies();
+      var rows = seasons.filter(function (r) { return rowSpecies(r) === species && !r.closed; });
+      if (!rows.length) return false;
+      if (rows.some(rowIsStatewide)) return true;
+      return rowsForArea(id, species).length > 0;
+    }
+    function matchRules(areaNum, dateStr, weapon, land, locSource, species) {
       areaNum = normId(areaNum);
-      var rows = rowsForArea(areaNum);
+      species = species || currentSpecies();
+      var rows = rowsForArea(areaNum, species);
       var out = [];
       var meta = areaMeta(areaNum);
       var label = meta
@@ -348,11 +375,12 @@
       }
       return out;
     }
-    function matchStatewide(dateStr, weapon, land, locSource) {
+    function matchStatewide(dateStr, weapon, land, locSource, species) {
+      species = species || currentSpecies();
       if (!calendarIsStatewide()) return [];
       var keys = Object.keys(areas);
-      if (!keys.length) return matchRules('ALL', dateStr, weapon, land, locSource);
-      return matchRules(keys[0], dateStr, weapon, land, locSource);
+      if (!keys.length) return matchRules('ALL', dateStr, weapon, land, locSource, species);
+      return matchRules(keys[0], dateStr, weapon, land, locSource, species);
     }
 
     var pack = {
@@ -367,12 +395,20 @@
       huntUnitGis: spec.huntUnitGis,
       huntAreaGis: spec.huntUnitGis,
       huntUnitWhere: spec.huntUnitWhere || '1=1',
+      elkHuntUnitGis: spec.elkHuntUnitGis || '',
+      elkHuntUnitWhere: spec.elkHuntUnitWhere || '',
+      elkUnitField: spec.elkUnitField || '',
+      elkUnitNameField: spec.elkUnitNameField || '',
+      elkRegionField: spec.elkRegionField || '',
+      elkOutFields: spec.elkOutFields || '',
+      elkClosedAreas: spec.elkClosedAreas || [],
       unitField: spec.unitField,
       unitNameField: spec.unitNameField,
       regionField: spec.regionField || '',
       outFields: spec.outFields,
       unitLabel: unitLabel,
       overlayFoldLabel: spec.overlayFoldLabel || ('Deer ' + unitLabel.toLowerCase() + 's'),
+      overlayFoldLabelElk: spec.overlayFoldLabelElk || '',
       confirmLabel: spec.confirmLabel || spec.agency,
       lawLabel: spec.lawLabel || ((spec.agency || spec.name) + ' deer regulations'),
       agencyLabel: spec.agencyLabel || ((spec.agency || spec.name) + ' — hunting'),
@@ -392,12 +428,18 @@
       matchRules: matchRules,
       matchStatewide: matchStatewide,
       calendarIsStatewide: calendarIsStatewide,
+      unitHasSpeciesSeason: unitHasSpeciesSeason,
       anyOpen: function (a, d, w, l, s) { return matchRules(a, d, w, l, s).length > 0; },
       layers: function () { return standardLayers(spec); },
       extraVsAlabama: spec.extraVsAlabama || [],
       primitiveUsesGun: primitiveUsesGun,
       accuracyNotes: spec.accuracyNotes || []
     };
+    var elkSrc = (window.RS_ELK_SOURCES && window.RS_ELK_SOURCES[spec.code]) || {};
+    pack.elkLawUrl = spec.elkLawUrl || elkSrc.lawUrl || '';
+    pack.elkLawLabel = spec.elkLawLabel || elkSrc.lawLabel || '';
+    pack.elkAgencyUrl = spec.elkAgencyUrl || elkSrc.agencyUrl || '';
+    pack.elkAgencyLabel = spec.elkAgencyLabel || elkSrc.agencyLabel || '';
     return pack;
   }
 

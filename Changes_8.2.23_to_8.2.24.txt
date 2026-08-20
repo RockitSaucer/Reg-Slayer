@@ -1,0 +1,4 @@
+REG SLAYER 8.2.23 → 8.2.24
+
+- Step 3 Pin: no more flash of Save/Remove (or overlay) popup on the tap that drops the chooser pin.
+- Shell `reg-slayer-shell-v193`. Not pushed.
