@@ -11964,7 +11964,7 @@
     <div class="brand-logo-wrap">
       <div class="brand-title" id="brand-title-text">Reg <span>Slayer</span></div>
       <div class="brand-tagline" id="brand-tagline-text">Know before you go</div>
-      <span class="brand-version" aria-label="Version 9.0.10 Beta">V9.0.10 Beta</span>
+      <span class="brand-version" aria-label="Version 9.0.11 Beta">V9.0.11 Beta</span>
     </div>
     <div class="brand-header-actions">
       <button type="button" class="brand-report-btn" id="brand-report-issue-btn" title="Report a problem with the app">Report an issue</button>
@@ -13677,7 +13677,7 @@
 
   <script>
     // ========== STATE ==========
-    const APP_VERSION = '9.0.10-beta';
+    const APP_VERSION = '9.0.11-beta';
     /** Site brand: 'hunt' (huntslayer.com) or 'reg' (regslayer.com) — drives first-launch defaults only. */
     const SITE_ID = 'reg';
     // #91 Plan-style text brand by site
@@ -14929,6 +14929,66 @@
     }
 
     /**
+     * Official SOA unit maps. ADCNR GIS MapLink for Chalk Hill and Shelby is
+     * swapped (Chalk Hill's MapLink is the Shelby PDF and vice versa) — #152.
+     * Name lookup wins over GIS for SOAs.
+     */
+    const SOA_AREA_MAP_PDFS = {
+      'blackwater': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOA-BlackwaterR300.pdf',
+      'cedar creek': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOACedarCr.pdf',
+      'chalk hill': 'https://www.outdooralabama.com/sites/default/files/PDF%20documents/SOA%20PDF%20Downloads/SOA%20Chalk%20Hill%20ADA.pdf',
+      'choctaw': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOA%20Choctaw300a.pdf',
+      'crow creek': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2022-2023/SOA/SOA%20Crow%20Creek.pdf',
+      'frank jackson': 'https://www.alapark.com/sites/default/files/2021-08/FrankJacksonSPSOA%20Map.pdf',
+      'fred t. stimpson': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2022-2023/SOA/SOA%20Fred%20T%20Stimpson.pdf',
+      'little river state forest': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2023-2024/SOA/SOA_Little_River.pdf',
+      'oak mountain': 'https://www.alapark.com/sites/default/files/2021-08/SOA%20OAKmountain2021-22.pdf',
+      'portland landing': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOA-%20portland.pdf',
+      'prairie glades': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOA%20Prairie%20Glades.pdf',
+      'shelby': 'https://www.outdooralabama.com/sites/default/files/PDF%20documents/SOA%20PDF%20Downloads/SOAshelbyB%20ADA.pdf',
+      'thigpen': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2023-2024/SOA/SOA-ThigpenP.pdf',
+      'uchee': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOA-Uchee%20SOA300.pdf',
+      'upper state': 'https://www.outdooralabama.com/sites/default/files/Wildlife/wildlife-management-areas/2021-2022/SOA/SOA%20UpperState300a.pdf'
+    };
+
+    function lookupSoaAreaMapPdf(name) {
+      if (typeof isAlabamaPack === 'function' && !isAlabamaPack()) return null;
+      if (!name) return null;
+      var n = String(name).toLowerCase().replace(/[^a-z0-9\s.\-]/g, ' ').replace(/\s+/g, ' ').trim();
+      var keys = Object.keys(SOA_AREA_MAP_PDFS).sort(function(a, b) { return b.length - a.length; });
+      for (var i = 0; i < keys.length; i++) {
+        if (n.indexOf(keys[i]) !== -1) {
+          return {
+            url: SOA_AREA_MAP_PDFS[keys[i]],
+            label: 'Official AREA map (PDF) · Outdoor Alabama SOA',
+            source: 'soa-pdf'
+          };
+        }
+      }
+      return null;
+    }
+
+    /** Skip a GIS PDF whose filename is clearly another unit (Chalk Hill ↔ Shelby). */
+    function gisPdfFilenameMatchesUnit(url, name) {
+      if (!url || !name) return true;
+      var file = decodeURIComponent(String(url).split('?')[0].split('/').pop() || '').toLowerCase();
+      if (!/\.pdf$/i.test(file)) return true;
+      var unitTokens = String(name).toLowerCase()
+        .replace(/special\s*opportunity|\bsoa\b|wildlife\s*management|\bwma\b|state\s*park|\bnwr\b/gi, ' ')
+        .match(/[a-z]{4,}/g) || [];
+      if (!unitTokens.length) return true;
+      if (unitTokens.some(function(t) { return file.indexOf(t) !== -1; })) return true;
+      var known = Object.keys(SOA_AREA_MAP_PDFS);
+      for (var i = 0; i < known.length; i++) {
+        var parts = known[i].split(/\s+/);
+        var inFile = parts.some(function(t) { return t.length >= 4 && file.indexOf(t) !== -1; });
+        var inName = parts.some(function(t) { return t.length >= 4 && String(name).toLowerCase().indexOf(t) !== -1; });
+        if (inFile && !inName) return false;
+      }
+      return true;
+    }
+
+    /**
      * Best available map / rules link for a unit.
      * Prefer GIS map/permit PDF, then OA WMA AREA PDFs, then known unit pages, then hubs.
      */
@@ -14959,6 +15019,12 @@
         return { url: off.law.url, label: off.law.label, source: 'fallback' };
       }
 
+      // 0) SOA unit PDFs by name — GIS MapLink for Chalk Hill/Shelby is swapped (#152)
+      if (layerKey === 'soa' || /special\s*opportunity|\bsoa\b/i.test(n)) {
+        var soaHit = lookupSoaAreaMapPdf(n);
+        if (soaHit) return soaHit;
+      }
+
       // 1) GIS-provided map / AREA permit (most current unit PDF when present)
       var gisCandidates = [
         { url: attrs.Hunting_Website || attrs.Station_Website, label: 'Refuge hunting map & rules (FWS)' },
@@ -14971,6 +15037,7 @@
         if (u && String(u).indexOf('http') === 0) {
           // Prefer real PDF / map links over generic hunting hub
           var us = String(u);
+          if (!gisPdfFilenameMatchesUnit(us, n)) continue;
           if (/\.pdf(\?|$)/i.test(us) || /WMA%20Mamps|wildlife-management-areas/i.test(us)) {
             return { url: us, label: gisCandidates[i].label, source: 'gis' };
           }
@@ -15788,10 +15855,14 @@
             outdoorAlabama.push({ label: p.label, url: p.url });
           }
         });
-        // Official AREA map PDF — prefer GIS Link, then built-in 2026–27 WMA PDF table
+        // Official AREA map PDF — SOA name table first (GIS Chalk Hill/Shelby swapped),
+        // then GIS PDF if the filename matches this unit, then WMA PDF table.
         var gisLink = attrs.Link || attrs.PageLink || attrs.TractInfoL || attrs.MapLink || attrs.PMapLink || attrs.Link2 || '';
+        var soaLookup = lookupSoaAreaMapPdf(name);
         var pdfLookup = lookupWmaAreaMapPdf(name);
-        if (gisLink && /\.pdf(\?|$)/i.test(String(gisLink))) {
+        if (soaLookup) {
+          outdoorAlabama.unshift({ label: soaLookup.label, url: soaLookup.url });
+        } else if (gisLink && /\.pdf(\?|$)/i.test(String(gisLink)) && gisPdfFilenameMatchesUnit(gisLink, name)) {
           outdoorAlabama.unshift({ label: 'Official AREA map (PDF) · Outdoor Alabama 2026–27', url: gisLink });
         } else if (pdfLookup) {
           outdoorAlabama.unshift({ label: pdfLookup.label, url: pdfLookup.url });

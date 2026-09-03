@@ -1,0 +1,6 @@
+REG SLAYER 9.0.10 → 9.0.11 Beta
+
+- Chalk Hill SOA Rules & regs no longer opens the Shelby SOA map.
+  ADCNR GIS has those two MapLinks swapped; we look up SOA PDFs by
+  unit name first and skip a GIS PDF whose filename is another SOA.
+- Shell `reg-slayer-shell-v210`.
